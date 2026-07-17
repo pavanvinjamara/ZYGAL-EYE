@@ -31,7 +31,7 @@ app.get("/", (req, res) => {
 /**
  * Routes
  */
-// app.use('/api/v1', require('./routes/index'));
+app.use("/api/v1", require("./src/routes"));
 
 /**
  * Start Server
