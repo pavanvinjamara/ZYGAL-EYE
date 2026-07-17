@@ -1,0 +1,3264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IIFL EYE — Vendor Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --orange: #EA580C;
+  --orange-light: #FFF7ED;
+  --orange-mid: rgba(234,88,12,0.12);
+  --navy: #1E293B;
+  --navy-mid: #334155;
+  --slate: #F8FAFC;
+  --border: #E2E8F0;
+  --border-mid: #F1F5F9;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --green: #059669;
+  --green-light: rgba(5,150,105,0.08);
+  --amber: #D97706;
+  --amber-light: rgba(217,119,6,0.1);
+  --red: #DC2626;
+  --red-light: rgba(220,38,38,0.08);
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Inter', sans-serif;
+  --radius: 8px;
+}
+
+body {
+  font-family: var(--sans);
+  background: #F1F5F9;
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+/* ─── LOGIN SCREEN ─── */
+#login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0C1A2E 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+#login-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 50%, rgba(234,88,12,0.08) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 20%, rgba(8,145,178,0.06) 0%, transparent 50%);
+}
+
+.login-grid {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.login-box {
+  position: relative;
+  z-index: 10;
+  width: 420px;
+  background: rgba(255,255,255,0.97);
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.login-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.login-logo-eye {
+  width: 44px;
+  height: 44px;
+  background: var(--orange);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-logo-text {
+  text-align: left;
+}
+
+.login-logo-name {
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--navy);
+  letter-spacing: 0.06em;
+}
+
+.login-logo-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+.login-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.login-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--text-primary);
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.form-input:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(234,88,12,0.1); }
+
+.form-select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--text-primary);
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394A3B8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.form-select:focus { border-color: var(--orange); }
+
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--orange);
+  color: white;
+  border: none;
+  border-radius: 7px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-top: 8px;
+  letter-spacing: 0.02em;
+}
+
+.login-btn:hover { background: #C2410C; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(234,88,12,0.35); }
+.login-btn:active { transform: translateY(0); }
+
+.login-footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.login-divider::before, .login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ─── MAIN APP ─── */
+#app { display: none; height: 100vh; flex-direction: column; }
+#app.visible { display: flex; }
+
+/* TOP BAR */
+.topbar {
+  height: 52px;
+  background: var(--navy);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 16px;
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar-logo-icon {
+  width: 30px;
+  height: 30px;
+  background: var(--orange);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.topbar-logo-name {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.08em;
+}
+
+.topbar-logo-sub {
+  font-size: 9px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.06em;
+}
+
+.topbar-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255,255,255,0.12);
+}
+
+.topbar-vendor-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 4px 12px 4px 8px;
+}
+
+.topbar-vendor-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.topbar-vendor-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+}
+
+.topbar-vendor-role {
+  font-size: 10px;
+  color: rgba(255,255,255,0.45);
+}
+
+.topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar-badge {
+  position: relative;
+  cursor: pointer;
+}
+
+.topbar-badge-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  border: 2px solid var(--navy);
+}
+
+.topbar-time {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+}
+
+.topbar-logout {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: all 0.12s;
+}
+
+.topbar-logout:hover { color: white; border-color: rgba(255,255,255,0.3); }
+
+/* BODY LAYOUT */
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 200px;
+  background: white;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.nav-group-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 16px 16px 5px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-secondary);
+  border-left: 3px solid transparent;
+  transition: all 0.12s;
+  position: relative;
+}
+
+.nav-item:hover { background: var(--slate); color: var(--text-primary); }
+
+.nav-item.active {
+  background: var(--orange-light);
+  color: var(--orange);
+  border-left-color: var(--orange);
+  font-weight: 600;
+}
+
+.nav-icon { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.65; }
+.nav-item.active .nav-icon { opacity: 1; }
+
+.nav-count {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+  background: var(--red);
+  color: white;
+}
+
+.nav-count.warn { background: var(--amber); }
+.nav-count.ok { background: var(--green); color: white; }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+}
+
+.sidebar-sla-mini {
+  background: var(--slate);
+  border-radius: 7px;
+  padding: 10px 12px;
+}
+
+.ssm-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.ssm-score {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ssm-track {
+  margin-top: 6px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.ssm-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--green);
+  transition: width 0.6s ease;
+}
+
+/* MAIN */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* PAGE HEADER */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.page-title {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.page-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-family: var(--mono);
+}
+
+.header-actions { display: flex; gap: 8px; }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.14s;
+  font-family: var(--sans);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.btn-ghost:hover { border-color: #CBD5E1; color: var(--text-primary); background: var(--slate); }
+
+.btn-orange {
+  background: var(--orange);
+  color: white;
+  font-weight: 600;
+}
+
+.btn-orange:hover { background: #C2410C; }
+
+.btn-outline-orange {
+  background: transparent;
+  color: var(--orange);
+  border: 1.5px solid var(--orange);
+  font-weight: 600;
+}
+
+.btn-outline-orange:hover { background: var(--orange-light); }
+
+/* PANELS */
+.panel {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border-mid);
+  background: white;
+}
+
+.panel-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.panel-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--orange);
+  flex-shrink: 0;
+}
+
+.panel-body { padding: 14px 16px; }
+
+/* KPI CARDS */
+.kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+.kpi-grid-5 { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; }
+
+.kpi-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--orange);
+}
+
+.kpi-card.green::after { background: var(--green); }
+.kpi-card.red::after   { background: var(--red); }
+.kpi-card.amber::after { background: var(--amber); }
+.kpi-card.navy::after  { background: var(--navy-mid); }
+
+.kpi-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 5px;
+}
+
+.kpi-value {
+  font-family: var(--mono);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.kpi-value.orange { color: var(--orange); }
+.kpi-value.green  { color: var(--green); }
+.kpi-value.red    { color: var(--red); }
+.kpi-value.amber  { color: var(--amber); }
+
+.kpi-sub {
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* COMPLIANCE ARC (SVG gauge) */
+.compliance-wrap {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 18px 20px;
+}
+
+.arc-wrap {
+  position: relative;
+  width: 140px;
+  height: 80px;
+  flex-shrink: 0;
+}
+
+.arc-svg { width: 140px; height: 80px; }
+
+.arc-score {
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.arc-score-val {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.arc-score-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.compliance-stats {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.cs-item { }
+
+.cs-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 3px;
+}
+
+.cs-val {
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* TABLES */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.data-table th {
+  text-align: left;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 0 12px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-mid);
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: #FAFBFC; }
+.data-table tbody tr { cursor: pointer; }
+
+.td-primary { color: var(--text-primary) !important; font-weight: 500; }
+.td-mono { font-family: var(--mono); font-size: 11px; }
+.td-orange { color: var(--orange) !important; font-family: var(--mono); font-size: 11px; }
+.td-green { color: var(--green) !important; }
+.td-red { color: var(--red) !important; }
+.td-amber { color: var(--amber) !important; }
+
+/* PILLS */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pill::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.pill-green  { background: var(--green-light);  color: var(--green); }
+.pill-red    { background: var(--red-light);    color: var(--red); }
+.pill-amber  { background: var(--amber-light);  color: var(--amber); }
+.pill-orange { background: var(--orange-mid);   color: var(--orange); }
+.pill-blue   { background: rgba(8,145,178,0.08); color: #0891B2; }
+
+/* PRIORITY BADGE */
+.prio {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.prio-p1 { background: var(--red-light); color: var(--red); }
+.prio-p2 { background: var(--amber-light); color: var(--amber); }
+.prio-p3 { background: rgba(8,145,178,0.08); color: #0891B2; }
+
+/* TICKET DETAIL SLIDE-IN */
+.ticket-detail-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,0.4);
+  z-index: 200;
+  backdrop-filter: blur(2px);
+}
+
+.ticket-detail-overlay.open { display: flex; justify-content: flex-end; }
+
+.ticket-detail-panel {
+  width: 460px;
+  background: white;
+  height: 100vh;
+  overflow-y: auto;
+  box-shadow: -8px 0 32px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.td-panel-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--slate);
+}
+
+.td-panel-close {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: var(--text-muted);
+  transition: all 0.12s;
+}
+
+.td-panel-close:hover { background: var(--red-light); color: var(--red); border-color: var(--red); }
+
+.td-panel-body { padding: 20px; flex: 1; }
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-mid);
+  font-size: 12px;
+}
+
+.info-row:last-child { border-bottom: none; }
+.info-label { color: var(--text-muted); }
+.info-val { font-weight: 500; color: var(--text-primary); font-family: var(--mono); font-size: 11px; }
+
+.timeline { display: flex; flex-direction: column; gap: 0; }
+
+.tl-item {
+  display: flex;
+  gap: 12px;
+  padding-bottom: 16px;
+  position: relative;
+}
+
+.tl-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 24px;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+}
+
+.tl-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  margin-top: 2px;
+}
+
+.tl-dot.open  { background: var(--orange-mid); color: var(--orange); }
+.tl-dot.work  { background: var(--amber-light); color: var(--amber); }
+.tl-dot.done  { background: var(--green-light); color: var(--green); }
+.tl-dot.note  { background: var(--border); color: var(--text-muted); }
+
+.tl-content { flex: 1; }
+.tl-title { font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+.tl-meta  { font-size: 10px; color: var(--text-muted); font-family: var(--mono); }
+
+/* SLA BARS */
+.sla-bar-wrap { display: flex; flex-direction: column; gap: 12px; }
+
+.sla-bar-row { }
+.sla-bar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.sla-bar-label { font-size: 12px; font-weight: 500; color: var(--text-primary); }
+.sla-bar-pct { font-family: var(--mono); font-size: 13px; font-weight: 700; }
+.sla-bar-target { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+
+.sla-track {
+  height: 7px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.sla-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+
+/* PENALTY STATEMENT */
+.penalty-summary-card {
+  background: #FFF7ED;
+  border: 1.5px solid #FED7AA;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.penalty-amount-large {
+  font-family: var(--mono);
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--red);
+  line-height: 1;
+}
+
+.penalty-item-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-mid);
+  font-size: 12px;
+}
+
+.penalty-item-row:last-child { border-bottom: none; }
+.pi-date { font-family: var(--mono); font-size: 10px; color: var(--text-muted); width: 54px; flex-shrink: 0; }
+.pi-ticket { font-family: var(--mono); font-size: 10px; color: var(--orange); width: 80px; flex-shrink: 0; }
+.pi-desc { flex: 1; color: var(--text-secondary); }
+.pi-amount { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--red); flex-shrink: 0; }
+
+/* REPORT */
+.report-month-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.14s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+.report-month-card:hover { border-color: var(--orange); box-shadow: 0 2px 8px rgba(234,88,12,0.1); }
+
+.rmc-month { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px; }
+.rmc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.rmc-item-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+.rmc-item-val { font-family: var(--mono); font-size: 14px; font-weight: 700; margin-top: 1px; }
+
+/* CONTACT CARD */
+.contact-card {
+  background: var(--navy);
+  border-radius: 8px;
+  padding: 16px;
+  color: white;
+}
+
+.cc-title { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+.cc-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.cc-role { font-size: 11px; color: rgba(255,255,255,0.5); margin-bottom: 12px; }
+.cc-row { display: flex; align-items: center; gap: 7px; font-size: 11px; color: rgba(255,255,255,0.65); margin-bottom: 5px; }
+
+/* FORM ELEMENTS IN APP */
+.app-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.15s;
+  background: white;
+}
+
+.app-input:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(234,88,12,0.08); }
+
+.app-textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.15s;
+  resize: vertical;
+  min-height: 80px;
+  background: white;
+}
+
+.app-textarea:focus { border-color: var(--orange); }
+
+.app-select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text-primary);
+  outline: none;
+  background: white;
+  cursor: pointer;
+}
+
+.app-select:focus { border-color: var(--orange); }
+
+.field-group { margin-bottom: 14px; }
+.field-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; display: block; }
+
+/* GRID HELPERS */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--navy);
+  color: white;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  z-index: 999;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-left: 3px solid var(--green); }
+.toast.error { border-left: 3px solid var(--red); }
+
+/* TAB ROW */
+.tab-row { display:flex; border-bottom:1px solid var(--border); margin-bottom:2px; }
+.tab-item {
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  transition: all 0.12s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: var(--sans);
+}
+
+.tab-item:hover { color: var(--text-primary); }
+.tab-item.active { color: var(--orange); border-bottom-color: var(--orange); font-weight: 600; }
+
+/* NOTICE BANNER */
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 7px;
+  font-size: 12px;
+}
+
+.notice-warn { background: #FFFBEB; border: 1px solid #FDE68A; color: #92400E; }
+.notice-info { background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF; }
+.notice-red  { background: #FEF2F2; border: 1px solid #FECACA; color: #991B1B; }
+
+
+  @keyframes blink-badge { 0%,100%{opacity:1} 50%{opacity:0.3} }
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div id="login-screen">
+  <div class="login-grid"></div>
+  <div class="login-box">
+    <div class="login-header">
+      <div class="login-logo">
+        <div class="login-logo-eye">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <ellipse cx="12" cy="12" rx="11" ry="7" stroke="white" stroke-width="1.8"/>
+            <circle cx="12" cy="12" r="4" fill="white" opacity="0.3"/>
+            <circle cx="12" cy="12" r="2.5" fill="white"/>
+            <circle cx="13" cy="11" r="0.8" fill="rgba(234,88,12,0.7)"/>
+          </svg>
+        </div>
+        <div class="login-logo-text">
+          <div class="login-logo-name">IIFL EYE</div>
+          <div class="login-logo-sub">Vendor Portal</div>
+        </div>
+      </div>
+      <div class="login-title">Vendor Sign In</div>
+      <div class="login-subtitle">Access your tickets, SLA data & penalty reports</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Select Your Company</label>
+      <select class="form-select" id="login-vendor">
+        <option value="">— Select vendor —</option>
+        <option value="zygal">Zygal</option>
+        <option value="ang">ANG</option>
+        <option value="zicom">Zicom</option>
+        <option value="vprotect">vProtect - SIS</option>
+        <option value="ang2">AnG 2</option>
+        <option value="aditya">Aditya Infotech Ltd.</option>
+        <option value="ivis">IVIS</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <input class="form-input" type="email" id="login-email" placeholder="you@yourcompany.in">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" id="login-password" placeholder="••••••••">
+    </div>
+
+    <button class="login-btn" onclick="doLogin()">Sign In to Vendor Portal</button>
+
+    <div class="login-divider">Secured by IIFL EYE SOC</div>
+
+    <div class="login-footer">
+      Trouble signing in? Contact your IIFL EYE administrator<br>
+      or email <strong>eye-support@iifl.com</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MAIN APP ═══ -->
+<div id="app">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-logo">
+      <div class="topbar-logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <ellipse cx="12" cy="12" rx="11" ry="7" stroke="white" stroke-width="1.8"/>
+          <circle cx="12" cy="12" r="2.5" fill="white"/>
+        </svg>
+      </div>
+      <div>
+        <div class="topbar-logo-name">IIFL EYE</div>
+        <div class="topbar-logo-sub">Vendor Portal</div>
+      </div>
+    </div>
+    <div class="topbar-divider"></div>
+    <div class="topbar-vendor-chip">
+      <div class="topbar-vendor-avatar" id="tb-avatar" style="background:var(--orange)">ZG</div>
+      <div>
+        <div class="topbar-vendor-name" id="tb-vendor-name">Zygal</div>
+        <div class="topbar-vendor-role" id="tb-user-name">Rajesh Kumar · Vendor Admin</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-badge">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2a5.5 5.5 0 015.5 5.5c0 2.8.7 4.2 1.4 5H2.1c.7-.8 1.4-2.2 1.4-5A5.5 5.5 0 019 2zM7.5 15a1.5 1.5 0 003 0" stroke="rgba(255,255,255,0.5)" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <div class="topbar-badge-dot" id="notif-dot"></div>
+      </div>
+      <div class="topbar-time" id="tb-clock">--:--</div>
+      <div class="topbar-logout" onclick="doLogout()">Sign Out</div>
+    </div>
+  </div>
+
+  <!-- APP BODY -->
+  <div class="app-body">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <div class="nav-group-label">Main</div>
+      <div class="nav-item active" onclick="navTo(this,'dashboard')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" fill="currentColor" opacity="0.8"/><rect x="9" y="1" width="6" height="6" rx="1" fill="currentColor" opacity="0.5"/><rect x="1" y="9" width="6" height="6" rx="1" fill="currentColor" opacity="0.5"/><rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor" opacity="0.8"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="navTo(this,'tickets')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        My Tickets
+        <span class="nav-count" id="nav-open-count">0</span>
+      </div>
+      <div class="nav-item" onclick="navTo(this,'mis')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="2" y="1" width="9" height="11" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M5 4h4M5 7h4M5 10h2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M11 12h2M12 11v2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+        MIS Upload
+        <span class="nav-count" id="nav-mis-count" style="background:var(--green);color:white">NEW</span>
+      </div>
+
+      <div class="nav-group-label">Performance</div>
+      <div class="nav-item" onclick="navTo(this,'sla')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M8 4V8L11 10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        SLA Tracker
+      </div>
+      <div class="nav-item" onclick="navTo(this,'penalties')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M8 1L10 6H15L11 9.5L12.5 14.5L8 11.5L3.5 14.5L5 9.5L1 6H6L8 1Z" stroke="currentColor" stroke-width="1.2"/></svg>
+        Penalties
+        <span class="nav-count warn" id="nav-penalty-count">0</span>
+      </div>
+      <div class="nav-item" onclick="navTo(this,'sop')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M2 3h12M2 6h8M2 9h10M2 12h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="13" cy="11" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M12.2 11l.6.6 1.2-1.2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        SOP Adherence
+        <span class="nav-count" id="nav-sop-count" style="background:#7C3AED">0</span>
+      </div>
+      <div class="nav-item" onclick="navTo(this,'reports')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M2 12L5 7l3 3 3-5 3 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="1" y="1" width="14" height="14" rx="1.5" stroke="currentColor" stroke-width="1.3"/></svg>
+        Service Reports
+      </div>
+
+      <div class="nav-group-label">Account</div>
+      <div class="nav-item" onclick="navTo(this,'profile')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        My Profile
+      </div>
+      <div class="nav-item" onclick="navTo(this,'contact')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M1 5l7 5 7-5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Contact IIFL
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-sla-mini">
+          <div class="ssm-label">SLA Score</div>
+          <div class="ssm-score" id="sidebar-sla-score">—</div>
+          <div class="ssm-track">
+            <div class="ssm-fill" id="sidebar-sla-fill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="main" id="main-content"></main>
+  </div>
+</div>
+
+<!-- TICKET DETAIL PANEL -->
+<div class="ticket-detail-overlay" id="ticket-overlay" onclick="closeTicketPanel(event)">
+  <div class="ticket-detail-panel" id="ticket-detail-panel">
+    <div class="td-panel-header">
+      <div>
+        <div style="font-size:14px;font-weight:700;color:var(--text-primary)" id="td-id">—</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px" id="td-created">—</div>
+      </div>
+      <button class="td-panel-close" onclick="closeTicketPanel()">✕</button>
+    </div>
+    <div class="td-panel-body" id="ticket-panel-body"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══ DATA ═══
+const VENDOR_DATA = {
+  zygal: {
+    name:'Zygal', short:'ZG', color:'#0891B2', bg:'#E0F2FE',
+    user:'Rajesh Kumar', role:'Vendor Admin', email:'r.kumar@zygal.io', phone:'+91-98765-00001',
+    branches:720, cams:11520, uptime:99.1, slaP1:99.4, slaP2:98.8, slaP3:99.1,
+    overallSLA:99.1, penalty:0, penaltyStr:'₹0',
+    iiflContact:{name:'Pradeep Sharma',role:'Account Manager',email:'p.sharma@iifl.com',phone:'+91-22-4007-7000'},
+    tickets:[
+      {id:'#ZD-10815',subj:'Scheduled maintenance — IIFL-HYD-061',p:'P3',branch:'IIFL-HYD-061',status:'open',age:'0h 20m',sla:'ok',opened:'08 Jun 2025, 09:00',desc:'Planned preventive maintenance for NVR and 8 cameras. Estimated downtime: 2 hours. All recordings will resume after completion.',timeline:[{t:'open',text:'Ticket opened by IIFL EYE SOC',time:'08 Jun, 09:00'},{t:'work',text:'Field engineer dispatched — Priya Sharma',time:'08 Jun, 09:30'},{t:'note',text:'On-site ETA: 45 minutes',time:'08 Jun, 09:32'}]},
+      {id:'#ZD-10800',subj:'CAM-12 lens cleaning request — IIFL-MUM-089',p:'P3',branch:'IIFL-MUM-089',status:'in-progress',age:'1h 05m',sla:'ok',opened:'08 Jun 2025, 08:15',desc:'CAM-12 at branch entrance reporting reduced image clarity due to dust accumulation on lens. Cleaning and recalibration required.',timeline:[{t:'open',text:'Ticket raised by IIFL EYE SOC',time:'08 Jun, 08:15'},{t:'work',text:'Assigned to Arun Nair',time:'08 Jun, 08:25'},{t:'work',text:'Engineer en route to branch',time:'08 Jun, 08:40'}]},
+      {id:'#ZD-10784',subj:'Loitering alert threshold reconfiguration',p:'P3',branch:'IIFL-CHN-023',status:'open',age:'1h 30m',sla:'ok',opened:'08 Jun 2025, 07:50',desc:'IIFL security team requests reconfiguration of loitering detection threshold from 60s to 90s at main entrance zone to reduce false positives.',timeline:[{t:'open',text:'Ticket opened — configuration change request',time:'08 Jun, 07:50'},{t:'note',text:'Pending vendor acknowledgment',time:'08 Jun, 07:51'}]},
+      {id:'#ZD-10771',subj:'BLE receiver firmware update — IIFL-BLR-044',p:'P2',branch:'IIFL-BLR-044',status:'in-progress',age:'2h 10m',sla:'ok',opened:'08 Jun 2025, 07:10',desc:'BLE receiver at gold loan vault requires firmware update to version 3.2.1 to fix intermittent connectivity drops observed over last 48 hours.',timeline:[{t:'open',text:'Ticket raised',time:'08 Jun, 07:10'},{t:'work',text:'Firmware package downloaded and verified',time:'08 Jun, 07:45'},{t:'work',text:'Remote update initiated — ETA 30 minutes',time:'08 Jun, 08:20'}]},
+      {id:'#ZD-10760',subj:'NVR log export request — IIFL-DEL-012',p:'P3',branch:'IIFL-DEL-012',status:'resolved',age:'3h 00m',sla:'ok',opened:'07 Jun 2025, 14:00',desc:'IIFL compliance team requesting NVR log export for audit purposes. Logs required for 01-May to 31-May 2025.',timeline:[{t:'open',text:'Log export request received',time:'07 Jun, 14:00'},{t:'work',text:'Log extraction started',time:'07 Jun, 14:30'},{t:'done',text:'Logs exported and securely shared — ✓ Resolved',time:'07 Jun, 16:20'}]},
+    ],
+    penalties:[],
+    reports:[
+      {month:'Jun 2025',uptime:'99.1%',tix:124,resolved:124,open:0,penalty:'₹0',status:'green'},
+      {month:'May 2025',uptime:'99.3%',tix:108,resolved:108,open:0,penalty:'₹0',status:'green'},
+      {month:'Apr 2025',uptime:'98.9%',tix:131,resolved:129,open:2,penalty:'₹4,200',status:'warn'},
+      {month:'Mar 2025',uptime:'99.5%',tix:97,resolved:97,open:0,penalty:'₹0',status:'green'},
+    ],
+    sopViolations: [],
+    otpLog: [{"time": "09:14", "branch": "IIFL-MUM-047", "operator": "OP-ZG-01", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": true, "vault_clear": true, "no_suspicious": true, "cameras_live": true, "reason_logged": true, "dual_custody": true}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "compliant", "duration": "2m 14s"}, {"time": "10:32", "branch": "IIFL-DEL-012", "operator": "OP-ZG-02", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": true, "vault_clear": true, "no_suspicious": true, "cameras_live": true, "reason_logged": true, "dual_custody": true}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "compliant", "duration": "1m 58s"}, {"time": "11:05", "branch": "IIFL-BLR-044", "operator": "OP-ZG-01", "type": "After-Hours Access", "checklist": {"branch_open": false, "identity_verified": true, "vault_clear": true, "no_suspicious": true, "cameras_live": true, "reason_logged": true, "dual_custody": true}, "otp": "DENIED", "status": "denied", "duration": "0m 45s"}, {"time": "14:22", "branch": "IIFL-CHN-023", "operator": "OP-ZG-03", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": true, "vault_clear": true, "no_suspicious": true, "cameras_live": true, "reason_logged": true, "dual_custody": false}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "escalated", "duration": "4m 10s"}, {"time": "15:48", "branch": "IIFL-HYD-061", "operator": "OP-ZG-02", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": true, "vault_clear": true, "no_suspicious": true, "cameras_live": true, "reason_logged": true, "dual_custody": true}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "compliant", "duration": "1m 44s"}]
+  },
+  ang: {
+    name:'ANG', short:'AG', color:'#D97706', bg:'#FEF3C7',
+    user:'Ashok Mehta', role:'Vendor Admin', email:'a.mehta@angsecurity.in', phone:'+91-98765-00002',
+    branches:580, cams:8700, uptime:96.4, slaP1:94.8, slaP2:95.6, slaP3:97.2,
+    overallSLA:96.4, penalty:14000, penaltyStr:'₹14,000',
+    iiflContact:{name:'Meera Nambiar',role:'Account Manager',email:'m.nambiar@iifl.com',phone:'+91-22-4007-7001'},
+    tickets:[
+      {id:'#ZD-10830',subj:'CAM-04 feed intermittent — IIFL-LKO-022',p:'P2',branch:'IIFL-LKO-022',status:'open',age:'2h 30m',sla:'warn',opened:'08 Jun 2025, 06:50',desc:'CAM-04 at teller counter showing intermittent feed drops every 15-20 minutes. Suspected network packet loss on the branch switch.',timeline:[{t:'open',text:'Issue reported by IIFL EYE SOC monitoring',time:'08 Jun, 06:50'},{t:'work',text:'Remote diagnostics started — Sonal Patel',time:'08 Jun, 07:15'},{t:'note',text:'Awaiting branch access confirmation',time:'08 Jun, 08:00'}]},
+      {id:'#ZD-10818',subj:'NVR storage 90% full — IIFL-PAT-014',p:'P2',branch:'IIFL-PAT-014',status:'in-progress',age:'3h 10m',sla:'warn',opened:'08 Jun 2025, 06:10',desc:'NVR at Patna branch reporting 90% storage utilization. Risk of recording gap within 8 hours. Immediate cleanup or storage expansion required.',timeline:[{t:'open',text:'Storage alert triggered',time:'08 Jun, 06:10'},{t:'work',text:'Remote access to NVR initiated',time:'08 Jun, 06:35'},{t:'work',text:'Old recordings being archived to cloud — 40% complete',time:'08 Jun, 07:20'}]},
+      {id:'#ZD-10806',subj:'Night vision degraded — IIFL-AMR-037',p:'P2',branch:'IIFL-AMR-037',status:'open',age:'4h 20m',sla:'breach',opened:'08 Jun 2025, 05:00',desc:'IR illuminators on CAM-01 and CAM-02 at Amritsar branch showing 60% degradation in night vision capability. IR LEDs likely failing.',timeline:[{t:'open',text:'Alert raised by AI monitoring system',time:'08 Jun, 05:00'},{t:'note',text:'P2 SLA: 8-hour resolution. Currently at 4h 20m.',time:'08 Jun, 05:01'},{t:'note',text:'Vendor yet to acknowledge — ESCALATION RISK',time:'08 Jun, 08:00'}]},
+      {id:'#ZD-10793',subj:'PTZ motor fault — IIFL-KAN-008',p:'P3',branch:'IIFL-KAN-008',status:'resolved',age:'1h 50m',sla:'ok',opened:'07 Jun 2025, 15:30',desc:'PTZ camera at main entrance unable to pan beyond 90 degrees. Motor fault detected. Camera replaced with spare unit.',timeline:[{t:'open',text:'PTZ fault reported',time:'07 Jun, 15:30'},{t:'work',text:'Field visit scheduled — next day',time:'07 Jun, 15:45'},{t:'done',text:'Camera replaced, PTZ functional ✓ Resolved',time:'08 Jun, 08:10'}]},
+      {id:'#ZD-10779',subj:'Scheduled firmware upgrade — IIFL-BHO-019',p:'P3',branch:'IIFL-BHO-019',status:'open',age:'0h 45m',sla:'ok',opened:'08 Jun 2025, 08:35',desc:'Quarterly firmware upgrade for 12 cameras at Bhopal branch. Upgrade window approved for today 10:00-12:00.',timeline:[{t:'open',text:'Upgrade window approved by IIFL SOC',time:'08 Jun, 08:35'},{t:'note',text:'Upgrade scheduled for 10:00 IST',time:'08 Jun, 08:36'}]},
+    ],
+    penalties:[
+      {date:'11 Jun',ticket:'#ZD-10752',desc:'CAM offline P2 — 2h 10m over SLA at IIFL-JAI-019',amount:'₹8,000',rule:'P2 overage @ ₹1,500/hr'},
+      {date:'05 Jun',ticket:'#ZD-10721',desc:'NVR reboot P1 — 1h 02m over SLA at IIFL-LKO-033',amount:'₹6,000',rule:'P1 overage @ ₹3,000/hr'},
+    ],
+    reports:[
+      {month:'Jun 2025',uptime:'96.4%',tix:98,resolved:90,open:8,penalty:'₹14,000',status:'warn'},
+      {month:'May 2025',uptime:'97.1%',tix:91,resolved:91,open:0,penalty:'₹0',status:'green'},
+      {month:'Apr 2025',uptime:'95.8%',tix:104,resolved:100,open:4,penalty:'₹18,000',status:'warn'},
+      {month:'Mar 2025',uptime:'96.9%',tix:88,resolved:88,open:0,penalty:'₹0',status:'green'},
+    ],
+    sopViolations: [{"id": "SOP-ANG-041", "time": "08:22", "branch": "IIFL-LKO-022", "operator": "OP-AN-02", "type": "OTP Issued Without Identity Verification", "severity": "high", "penalty": "2000", "status": "open", "detail": "OTP issued for vault access at 08:22. CCTV review shows requester face not confirmed \u2014 camera angle obstructed. Operator proceeded without requesting repositioning."}, {"id": "SOP-ANG-038", "time": "Yesterday 14:10", "branch": "IIFL-PAT-014", "operator": "OP-AN-01", "type": "Vault Area Not Cleared Before OTP", "severity": "high", "penalty": "2000", "status": "open", "detail": "Second person visible in vault corridor at time of OTP issuance. Operator failed to verify vault area clear of unauthorized personnel."}, {"id": "SOP-ANG-035", "time": "06 Jun 11:30", "branch": "IIFL-AMR-037", "operator": "OP-AN-03", "type": "Dual Custody Not Confirmed", "severity": "medium", "penalty": "1000", "status": "acknowledged", "detail": "High-value vault access issued without supervisor dual-custody confirmation."}],
+    otpLog: [{"time": "08:22", "branch": "IIFL-LKO-022", "operator": "OP-AN-02", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": false, "vault_clear": true, "no_suspicious": true, "cameras_live": true, "reason_logged": true, "dual_custody": true}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "violation", "duration": "0m 52s"}, {"time": "10:15", "branch": "IIFL-KAN-008", "operator": "OP-AN-01", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": true, "vault_clear": true, "no_suspicious": true, "cameras_live": true, "reason_logged": true, "dual_custody": true}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "compliant", "duration": "2m 05s"}, {"time": "14:10", "branch": "IIFL-PAT-014", "operator": "OP-AN-01", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": true, "vault_clear": false, "no_suspicious": true, "cameras_live": true, "reason_logged": true, "dual_custody": true}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "violation", "duration": "1m 10s"}, {"time": "16:40", "branch": "IIFL-BHO-019", "operator": "OP-AN-03", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": true, "vault_clear": true, "no_suspicious": true, "cameras_live": true, "reason_logged": true, "dual_custody": true}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "compliant", "duration": "1m 55s"}]
+  },
+  zicom: {
+    name:'Zicom', short:'ZC', color:'#E11D48', bg:'#FFF1F2',
+    user:'Vinay Shah', role:'Vendor Admin', email:'v.shah@zicom.com', phone:'+91-98765-00003',
+    branches:440, cams:6160, uptime:94.2, slaP1:89.6, slaP2:92.1, slaP3:95.8,
+    overallSLA:94.2, penalty:32000, penaltyStr:'₹32,000',
+    iiflContact:{name:'Suresh Pillai',role:'Account Manager',email:'s.pillai@iifl.com',phone:'+91-22-4007-7002'},
+    tickets:[
+      {id:'#ZD-10840',subj:'Complete branch offline — IIFL-SRT-029',p:'P1',branch:'IIFL-SRT-029',status:'open',age:'1h 55m',sla:'breach',opened:'08 Jun 2025, 07:25',desc:'Surat branch completely offline. No camera feeds, NVR unreachable. Possibly a power or network outage. IIFL branch manager alerted.',timeline:[{t:'open',text:'P1 CRITICAL — branch offline detected',time:'08 Jun, 07:25'},{t:'note',text:'P1 SLA: 4 hours. Currently 1h 55m elapsed.',time:'08 Jun, 07:26'},{t:'work',text:'Engineer dispatched — ETA 45 mins',time:'08 Jun, 08:00'}]},
+      {id:'#ZD-10827',subj:'CAM-01 to CAM-04 offline — IIFL-VDO-011',p:'P1',branch:'IIFL-VDO-011',status:'in-progress',age:'2h 40m',sla:'breach',opened:'08 Jun 2025, 06:40',desc:'4 cameras at Vadodara branch offline simultaneously. NVR recording continues but 4 zones are unmonitored. Switch port configuration suspected.',timeline:[{t:'open',text:'Monitoring alert — 4 cameras offline',time:'08 Jun, 06:40'},{t:'work',text:'Remote access granted to network switch',time:'08 Jun, 07:10'},{t:'work',text:'Switch port reconfiguration in progress',time:'08 Jun, 08:00'}]},
+      {id:'#ZD-10814',subj:'Recording gap 3h — IIFL-RJK-033',p:'P2',branch:'IIFL-RJK-033',status:'open',age:'5h 00m',sla:'breach',opened:'08 Jun 2025, 04:20',desc:'NVR at Rajkot branch failed to record between 01:00-04:00. Suspected HDD read-write error. Forensic backup may be needed.',timeline:[{t:'open',text:'Recording gap detected by SOC',time:'08 Jun, 04:20'},{t:'note',text:'P2 SLA breach — over 5 hours',time:'08 Jun, 04:21'},{t:'work',text:'Remote HDD diagnostic initiated',time:'08 Jun, 05:30'}]},
+      {id:'#ZD-10801',subj:'NVR fan overheating warning — IIFL-NSK-017',p:'P2',branch:'IIFL-NSK-017',status:'in-progress',age:'3h 30m',sla:'warn',opened:'08 Jun 2025, 05:50',desc:'NVR internal temperature at 78°C (threshold: 75°C). Fan failure imminent. If not addressed, NVR may shut down to prevent hardware damage.',timeline:[{t:'open',text:'Thermal alert received',time:'08 Jun, 05:50'},{t:'work',text:'Remote shutdown of non-critical processes',time:'08 Jun, 06:10'},{t:'work',text:'Replacement fan ordered — delivery ETA 4 hours',time:'08 Jun, 07:00'}]},
+      {id:'#ZD-10788',subj:'Dome housing crack — IIFL-AKL-042',p:'P3',branch:'IIFL-AKL-042',status:'open',age:'2h 00m',sla:'ok',opened:'08 Jun 2025, 07:20',desc:'Physical damage to dome camera housing reported by branch staff. No impact on camera functionality but replacement needed for weatherproofing.',timeline:[{t:'open',text:'Damage reported by branch manager',time:'08 Jun, 07:20'},{t:'note',text:'Replacement dome unit to be procured',time:'08 Jun, 07:30'}]},
+    ],
+    penalties:[
+      {date:'13 Jun',ticket:'#ZD-10801',desc:'P1 — IIFL-SRT-019 complete outage, 2h 40m over SLA',amount:'₹14,000',rule:'P1 overage @ ₹3,000/hr + max cap'},
+      {date:'09 Jun',ticket:'#ZD-10776',desc:'P2 — IIFL-VDO-007 recording gap, 4h over SLA',amount:'₹10,000',rule:'P2 overage @ ₹1,500/hr'},
+      {date:'04 Jun',ticket:'#ZD-10748',desc:'P1 — IIFL-RJK-011 NVR offline, 1h 20m over SLA',amount:'₹8,000',rule:'P1 overage @ ₹3,000/hr'},
+    ],
+    reports:[
+      {month:'Jun 2025',uptime:'94.2%',tix:84,resolved:72,open:12,penalty:'₹32,000',status:'warn'},
+      {month:'May 2025',uptime:'95.4%',tix:79,resolved:76,open:3,penalty:'₹12,000',status:'warn'},
+      {month:'Apr 2025',uptime:'93.1%',tix:96,resolved:82,open:14,penalty:'₹44,000',status:'crit'},
+      {month:'Mar 2025',uptime:'96.2%',tix:71,resolved:71,open:0,penalty:'₹0',status:'green'},
+    ],
+    sopViolations: [{"id": "SOP-ZIC-029", "time": "07:25", "branch": "IIFL-SRT-029", "operator": "OP-ZC-01", "type": "OTP Issued With Cameras Offline", "severity": "critical", "penalty": "5000", "status": "open", "detail": "OTP issued for vault access while 4 cameras in vault zone were offline. Operator should have refused OTP and escalated. Blind-spot access risk created."}, {"id": "SOP-ZIC-027", "time": "Yesterday 09:10", "branch": "IIFL-RJK-033", "operator": "OP-ZC-02", "type": "Access Reason Not Logged", "severity": "medium", "penalty": "1000", "status": "open", "detail": "Vault OTP issued without logging reason for access in the monitoring system. Audit trail incomplete."}, {"id": "SOP-ZIC-025", "time": "05 Jun 16:00", "branch": "IIFL-NSK-017", "operator": "OP-ZC-01", "type": "After-Hours OTP Without Approval", "severity": "high", "penalty": "2000", "status": "disputed", "detail": "After-hours vault access OTP issued without supervisor sign-off. Branch was not in approved after-hours list."}, {"id": "SOP-ZIC-022", "time": "04 Jun 11:20", "branch": "IIFL-VDO-011", "operator": "OP-ZC-03", "type": "Suspicious Activity Ignored", "severity": "critical", "penalty": "5000", "status": "acknowledged", "detail": "AI alert flagged loitering individual before OTP request. Operator issued OTP without reviewing alert."}],
+    otpLog: [{"time": "07:25", "branch": "IIFL-SRT-029", "operator": "OP-ZC-01", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": true, "vault_clear": true, "no_suspicious": true, "cameras_live": false, "reason_logged": true, "dual_custody": true}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "violation", "duration": "0m 38s"}, {"time": "09:10", "branch": "IIFL-RJK-033", "operator": "OP-ZC-02", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": true, "vault_clear": true, "no_suspicious": true, "cameras_live": true, "reason_logged": false, "dual_custody": true}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "violation", "duration": "1m 02s"}, {"time": "11:45", "branch": "IIFL-AKL-042", "operator": "OP-ZC-01", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": true, "vault_clear": true, "no_suspicious": true, "cameras_live": true, "reason_logged": true, "dual_custody": true}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "compliant", "duration": "2m 20s"}]
+  },
+  vprotect: {
+    name:'vProtect - SIS', short:'VP', color:'#EA580C', bg:'#FFF7ED',
+    user:'Sandeep Khanna', role:'Vendor Admin', email:'s.khanna@vprotect-sis.in', phone:'+91-98765-00004',
+    branches:380, cams:5320, uptime:95.8, slaP1:93.4, slaP2:95.2, slaP3:97.6,
+    overallSLA:95.8, penalty:8000, penaltyStr:'₹8,000',
+    iiflContact:{name:'Kavitha Rajan',role:'Account Manager',email:'k.rajan@iifl.com',phone:'+91-22-4007-7003'},
+    tickets:[
+      {id:'#ZD-10835',subj:'CAM-08 PTZ unresponsive — IIFL-NGP-024',p:'P2',branch:'IIFL-NGP-024',status:'open',age:'3h 00m',sla:'warn',opened:'08 Jun 2025, 06:20',desc:'PTZ camera at Nagpur branch vault corridor unresponsive to commands. Camera feeds are live but cannot be directed.',timeline:[{t:'open',text:'PTZ control failure reported',time:'08 Jun, 06:20'},{t:'work',text:'Remote PTZ reset attempted — unsuccessful',time:'08 Jun, 06:45'},{t:'work',text:'On-site engineer scheduled for 11:00',time:'08 Jun, 07:30'}]},
+      {id:'#ZD-10822',subj:'NVR offline — IIFL-AUR-016',p:'P1',branch:'IIFL-AUR-016',status:'in-progress',age:'2h 15m',sla:'warn',opened:'08 Jun 2025, 07:05',desc:'NVR at Aurangabad branch unreachable. Cameras continue to record locally but cloud backup is interrupted. Likely power supply unit failure.',timeline:[{t:'open',text:'NVR offline alert — P1 raised',time:'08 Jun, 07:05'},{t:'work',text:'Branch manager contacted for manual restart',time:'08 Jun, 07:20'},{t:'work',text:'Manual restart unsuccessful — PSU failure suspected',time:'08 Jun, 08:00'}]},
+      {id:'#ZD-10809',subj:'Video analytics misconfigured — IIFL-KHR-031',p:'P3',branch:'IIFL-KHR-031',status:'resolved',age:'1h 10m',sla:'ok',opened:'07 Jun 2025, 16:00',desc:'Loitering zones reconfigured incorrectly after previous maintenance. False positives at customer waiting area.',timeline:[{t:'open',text:'Misconfiguration reported',time:'07 Jun, 16:00'},{t:'work',text:'Remote access to AI config panel',time:'07 Jun, 16:15'},{t:'done',text:'Zones corrected and tested — ✓ Resolved',time:'07 Jun, 17:10'}]},
+      {id:'#ZD-10796',subj:'Cable damage — IIFL-NLD-009',p:'P2',branch:'IIFL-NLD-009',status:'open',age:'4h 40m',sla:'breach',opened:'08 Jun 2025, 04:40',desc:'CAM-03 and CAM-04 cables damaged, possibly during branch renovation work. Physical replacement required.',timeline:[{t:'open',text:'Cable damage reported by branch',time:'08 Jun, 04:40'},{t:'note',text:'P2 SLA breach at 4h 40m',time:'08 Jun, 04:41'},{t:'work',text:'Materials requisitioned — engineer dispatched',time:'08 Jun, 07:00'}]},
+      {id:'#ZD-10783',subj:'Scheduled cam cleaning — IIFL-RPR-044',p:'P3',branch:'IIFL-RPR-044',status:'open',age:'0h 30m',sla:'ok',opened:'08 Jun 2025, 08:50',desc:'Quarterly camera cleaning for all 8 cameras at Raipur branch as per maintenance schedule.',timeline:[{t:'open',text:'Maintenance ticket opened',time:'08 Jun, 08:50'}]},
+    ],
+    penalties:[{date:'08 Jun',ticket:'#ZD-10742',desc:'P2 — IIFL-NLD cable fault, 1h 44m over SLA',amount:'₹8,000',rule:'P2 overage @ ₹1,500/hr'}],
+    reports:[
+      {month:'Jun 2025',uptime:'95.8%',tix:76,resolved:73,open:3,penalty:'₹8,000',status:'warn'},
+      {month:'May 2025',uptime:'96.9%',tix:68,resolved:68,open:0,penalty:'₹0',status:'green'},
+      {month:'Apr 2025',uptime:'94.3%',tix:82,resolved:78,open:4,penalty:'₹16,000',status:'warn'},
+      {month:'Mar 2025',uptime:'97.1%',tix:61,resolved:61,open:0,penalty:'₹0',status:'green'},
+    ],
+    sopViolations: [{"id": "SOP-VP-018", "time": "06:20", "branch": "IIFL-NGP-024", "operator": "OP-VP-01", "type": "Dual Custody Not Confirmed", "severity": "medium", "penalty": "1000", "status": "open", "detail": "Vault access OTP issued for high-value access without dual custody confirmation."}],
+    otpLog: [{"time": "06:20", "branch": "IIFL-NGP-024", "operator": "OP-VP-01", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": true, "vault_clear": true, "no_suspicious": true, "cameras_live": true, "reason_logged": true, "dual_custody": false}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "violation", "duration": "1m 28s"}, {"time": "10:05", "branch": "IIFL-KHR-031", "operator": "OP-VP-02", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": true, "vault_clear": true, "no_suspicious": true, "cameras_live": true, "reason_logged": true, "dual_custody": true}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "compliant", "duration": "2m 12s"}, {"time": "13:30", "branch": "IIFL-RPR-044", "operator": "OP-VP-01", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": true, "vault_clear": true, "no_suspicious": true, "cameras_live": true, "reason_logged": true, "dual_custody": true}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "compliant", "duration": "1m 50s"}]
+  },
+  ang2: {
+    name:'AnG 2', short:'A2', color:'#B45309', bg:'#FFFBEB',
+    user:'Amit Bose', role:'Vendor Admin', email:'a.bose@ang2security.in', phone:'+91-98765-00005',
+    branches:280, cams:3920, uptime:93.6, slaP1:88.2, slaP2:91.4, slaP3:94.7,
+    overallSLA:93.6, penalty:22000, penaltyStr:'₹22,000',
+    iiflContact:{name:'Ramesh Nair',role:'Account Manager',email:'r.nair@iifl.com',phone:'+91-22-4007-7004'},
+    tickets:[
+      {id:'#ZD-10843',subj:'Complete outage — IIFL-BKR-007',p:'P1',branch:'IIFL-BKR-007',status:'open',age:'3h 10m',sla:'breach',opened:'08 Jun 2025, 06:10',desc:'Complete surveillance outage at Bikaner branch. All cameras offline. NVR unreachable. Branch is currently unmonitored.',timeline:[{t:'open',text:'CRITICAL P1 — All cameras offline',time:'08 Jun, 06:10'},{t:'note',text:'P1 SLA already breached at 3h 10m',time:'08 Jun, 06:11'},{t:'work',text:'Engineer dispatched — delayed, 2hr ETA',time:'08 Jun, 07:00'}]},
+      {id:'#ZD-10831',subj:'CAM-02, CAM-03 offline — IIFL-MNS-021',p:'P1',branch:'IIFL-MNS-021',status:'in-progress',age:'1h 50m',sla:'warn',opened:'08 Jun 2025, 07:30',desc:'Two cameras covering ATM and cash counter zones offline at Manesar branch. High-risk zone unmonitored.',timeline:[{t:'open',text:'Cameras offline alert',time:'08 Jun, 07:30'},{t:'work',text:'Remote troubleshooting started',time:'08 Jun, 07:50'},{t:'work',text:'Switch PoE port cycling — testing',time:'08 Jun, 08:20'}]},
+      {id:'#ZD-10819',subj:'NVR HDD failure — IIFL-BTD-038',p:'P1',branch:'IIFL-BTD-038',status:'open',age:'4h 00m',sla:'breach',opened:'08 Jun 2025, 05:20',desc:'HDD failure detected on NVR at Bulandshahr branch. Recording stopped. All footage from last 3 days is at risk.',timeline:[{t:'open',text:'HDD SMART failure alert',time:'08 Jun, 05:20'},{t:'note',text:'P1 SLA breached — 4 hours elapsed',time:'08 Jun, 05:21'},{t:'work',text:'Emergency HDD procured — en route to branch',time:'08 Jun, 08:00'}]},
+      {id:'#ZD-10807',subj:'Network switch degraded — IIFL-ALW-013',p:'P2',branch:'IIFL-ALW-013',status:'open',age:'5h 20m',sla:'breach',opened:'08 Jun 2025, 04:00',desc:'Managed network switch at Aligarh branch showing packet loss >30%. 6 of 8 cameras showing intermittent feeds.',timeline:[{t:'open',text:'Network degradation detected',time:'08 Jun, 04:00'},{t:'note',text:'P2 SLA breach at 5h 20m',time:'08 Jun, 04:01'},{t:'work',text:'Replacement switch dispatched',time:'08 Jun, 07:00'}]},
+      {id:'#ZD-10794',subj:'IR illuminator failed — IIFL-SNG-028',p:'P2',branch:'IIFL-SNG-028',status:'in-progress',age:'2h 30m',sla:'warn',opened:'08 Jun 2025, 06:50',desc:'External IR illuminator for parking area camera has failed. Night coverage of parking zone is zero.',timeline:[{t:'open',text:'IR failure detected by AI night audit',time:'08 Jun, 06:50'},{t:'work',text:'Replacement unit ordered',time:'08 Jun, 07:15'}]},
+    ],
+    penalties:[
+      {date:'14 Jun',ticket:'#ZD-10819',desc:'P1 — IIFL-BTD NVR failure, 4h over SLA',amount:'₹14,000',rule:'P1 overage @ ₹3,000/hr + escalation'},
+      {date:'10 Jun',ticket:'#ZD-10791',desc:'P1 — IIFL-BKR outage, 1h 30m over SLA',amount:'₹8,000',rule:'P1 overage @ ₹3,000/hr'},
+    ],
+    reports:[
+      {month:'Jun 2025',uptime:'93.6%',tix:61,resolved:53,open:8,penalty:'₹22,000',status:'crit'},
+      {month:'May 2025',uptime:'94.8%',tix:57,resolved:55,open:2,penalty:'₹8,000',status:'warn'},
+      {month:'Apr 2025',uptime:'92.1%',tix:69,resolved:58,open:11,penalty:'₹36,000',status:'crit'},
+      {month:'Mar 2025',uptime:'95.3%',tix:48,resolved:48,open:0,penalty:'₹0',status:'green'},
+    ],
+    sopViolations: [{"id": "SOP-A2-031", "time": "06:10", "branch": "IIFL-BKR-007", "operator": "OP-A2-01", "type": "OTP Issued - Branch Fully Offline", "severity": "critical", "penalty": "5000", "status": "open", "detail": "Critical: OTP issued while branch was completely offline. No camera verification possible. Should have refused and escalated immediately."}, {"id": "SOP-A2-028", "time": "Yesterday 07:30", "branch": "IIFL-MNS-021", "operator": "OP-A2-02", "type": "Identity Not Verified", "severity": "high", "penalty": "2000", "status": "open", "detail": "Operator issued vault OTP without confirming requester identity. Cameras covering entrance were offline."}, {"id": "SOP-A2-025", "time": "06 Jun 15:00", "branch": "IIFL-SNG-028", "operator": "OP-A2-01", "type": "Access Log Not Completed", "severity": "medium", "penalty": "1000", "status": "acknowledged", "detail": "OTP issuance log was not completed post-access. Vault timestamps not recorded in MIS."}],
+    otpLog: [{"time": "06:10", "branch": "IIFL-BKR-007", "operator": "OP-A2-01", "type": "Vault Access", "checklist": {"branch_open": false, "identity_verified": false, "vault_clear": false, "no_suspicious": false, "cameras_live": false, "reason_logged": true, "dual_custody": false}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "violation", "duration": "0m 28s"}, {"time": "07:30", "branch": "IIFL-MNS-021", "operator": "OP-A2-02", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": false, "vault_clear": true, "no_suspicious": true, "cameras_live": false, "reason_logged": true, "dual_custody": true}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "violation", "duration": "0m 55s"}, {"time": "11:00", "branch": "IIFL-ALW-013", "operator": "OP-A2-01", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": true, "vault_clear": true, "no_suspicious": true, "cameras_live": true, "reason_logged": true, "dual_custody": true}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "compliant", "duration": "2m 05s"}]
+  },
+  aditya: {
+    name:'Aditya Infotech', short:'AI', color:'#059669', bg:'#F0FDF4',
+    user:'Rahul Saxena', role:'Vendor Admin', email:'r.saxena@adityainfotech.in', phone:'+91-98765-00006',
+    branches:360, cams:5040, uptime:97.2, slaP1:96.1, slaP2:97.4, slaP3:98.3,
+    overallSLA:97.2, penalty:6000, penaltyStr:'₹6,000',
+    iiflContact:{name:'Anand Iyer',role:'Account Manager',email:'a.iyer@iifl.com',phone:'+91-22-4007-7005'},
+    tickets:[
+      {id:'#ZD-10836',subj:'CAM-05 image blurry — IIFL-PNI-018',p:'P3',branch:'IIFL-PNI-018',status:'open',age:'1h 15m',sla:'ok',opened:'08 Jun 2025, 08:05',desc:'CAM-05 reporting blurry image post recent power surge. Lens or sensor may be affected.',timeline:[{t:'open',text:'Image quality complaint received',time:'08 Jun, 08:05'},{t:'work',text:'Remote image analysis completed',time:'08 Jun, 08:30'},{t:'note',text:'On-site inspection required',time:'08 Jun, 08:31'}]},
+      {id:'#ZD-10823',subj:'NVR time sync error — IIFL-AMB-027',p:'P3',branch:'IIFL-AMB-027',status:'resolved',age:'0h 55m',sla:'ok',opened:'08 Jun 2025, 08:25',desc:'NVR clock drifted by 14 minutes causing timestamp mismatch in recordings. NTP sync failure.',timeline:[{t:'open',text:'Time sync error detected',time:'08 Jun, 08:25'},{t:'work',text:'Remote NTP reconfiguration',time:'08 Jun, 08:40'},{t:'done',text:'Time sync restored — ✓ Resolved',time:'08 Jun, 09:05'}]},
+      {id:'#ZD-10810',subj:'CAM-01 offline — IIFL-JBP-034',p:'P2',branch:'IIFL-JBP-034',status:'in-progress',age:'2h 20m',sla:'ok',opened:'08 Jun 2025, 07:00',desc:'Entrance camera offline at Jabalpur branch. PoE switch port may have failed.',timeline:[{t:'open',text:'Camera offline alert',time:'08 Jun, 07:00'},{t:'work',text:'PoE port diagnostics running',time:'08 Jun, 07:30'}]},
+      {id:'#ZD-10797',subj:'Recording schedule mismatch — IIFL-GWL-012',p:'P2',branch:'IIFL-GWL-012',status:'open',age:'3h 40m',sla:'warn',opened:'08 Jun 2025, 05:40',desc:'NVR recording schedule desynced from IIFL policy. Recording was off during business hours for 2 branches.',timeline:[{t:'open',text:'Schedule audit flag raised',time:'08 Jun, 05:40'},{t:'work',text:'Remote schedule reconfiguration',time:'08 Jun, 06:10'},{t:'note',text:'Verification pending from SOC',time:'08 Jun, 07:00'}]},
+      {id:'#ZD-10784',subj:'Bandwidth throttling issue — IIFL-STI-041',p:'P2',branch:'IIFL-STI-041',status:'open',age:'4h 10m',sla:'breach',opened:'08 Jun 2025, 05:10',desc:'Live feed quality dropping to <360p during peak hours. ISP bandwidth throttling suspected at Satna branch.',timeline:[{t:'open',text:'Feed quality degradation alert',time:'08 Jun, 05:10'},{t:'note',text:'P2 SLA approaching breach',time:'08 Jun, 05:11'},{t:'work',text:'ISP escalation in progress',time:'08 Jun, 07:00'}]},
+    ],
+    penalties:[{date:'07 Jun',ticket:'#ZD-10739',desc:'P2 — IIFL-STI bandwidth SLA breach, 1h 10m over',amount:'₹6,000',rule:'P2 overage @ ₹1,500/hr'}],
+    reports:[
+      {month:'Jun 2025',uptime:'97.2%',tix:82,resolved:80,open:2,penalty:'₹6,000',status:'warn'},
+      {month:'May 2025',uptime:'97.8%',tix:74,resolved:74,open:0,penalty:'₹0',status:'green'},
+      {month:'Apr 2025',uptime:'96.4%',tix:89,resolved:87,open:2,penalty:'₹10,000',status:'warn'},
+      {month:'Mar 2025',uptime:'98.1%',tix:66,resolved:66,open:0,penalty:'₹0',status:'green'},
+    ],
+    sopViolations: [],
+    otpLog: [{"time": "09:10", "branch": "IIFL-PNI-018", "operator": "OP-AI-01", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": true, "vault_clear": true, "no_suspicious": true, "cameras_live": true, "reason_logged": true, "dual_custody": true}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "compliant", "duration": "2m 01s"}, {"time": "11:30", "branch": "IIFL-JBP-034", "operator": "OP-AI-02", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": true, "vault_clear": true, "no_suspicious": true, "cameras_live": true, "reason_logged": true, "dual_custody": true}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "compliant", "duration": "1m 48s"}, {"time": "14:05", "branch": "IIFL-GWL-012", "operator": "OP-AI-01", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": true, "vault_clear": true, "no_suspicious": true, "cameras_live": true, "reason_logged": true, "dual_custody": true}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "compliant", "duration": "2m 22s"}]
+  },
+  ivis: {
+    name:'IVIS', short:'IV', color:'#7C3AED', bg:'#EDE9FE',
+    user:'Anita Menon', role:'Vendor Admin', email:'a.menon@ivis.in', phone:'+91-98765-00007',
+    branches:240, cams:3360, uptime:96.8, slaP1:95.8, slaP2:96.9, slaP3:98.1,
+    overallSLA:96.8, penalty:4000, penaltyStr:'₹4,000',
+    iiflContact:{name:'Divya Krishnan',role:'Account Manager',email:'d.krishnan@iifl.com',phone:'+91-22-4007-7006'},
+    tickets:[
+      {id:'#ZD-10839',subj:'CAM-03 offline — IIFL-HSR-009',p:'P2',branch:'IIFL-HSR-009',status:'in-progress',age:'2h 05m',sla:'ok',opened:'08 Jun 2025, 07:15',desc:'CAM-03 at Hoshiarpur branch offline after power outage restoration. Camera may need power cycle.',timeline:[{t:'open',text:'Post-outage camera check — CAM-03 down',time:'08 Jun, 07:15'},{t:'work',text:'Power cycle attempted remotely',time:'08 Jun, 07:40'},{t:'work',text:'Engineer dispatched for on-site reset',time:'08 Jun, 08:00'}]},
+      {id:'#ZD-10826',subj:'DVR reboot loop — IIFL-KKD-022',p:'P1',branch:'IIFL-KKD-022',status:'in-progress',age:'1h 40m',sla:'warn',opened:'08 Jun 2025, 07:40',desc:'DVR at Kozhikode branch stuck in reboot loop. All cameras offline. Firmware corruption suspected.',timeline:[{t:'open',text:'DVR reboot loop detected',time:'08 Jun, 07:40'},{t:'work',text:'Attempted remote firmware recovery',time:'08 Jun, 08:00'},{t:'work',text:'On-site engineer en route — ETA 30 mins',time:'08 Jun, 08:30'}]},
+      {id:'#ZD-10813',subj:'CAM angle adjustment — IIFL-ELR-031',p:'P3',branch:'IIFL-ELR-031',status:'open',age:'0h 50m',sla:'ok',opened:'08 Jun 2025, 08:30',desc:'CAM-02 angle needs adjustment as newly installed ATM machine is partially blocking its field of view.',timeline:[{t:'open',text:'View obstruction reported by branch',time:'08 Jun, 08:30'},{t:'note',text:'Site visit required for physical adjustment',time:'08 Jun, 08:31'}]},
+      {id:'#ZD-10800',subj:'Backup upload failure — IIFL-TVL-014',p:'P2',branch:'IIFL-TVL-014',status:'open',age:'3h 20m',sla:'breach',opened:'08 Jun 2025, 06:00',desc:'Cloud backup uploads failing at Trivandrum branch since 03:00. 3 hours of footage not backed up. Network or cloud credentials issue.',timeline:[{t:'open',text:'Backup failure alert from cloud dashboard',time:'08 Jun, 06:00'},{t:'work',text:'Credential validation — failed',time:'08 Jun, 06:30'},{t:'work',text:'Cloud API token refresh in progress',time:'08 Jun, 08:00'}]},
+      {id:'#ZD-10787',subj:'Motion detection zone reset — IIFL-MDU-038',p:'P3',branch:'IIFL-MDU-038',status:'resolved',age:'1h 00m',sla:'ok',opened:'08 Jun 2025, 07:20',desc:'Motion detection zones reverted to default after NVR firmware update. Custom zones need to be reapplied.',timeline:[{t:'open',text:'Zone reset detected post-update',time:'08 Jun, 07:20'},{t:'work',text:'Remote zone reapplication',time:'08 Jun, 07:35'},{t:'done',text:'All custom zones restored — ✓ Resolved',time:'08 Jun, 08:15'}]},
+    ],
+    penalties:[{date:'06 Jun',ticket:'#ZD-10731',desc:'P2 — IIFL-TVL backup SLA breach, 0h 52m over',amount:'₹4,000',rule:'P2 overage @ ₹1,500/hr'}],
+    reports:[
+      {month:'Jun 2025',uptime:'96.8%',tix:58,resolved:57,open:1,penalty:'₹4,000',status:'warn'},
+      {month:'May 2025',uptime:'97.4%',tix:52,resolved:52,open:0,penalty:'₹0',status:'green'},
+      {month:'Apr 2025',uptime:'95.9%',tix:64,resolved:62,open:2,penalty:'₹8,000',status:'warn'},
+      {month:'Mar 2025',uptime:'97.9%',tix:44,resolved:44,open:0,penalty:'₹0',status:'green'},
+    ],
+    sopViolations: [{"id": "SOP-IV-014", "time": "06:00", "branch": "IIFL-TVL-014", "operator": "OP-IV-01", "type": "Suspicious Activity Check Skipped", "severity": "medium", "penalty": "1000", "status": "open", "detail": "Operator skipped suspicious activity review before issuing OTP. Active AI perimeter motion alert was not reviewed."}],
+    otpLog: [{"time": "06:00", "branch": "IIFL-TVL-014", "operator": "OP-IV-01", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": true, "vault_clear": true, "no_suspicious": false, "cameras_live": true, "reason_logged": true, "dual_custody": true}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "violation", "duration": "1m 05s"}, {"time": "09:30", "branch": "IIFL-HSR-009", "operator": "OP-IV-02", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": true, "vault_clear": true, "no_suspicious": true, "cameras_live": true, "reason_logged": true, "dual_custody": true}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "compliant", "duration": "1m 59s"}, {"time": "13:15", "branch": "IIFL-KKD-022", "operator": "OP-IV-01", "type": "Vault Access", "checklist": {"branch_open": true, "identity_verified": true, "vault_clear": true, "no_suspicious": true, "cameras_live": true, "reason_logged": true, "dual_custody": true}, "otp": "\u2022\u2022\u2022\u2022\u2022\u2022", "status": "compliant", "duration": "2m 10s"}]
+  },
+};
+
+// ═══ STATE ═══
+let currentVendor = null;
+let currentPage = 'dashboard';
+
+// ═══ LOGIN ═══
+function doLogin() {
+  const vkey = document.getElementById('login-vendor').value;
+  const email = document.getElementById('login-email').value;
+  const pw = document.getElementById('login-password').value;
+  if (!vkey) { alert('Please select your company.'); return; }
+  if (!email) { alert('Please enter your email.'); return; }
+  if (!pw) { alert('Please enter your password.'); return; }
+
+  currentVendor = VENDOR_DATA[vkey];
+
+  // Set topbar
+  const av = document.getElementById('tb-avatar');
+  av.textContent = currentVendor.short;
+  av.style.background = currentVendor.color;
+  document.getElementById('tb-vendor-name').textContent = currentVendor.name;
+  document.getElementById('tb-user-name').textContent = `${currentVendor.user} · ${currentVendor.role}`;
+
+  // Open tickets count
+  const openCount = currentVendor.tickets.filter(t => t.status !== 'resolved').length;
+  document.getElementById('nav-open-count').textContent = openCount;
+  document.getElementById('nav-penalty-count').textContent = currentVendor.penalties.length;
+  const sopViolations = (currentVendor.sopViolations||[]).filter(v => v.status === 'open').length;
+  const sopEl = document.getElementById('nav-sop-count');
+  if (sopEl) { sopEl.textContent = sopViolations; sopEl.style.display = sopViolations > 0 ? 'inline-block' : 'none'; }
+
+  // Sidebar SLA
+  const sla = currentVendor.overallSLA;
+  document.getElementById('sidebar-sla-score').textContent = sla + '%';
+  document.getElementById('sidebar-sla-score').style.color = sla >= 97 ? 'var(--green)' : sla >= 93 ? 'var(--amber)' : 'var(--red)';
+  document.getElementById('sidebar-sla-fill').style.width = sla + '%';
+  document.getElementById('sidebar-sla-fill').style.background = sla >= 97 ? 'var(--green)' : sla >= 93 ? 'var(--amber)' : 'var(--red)';
+
+  // Notification dot
+  const hasBreaches = currentVendor.tickets.some(t => t.sla === 'breach');
+  document.getElementById('notif-dot').style.display = hasBreaches ? 'block' : 'none';
+
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+
+  startMISTimer();
+  renderPage('dashboard');
+}
+
+function doLogout() {
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').classList.remove('visible');
+  currentVendor = null;
+  currentPage = 'dashboard';
+  document.getElementById('login-vendor').value = '';
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-password').value = '';
+}
+
+// Clock
+function updateClock() {
+  const t = new Date().toLocaleTimeString('en-IN', { hour12: false });
+  const el = document.getElementById('tb-clock');
+  if (el) el.textContent = t + ' IST';
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ═══ NAV ═══
+function navTo(el, page) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  renderPage(page);
+}
+
+// ═══ TOAST ═══
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = (type === 'success' ? '✓  ' : '✕  ') + msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ═══ RENDER ═══
+function renderPage(page) {
+  currentPage = page;
+  const main = document.getElementById('main-content');
+  const v = currentVendor;
+
+  if (page === 'dashboard') main.innerHTML = renderDashboard(v);
+  else if (page === 'tickets') main.innerHTML = renderTickets(v);
+  else if (page === 'mis') main.innerHTML = renderMIS(v);
+  else if (page === 'sla') main.innerHTML = renderSLA(v);
+  else if (page === 'penalties') main.innerHTML = renderPenalties(v);
+  else if (page === 'sop') main.innerHTML = renderSOP(v);
+  else if (page === 'reports') main.innerHTML = renderReports(v);
+  else if (page === 'profile') main.innerHTML = renderProfile(v);
+  else if (page === 'contact') main.innerHTML = renderContact(v);
+}
+
+// ── HELPERS ──
+function slaColor(v) { return v >= 97 ? 'var(--green)' : v >= 93 ? 'var(--amber)' : 'var(--red)'; }
+function statusPill(s) {
+  if (s==='resolved') return '<span class="pill pill-green">Resolved</span>';
+  if (s==='in-progress') return '<span class="pill pill-orange">In Progress</span>';
+  return '<span class="pill pill-blue">Open</span>';
+}
+function slaPill(s) {
+  if (s==='breach') return '<span class="pill pill-red">⚠ SLA Breach</span>';
+  if (s==='warn')   return '<span class="pill pill-amber">⏱ Near Breach</span>';
+  return '<span class="pill pill-green">Within SLA</span>';
+}
+function prioBadge(p) {
+  if (p==='P1') return '<span class="prio prio-p1">P1</span>';
+  if (p==='P2') return '<span class="prio prio-p2">P2</span>';
+  return '<span class="prio prio-p3">P3</span>';
+}
+
+// Compliance arc SVG
+function arcSVG(score, color) {
+  const r = 62, cx = 70, cy = 70;
+  const circumference = Math.PI * r; // half circle
+  const dashLen = (score / 100) * circumference;
+  return `<svg class="arc-svg" viewBox="0 0 140 80" xmlns="http://www.w3.org/2000/svg">
+    <path d="M 8 70 A 62 62 0 0 1 132 70" fill="none" stroke="#E2E8F0" stroke-width="10" stroke-linecap="round"/>
+    <path d="M 8 70 A 62 62 0 0 1 132 70" fill="none" stroke="${color}" stroke-width="10" stroke-linecap="round"
+      stroke-dasharray="${dashLen} ${circumference}"
+      style="transition:stroke-dasharray 0.8s ease"/>
+  </svg>`;
+}
+
+// ── DASHBOARD ──
+function renderDashboard(v) {
+  const openTix = v.tickets.filter(t => t.status !== 'resolved').length;
+  const breachTix = v.tickets.filter(t => t.sla === 'breach').length;
+  const p1 = v.tickets.filter(t => t.p === 'P1' && t.status !== 'resolved').length;
+  const color = slaColor(v.overallSLA);
+
+  const sopViol = (v.sopViolations||[]).filter(x=>x.status==='open').length;
+  const sopPenalty = (v.sopViolations||[]).reduce((s,x)=>s+parseInt(x.penalty||0),0);
+  const breachBanner = breachTix > 0 ? `
+    <div class="notice notice-red">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L14 13H2L8 2Z" stroke="currentColor" stroke-width="1.4"/><path d="M8 6v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="11.5" r="0.5" fill="currentColor"/></svg>
+      <div><strong>${breachTix} SLA ${breachTix === 1 ? 'breach' : 'breaches'} require immediate attention.</strong> Continued delays may result in additional penalties. <a href="#" onclick="navToTickets()" style="color:inherit;font-weight:600">View breached tickets →</a></div>
+    </div>` : '';
+
+  return `
+  <div class="page-header">
+    <div>
+      <div class="page-title">Welcome back, ${v.user.split(' ')[0]}</div>
+      <div class="page-subtitle">${v.name} · ${v.branches} branches · ${v.cams.toLocaleString()} cameras · Today, ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div>
+    </div>
+  </div>
+
+  ${breachBanner}
+
+  <!-- Compliance Meter + KPIs -->
+  <div style="display:grid;grid-template-columns:auto 1fr;gap:14px">
+    <div class="panel" style="width:320px">
+      <div class="panel-header">
+        <div class="panel-title"><div class="panel-dot"></div>Overall SLA Compliance</div>
+        <span style="font-size:10px;color:var(--text-muted);font-family:var(--mono)">June 2025</span>
+      </div>
+      <div class="compliance-wrap">
+        <div class="arc-wrap">
+          ${arcSVG(v.overallSLA, color)}
+          <div class="arc-score">
+            <div class="arc-score-val" style="color:${color}">${v.overallSLA}%</div>
+            <div class="arc-score-label">Compliance</div>
+          </div>
+        </div>
+        <div class="compliance-stats">
+          <div class="cs-item"><div class="cs-label">P1 SLA</div><div class="cs-val" style="color:${slaColor(v.slaP1)}">${v.slaP1}%</div></div>
+          <div class="cs-item"><div class="cs-label">P2 SLA</div><div class="cs-val" style="color:${slaColor(v.slaP2)}">${v.slaP2}%</div></div>
+          <div class="cs-item"><div class="cs-label">P3 SLA</div><div class="cs-val" style="color:${slaColor(v.slaP3)}">${v.slaP3}%</div></div>
+          <div class="cs-item"><div class="cs-label">MTD Penalty</div><div class="cs-val" style="color:${v.penalty===0?'var(--green)':'var(--red)'}">${v.penaltyStr}</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-grid-5" style="align-content:start">
+      <div class="kpi-card navy">
+        <div class="kpi-label">Branches</div>
+        <div class="kpi-value">${v.branches}</div>
+        <div class="kpi-sub">${v.cams.toLocaleString()} cameras</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label">Open Tickets</div>
+        <div class="kpi-value amber">${openTix}</div>
+        <div class="kpi-sub">${p1} critical P1</div>
+      </div>
+      <div class="kpi-card ${breachTix > 0 ? 'red' : 'green'}">
+        <div class="kpi-label">SLA Breaches</div>
+        <div class="kpi-value ${breachTix > 0 ? 'red' : 'green'}">${breachTix}</div>
+        <div class="kpi-sub">${breachTix === 0 ? 'All within SLA' : 'Need immediate action'}</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Uptime MTD</div>
+        <div class="kpi-value green">${v.uptime}%</div>
+        <div class="kpi-sub">Network availability</div>
+      </div>
+      <div class="kpi-card ${v.penalty > 0 ? 'red' : 'green'}">
+        <div class="kpi-label">MTD Penalty</div>
+        <div class="kpi-value ${v.penalty > 0 ? 'red' : 'green'}">${v.penaltyStr}</div>
+        <div class="kpi-sub">${v.penalties.length} ${v.penalties.length === 1 ? 'incident' : 'incidents'}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Tickets -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><div class="panel-dot" style="background:var(--amber)"></div>Active Tickets Requiring Attention</div>
+      <button class="btn btn-ghost" onclick="navToPage('tickets')" style="font-size:11px">View All →</button>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>ID</th><th>Priority</th><th>Issue</th><th>Branch</th><th>Age</th><th>SLA Status</th><th>Status</th></tr></thead>
+      <tbody>
+        ${v.tickets.filter(t=>t.status!=='resolved').slice(0,5).map(t=>`
+        <tr onclick="openTicket('${t.id}')">
+          <td class="td-orange">${t.id}</td>
+          <td>${prioBadge(t.p)}</td>
+          <td class="td-primary">${t.subj}</td>
+          <td class="td-mono" style="color:var(--text-muted)">${t.branch}</td>
+          <td class="td-mono">${t.age}</td>
+          <td>${slaPill(t.sla)}</td>
+          <td>${statusPill(t.status)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SOP Summary -->
+  ${sopViol > 0 || sopPenalty > 0 ? `
+  <div class="notice notice-red" style="cursor:pointer" onclick="navToPage('sop')">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><path d="M7 2L13 12H1L7 2Z" stroke="currentColor" stroke-width="1.4"/><path d="M7 5V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+    <div><strong>SOP Alert:</strong> ${sopViol} open violation${sopViol!==1?'s':''} · ₹${sopPenalty.toLocaleString()} penalty MTD. <span style="font-weight:600;text-decoration:underline">Review SOP Adherence →</span></div>
+  </div>` : `
+  <div class="notice notice-info" style="cursor:pointer" onclick="navToPage('sop')">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.4"/><path d="M7 6v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    <div>SOP Adherence: <strong style="color:var(--green)">No violations today.</strong> All OTP issuances are compliant. <span style="font-weight:600;text-decoration:underline">View OTP log →</span></div>
+  </div>`}
+
+  <!-- Monthly Snapshot -->
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title"><div class="panel-dot"></div>Monthly Performance</div></div>
+      <div class="panel-body">
+        <div style="display:flex;align-items:flex-end;gap:10px;height:80px;margin-bottom:8px">
+          ${v.reports.map(r=>{
+            const pct = parseFloat(r.uptime);
+            const h = Math.round(((pct-90)/10)*70);
+            const col = r.status==='green'?'var(--green)':r.status==='warn'?'var(--amber)':'var(--red)';
+            return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <div style="font-family:var(--mono);font-size:8px;color:${col};font-weight:600">${r.uptime}</div>
+              <div style="width:100%;height:${Math.max(h,6)}px;background:${col};border-radius:3px 3px 0 0;opacity:0.75"></div>
+              <div style="font-family:var(--mono);font-size:8px;color:var(--text-muted)">${r.month.substring(0,3)}</div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div style="margin-top:4px;font-size:10px;text-align:center;color:var(--text-muted)">Network Uptime % — Last 4 months</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title"><div class="panel-dot" style="background:var(--red)"></div>Penalty Overview</div></div>
+      <div class="panel-body">
+        ${v.penalties.length === 0
+          ? `<div style="text-align:center;padding:16px 0">
+              <div style="font-size:32px;margin-bottom:8px">✓</div>
+              <div style="font-weight:700;color:var(--green);font-size:14px">No Penalties This Month</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-top:4px">All SLA commitments met for June 2025</div>
+            </div>`
+          : v.penalties.map(p=>`
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-mid)">
+              <div>
+                <div style="font-size:12px;font-weight:500;color:var(--text-primary)">${p.ticket}</div>
+                <div style="font-size:10px;color:var(--text-muted);margin-top:2px">${p.date}</div>
+              </div>
+              <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--red)">${p.amount}</div>
+            </div>`).join('')
+        }
+        ${v.penalties.length > 0 ? `<div style="display:flex;justify-content:space-between;padding:10px 0 0;margin-top:4px;border-top:1px solid var(--border)"><span style="font-size:12px;font-weight:600;color:var(--text-primary)">Total MTD</span><span style="font-family:var(--mono);font-size:15px;font-weight:800;color:var(--red)">${v.penaltyStr}</span></div>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function navToPage(page) {
+  const items = document.querySelectorAll('.nav-item');
+  const labels = ['dashboard','tickets','mis','sla','penalties','sop','reports','profile','contact'];
+  items.forEach((item, i) => {
+    item.classList.remove('active');
+    if (labels[i] === page) item.classList.add('active');
+  });
+  renderPage(page);
+}
+
+// ── TICKETS ──
+function renderTickets(v) {
+  const open = v.tickets.filter(t=>t.status!=='resolved');
+  const resolved = v.tickets.filter(t=>t.status==='resolved');
+
+  return `
+  <div class="page-header">
+    <div>
+      <div class="page-title">My Tickets</div>
+      <div class="page-subtitle">${open.length} open · ${resolved.length} resolved · ${v.tickets.length} total this month</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-ghost">Export CSV</button>
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:6px;font-size:11px;color:var(--green);font-weight:600"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.3"/><path d="M4 6l1.5 1.5L8 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Tickets assigned by IIFL SOC only</div>
+    </div>
+  </div>
+
+  ${v.tickets.some(t=>t.sla==='breach') ? `
+  <div class="notice notice-warn">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2L13 12H1L7 2Z" stroke="currentColor" stroke-width="1.4"/><path d="M7 5V8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    <strong>${v.tickets.filter(t=>t.sla==='breach').length} ticket(s) have breached SLA.</strong> Respond immediately to avoid further penalty accumulation. Additional ₹3,000–₹1,500 per hour may be applied.
+  </div>` : ''}
+
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><div class="panel-dot" style="background:var(--amber)"></div>Open Tickets</div>
+      <div style="display:flex;gap:6px">
+        <select class="app-select" style="width:auto;font-size:11px;padding:4px 8px" onchange="">
+          <option>All Priorities</option><option>P1 Critical</option><option>P2 High</option><option>P3 Normal</option>
+        </select>
+        <select class="app-select" style="width:auto;font-size:11px;padding:4px 8px">
+          <option>All Statuses</option><option>Open</option><option>In Progress</option>
+        </select>
+      </div>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Ticket ID</th><th>Priority</th><th>Subject</th><th>Branch</th><th>Opened</th><th>Age</th><th>SLA</th><th>Status</th></tr></thead>
+      <tbody>
+        ${open.map(t=>`
+        <tr onclick="openTicket('${t.id}')">
+          <td class="td-orange">${t.id}</td>
+          <td>${prioBadge(t.p)}</td>
+          <td class="td-primary">${t.subj}</td>
+          <td class="td-mono" style="color:var(--text-muted)">${t.branch}</td>
+          <td class="td-mono" style="color:var(--text-muted);font-size:10px">${t.opened}</td>
+          <td class="td-mono">${t.age}</td>
+          <td>${slaPill(t.sla)}</td>
+          <td>${statusPill(t.status)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+
+  ${resolved.length > 0 ? `
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><div class="panel-dot" style="background:var(--green)"></div>Resolved Tickets</div>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Ticket ID</th><th>Priority</th><th>Subject</th><th>Branch</th><th>Opened</th><th>SLA</th><th>Status</th></tr></thead>
+      <tbody>
+        ${resolved.map(t=>`
+        <tr onclick="openTicket('${t.id}')">
+          <td class="td-orange">${t.id}</td>
+          <td>${prioBadge(t.p)}</td>
+          <td style="color:var(--text-muted);text-decoration:line-through;font-size:12px">${t.subj}</td>
+          <td class="td-mono" style="color:var(--text-muted)">${t.branch}</td>
+          <td class="td-mono" style="color:var(--text-muted);font-size:10px">${t.opened}</td>
+          <td>${slaPill(t.sla)}</td>
+          <td>${statusPill(t.status)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>` : ''}`;
+}
+
+// ── TICKET DETAIL ──
+function openTicket(id) {
+  const t = currentVendor.tickets.find(x => x.id === id);
+  if (!t) return;
+
+  document.getElementById('td-id').textContent = t.id;
+  document.getElementById('td-created').textContent = `Opened: ${t.opened} · ${t.branch}`;
+
+  const body = `
+    <div style="margin-bottom:16px">
+      <div style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:8px">${t.subj}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        ${prioBadge(t.p)} ${statusPill(t.status)} ${slaPill(t.sla)}
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;background:var(--slate);padding:12px;border-radius:6px">${t.desc}</div>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:10px">Ticket Details</div>
+      <div class="info-row"><span class="info-label">Ticket ID</span><span class="info-val">${t.id}</span></div>
+      <div class="info-row"><span class="info-label">Priority</span><span class="info-val">${t.p}</span></div>
+      <div class="info-row"><span class="info-label">Branch</span><span class="info-val">${t.branch}</span></div>
+      <div class="info-row"><span class="info-label">Opened</span><span class="info-val">${t.opened}</span></div>
+      <div class="info-row"><span class="info-label">Age</span><span class="info-val">${t.age}</span></div>
+      <div class="info-row"><span class="info-label">SLA Target</span><span class="info-val">${t.p==='P1'?'4 hours':t.p==='P2'?'8 hours':'24 hours'}</span></div>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:10px">Activity Timeline</div>
+      <div class="timeline">
+        ${t.timeline.map(tl=>`
+        <div class="tl-item">
+          <div class="tl-dot ${tl.t}">${tl.t==='open'?'🔵':tl.t==='work'?'🔧':tl.t==='done'?'✓':'·'}</div>
+          <div class="tl-content">
+            <div class="tl-title">${tl.text}</div>
+            <div class="tl-meta">${tl.time}</div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    ${t.status !== 'resolved' ? `
+    <div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:10px">Add Update / Response</div>
+
+      ${t.closureReport ? '' : `
+      <div style="display:flex;align-items:flex-start;gap:8px;padding:9px 12px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:6px;margin-bottom:12px;font-size:11px;color:#9A3412">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="flex-shrink:0;margin-top:1px"><path d="M6.5 2L12 11H1L6.5 2Z" stroke="currentColor" stroke-width="1.3"/><path d="M6.5 5V7.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        To close this ticket, a <strong>signed closure report</strong> from the IIFL branch manager is required. Upload it using the "Mark Resolved" button.
+      </div>`}
+
+      <div class="field-group">
+        <textarea class="app-textarea" placeholder="Describe the action taken, parts replaced, tests done, ETA if still open..."></textarea>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-orange" onclick="updateTicket('${t.id}')" style="flex:1">Submit Update to SOC</button>
+        <button class="btn btn-ghost" style="background:#F0FDF4;color:var(--green);border-color:#BBF7D0;white-space:nowrap" onclick="resolveTicket('${t.id}')">
+          📋 Upload Closure Report & Close
+        </button>
+      </div>
+    </div>` : `
+    <div>
+      <div style="text-align:center;padding:12px;background:var(--green-light);border-radius:6px;color:var(--green);font-weight:600;font-size:13px;margin-bottom:10px">✓ This ticket has been resolved</div>
+      ${t.closureReport ? `<div style="background:var(--slate);border-radius:6px;padding:10px 12px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:6px">Closure Report Submitted</div>
+        <div style="font-size:12px;color:var(--text-primary);font-weight:500">${t.closureReport.file?.name || 'closure_report.pdf'}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:3px">Engineer: ${t.closureReport.engineer} · Branch Mgr: ${t.closureReport.branchManager}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:2px;font-family:var(--mono)">Uploaded: ${t.closureReport.uploadedAt}</div>
+      </div>` : ''}
+    </div>`}`;
+
+  document.getElementById('ticket-panel-body').innerHTML = body;
+  document.getElementById('ticket-overlay').classList.add('open');
+}
+
+function closeTicketPanel(e) {
+  if (!e || e.target === document.getElementById('ticket-overlay')) {
+    document.getElementById('ticket-overlay').classList.remove('open');
+  }
+}
+
+// updateTicket replaced by override below
+
+function resolveTicket(id) {
+  const t = currentVendor.tickets.find(x => x.id === id);
+  t.timeline.push({t:'done', text:`Resolved by ${currentVendor.user} — ✓`, time:'Just now'});
+  t.status = 'resolved';
+  t.sla = t.sla === 'breach' ? 'breach' : 'ok';
+  closeTicketPanel();
+  showToast('Ticket marked as resolved');
+  const openCount = currentVendor.tickets.filter(t => t.status !== 'resolved').length;
+  document.getElementById('nav-open-count').textContent = openCount;
+  renderPage(currentPage);
+}
+
+
+// ── SLA ──
+function renderSLA(v) {
+  return `
+  <div class="page-header">
+    <div>
+      <div class="page-title">SLA Tracker</div>
+      <div class="page-subtitle">Your SLA performance against IIFL EYE commitments · June 2025</div>
+    </div>
+    <button class="btn btn-ghost">Download SLA Report</button>
+  </div>
+
+  <!-- Arc + breakdown -->
+  <div style="display:grid;grid-template-columns:280px 1fr;gap:14px">
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title"><div class="panel-dot"></div>Compliance Score</div></div>
+      <div style="padding:20px 16px;text-align:center">
+        <div style="position:relative;width:180px;height:105px;margin:0 auto 10px">
+          <svg viewBox="0 0 180 105" style="width:180px;height:105px">
+            <path d="M 10 90 A 80 80 0 0 1 170 90" fill="none" stroke="#E2E8F0" stroke-width="14" stroke-linecap="round"/>
+            <path d="M 10 90 A 80 80 0 0 1 170 90" fill="none" stroke="${slaColor(v.overallSLA)}" stroke-width="14" stroke-linecap="round"
+              stroke-dasharray="${(v.overallSLA/100)*251} 251"/>
+          </svg>
+          <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);text-align:center">
+            <div style="font-family:var(--mono);font-size:28px;font-weight:800;color:${slaColor(v.overallSLA)}">${v.overallSLA}%</div>
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em">Overall</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text-muted)">Target: <strong style="color:var(--text-primary)">95.0%</strong></div>
+        <div style="margin-top:8px">
+          <span style="display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;
+            background:${v.overallSLA>=95?'var(--green-light)':'var(--red-light)'};
+            color:${v.overallSLA>=95?'var(--green)':'var(--red)'}">
+            ${v.overallSLA>=95?'✓ COMPLIANT':'✗ BELOW TARGET'}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title"><div class="panel-dot"></div>SLA by Priority</div></div>
+      <div class="panel-body">
+        <div class="sla-bar-wrap">
+          ${[{label:'P1 — Critical (4h resolution)',val:v.slaP1},{label:'P2 — High (8h resolution)',val:v.slaP2},{label:'P3 — Normal (24h resolution)',val:v.slaP3}].map(row=>`
+          <div class="sla-bar-row">
+            <div class="sla-bar-header">
+              <span class="sla-bar-label">${row.label}</span>
+              <span class="sla-bar-pct" style="color:${slaColor(row.val)}">${row.val}%</span>
+            </div>
+            <div class="sla-track"><div class="sla-fill" style="width:${row.val}%;background:${slaColor(row.val)}"></div></div>
+            <div class="sla-bar-target">
+              Target: 95% · ${row.val>=95?`<span style="color:var(--green)">✓ ${(row.val-95).toFixed(1)}% above target</span>`:`<span style="color:var(--red)">✗ ${(95-row.val).toFixed(1)}% below target</span>`}
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLA Rules -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><div class="panel-dot" style="background:var(--navy-mid)"></div>SLA Agreement Terms</div>
+      <span style="font-size:10px;color:var(--text-muted)">Contract: IIFL-VENDOR-2024 · Read only</span>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Priority</th><th>Trigger</th><th>Response SLA</th><th>Resolution SLA</th><th>Penalty Rate</th><th>Daily Cap</th><th>Your Score</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="prio prio-p1">P1</span></td>
+          <td style="color:var(--text-secondary);font-size:12px">Complete outage / NVR down / >50% cameras offline</td>
+          <td class="td-mono">1 hour</td><td class="td-mono">4 hours</td>
+          <td class="td-mono td-red">₹3,000 / hr</td><td class="td-mono">₹24,000</td>
+          <td><span style="font-family:var(--mono);font-weight:700;color:${slaColor(v.slaP1)}">${v.slaP1}%</span></td>
+        </tr>
+        <tr>
+          <td><span class="prio prio-p2">P2</span></td>
+          <td style="color:var(--text-secondary);font-size:12px">Partial cam loss / NVR degraded / recording gaps</td>
+          <td class="td-mono">2 hours</td><td class="td-mono">8 hours</td>
+          <td class="td-mono td-amber">₹1,500 / hr</td><td class="td-mono">₹12,000</td>
+          <td><span style="font-family:var(--mono);font-weight:700;color:${slaColor(v.slaP2)}">${v.slaP2}%</span></td>
+        </tr>
+        <tr>
+          <td><span class="prio prio-p3">P3</span></td>
+          <td style="color:var(--text-secondary);font-size:12px">Config changes / maintenance / minor issues</td>
+          <td class="td-mono">4 hours</td><td class="td-mono">24 hours</td>
+          <td class="td-mono td-green">₹500 / hr</td><td class="td-mono">₹4,000</td>
+          <td><span style="font-family:var(--mono);font-weight:700;color:${slaColor(v.slaP3)}">${v.slaP3}%</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Historical SLA trend -->
+  <div class="panel">
+    <div class="panel-header"><div class="panel-title"><div class="panel-dot"></div>SLA Trend — Last 4 Months</div></div>
+    <div class="panel-body">
+      <div style="display:flex;align-items:flex-end;gap:16px;height:90px">
+        ${v.reports.map(r=>{
+          const pct = parseFloat(r.uptime);
+          const h = Math.max(Math.round(((pct-88)/12)*80), 6);
+          const col = r.status==='green'?'var(--green)':r.status==='warn'?'var(--amber)':'var(--red)';
+          return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">
+            <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:${col}">${r.uptime}</div>
+            <div style="width:100%;height:${h}px;background:${col};border-radius:4px 4px 0 0;opacity:0.75"></div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--text-muted)">${r.month}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── PENALTIES ──
+function renderPenalties(v) {
+  const total = v.penalties.reduce((s,p)=>s+parseInt(p.amount.replace(/[₹,]/g,'')),0);
+
+  return `
+  <div class="page-header">
+    <div>
+      <div class="page-title">Penalty Statement</div>
+      <div class="page-subtitle">SLA breach penalties · June 2025 · Disputed items must be raised within 7 days</div>
+    </div>
+    <button class="btn btn-ghost">Download Statement PDF</button>
+  </div>
+
+  ${v.penalties.length > 0 ? `
+  <div class="notice notice-warn">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2L13 12H1L7 2Z" stroke="currentColor" stroke-width="1.4"/><path d="M7 5V8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    Penalties are auto-calculated and will be deducted from your monthly invoice. To dispute, raise a penalty dispute ticket within 7 days of the incident date.
+  </div>` : ''}
+
+  <!-- Summary -->
+  ${v.penalties.length === 0
+    ? `<div class="panel"><div class="panel-body" style="text-align:center;padding:32px">
+        <div style="font-size:48px;margin-bottom:12px">🎉</div>
+        <div style="font-size:18px;font-weight:700;color:var(--green);margin-bottom:6px">No Penalties This Month</div>
+        <div style="font-size:13px;color:var(--text-muted)">All SLA commitments met for June 2025. Keep it up!</div>
+      </div></div>`
+    : `<div class="penalty-summary-card">
+        <div>
+          <div style="font-size:11px;color:#9A3412;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Total Penalty — June 2025</div>
+          <div class="penalty-amount-large">₹${total.toLocaleString()}</div>
+          <div style="font-size:12px;color:#9A3412;margin-top:4px">${v.penalties.length} SLA breach ${v.penalties.length===1?'incident':'incidents'} · Will be deducted from July invoice</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div style="font-size:11px;color:#9A3412;margin-bottom:4px">Invoice Deduction Date</div>
+          <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:#9A3412">01 July 2025</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><div class="panel-dot" style="background:var(--red)"></div>Penalty Itemisation</div>
+        </div>
+        <div style="padding:0">
+          <div style="display:grid;grid-template-columns:54px 80px 1fr auto 120px;gap:0;padding:8px 16px;background:var(--slate);border-bottom:1px solid var(--border)">
+            <span style="font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted)">Date</span>
+            <span style="font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted)">Ticket</span>
+            <span style="font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted)">Breach Description</span>
+            <span style="font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted)">Rule Applied</span>
+            <span style="font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);text-align:right">Amount</span>
+          </div>
+          ${v.penalties.map(p=>`
+          <div class="penalty-item-row" style="display:grid;grid-template-columns:54px 80px 1fr auto 120px;gap:0">
+            <span class="pi-date">${p.date}</span>
+            <span class="pi-ticket">${p.ticket}</span>
+            <span class="pi-desc">${p.desc}</span>
+            <span style="font-size:10px;color:var(--text-muted);padding:0 12px">${p.rule}</span>
+            <span class="pi-amount" style="text-align:right">${p.amount}</span>
+          </div>`).join('')}
+          <div style="display:flex;justify-content:space-between;padding:12px 16px;background:var(--red-light);border-top:1.5px solid #FECACA">
+            <span style="font-size:13px;font-weight:700;color:var(--red)">Total Penalty (June 2025)</span>
+            <span style="font-family:var(--mono);font-size:16px;font-weight:800;color:var(--red)">₹${total.toLocaleString()}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title"><div class="panel-dot" style="background:var(--amber)"></div>Dispute a Penalty</div></div>
+        <div class="panel-body">
+          <div class="notice notice-info" style="margin-bottom:14px">Disputes must be raised within 7 days of the penalty date. Include the ticket ID and reason for dispute. IIFL EYE will review within 5 business days.</div>
+          <div class="field-group">
+            <label class="field-label">Select Penalty to Dispute</label>
+            <select class="app-select">
+              <option>— Select incident —</option>
+              ${v.penalties.map(p=>`<option>${p.ticket} — ${p.date} — ${p.amount}</option>`).join('')}
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Reason for Dispute</label>
+            <textarea class="app-textarea" placeholder="Provide evidence and reasoning for the dispute..."></textarea>
+          </div>
+          <button class="btn btn-outline-orange" onclick="submitDispute()">Submit Dispute</button>
+        </div>
+      </div>`
+  }
+
+  <!-- Historical Penalties -->
+  <div class="panel">
+    <div class="panel-header"><div class="panel-title"><div class="panel-dot"></div>Penalty History</div></div>
+    <table class="data-table">
+      <thead><tr><th>Month</th><th>SLA Score</th><th>Tickets</th><th>Breaches</th><th>Penalty</th><th>Status</th></tr></thead>
+      <tbody>
+        ${v.reports.map(r=>`
+        <tr>
+          <td class="td-primary">${r.month}</td>
+          <td class="td-mono" style="color:${r.status==='green'?'var(--green)':r.status==='warn'?'var(--amber)':'var(--red)'}">${r.uptime}</td>
+          <td class="td-mono">${r.tix}</td>
+          <td class="td-mono" style="color:${r.tix-r.resolved>0?'var(--red)':'var(--green)'}">${r.tix-r.resolved}</td>
+          <td class="td-mono" style="color:${r.penalty==='₹0'?'var(--green)':'var(--red)'};font-weight:700">${r.penalty}</td>
+          <td><span class="pill ${r.status==='green'?'pill-green':r.status==='warn'?'pill-amber':'pill-red'}">${r.status.toUpperCase()}</span></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function submitDispute() {
+  showToast('Dispute submitted. IIFL EYE will respond within 5 business days.');
+}
+
+// ── REPORTS ──
+function renderReports(v) {
+  return `
+  <div class="page-header">
+    <div>
+      <div class="page-title">Service Reports</div>
+      <div class="page-subtitle">Monthly performance summaries · Generated by IIFL EYE SOC</div>
+    </div>
+    <button class="btn btn-orange">Request Custom Report</button>
+  </div>
+
+  <div class="grid-2">
+    ${v.reports.map(r=>{
+      const col = r.status==='green'?'var(--green)':r.status==='warn'?'var(--amber)':'var(--red)';
+      return `<div class="report-month-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div class="rmc-month">${r.month}</div>
+          <span class="pill ${r.status==='green'?'pill-green':r.status==='warn'?'pill-amber':'pill-red'}">${r.status.toUpperCase()}</span>
+        </div>
+        <div class="rmc-grid">
+          <div><div class="rmc-item-label">Network Uptime</div><div class="rmc-item-val" style="color:${col}">${r.uptime}</div></div>
+          <div><div class="rmc-item-label">Tickets Raised</div><div class="rmc-item-val">${r.tix}</div></div>
+          <div><div class="rmc-item-label">Resolved</div><div class="rmc-item-val" style="color:var(--green)">${r.resolved}</div></div>
+          <div><div class="rmc-item-label">Unresolved</div><div class="rmc-item-val" style="color:${r.tix-r.resolved>0?'var(--red)':'var(--green)'}">${r.tix-r.resolved}</div></div>
+          <div><div class="rmc-item-label">Penalty</div><div class="rmc-item-val" style="color:${r.penalty==='₹0'?'var(--green)':'var(--red)'}">${r.penalty}</div></div>
+          <div><div class="rmc-item-label">Resolution Rate</div><div class="rmc-item-val" style="color:${col}">${Math.round((r.resolved/r.tix)*100)}%</div></div>
+        </div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border-mid);display:flex;gap:8px">
+          <button class="btn btn-ghost" style="flex:1;font-size:11px">View Details</button>
+          <button class="btn btn-ghost" style="flex:1;font-size:11px">Download PDF</button>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+// ── PROFILE ──
+function renderProfile(v) {
+  return `
+  <div class="page-header">
+    <div>
+      <div class="page-title">My Profile</div>
+      <div class="page-subtitle">Account details and portal access for ${v.name}</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title"><div class="panel-dot"></div>Account Information</div></div>
+      <div class="panel-body">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border-mid)">
+          <div style="width:56px;height:56px;border-radius:12px;background:${v.bg};display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:18px;font-weight:800;color:${v.color}">${v.short}</div>
+          <div>
+            <div style="font-size:16px;font-weight:700;color:var(--text-primary)">${v.user}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">${v.role} · ${v.name}</div>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Full Name</label>
+          <input class="app-input" value="${v.user}">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Email Address</label>
+          <input class="app-input" value="${v.email}">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Phone</label>
+          <input class="app-input" value="${v.phone}">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Company</label>
+          <input class="app-input" value="${v.name}" disabled style="background:var(--slate);cursor:not-allowed">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Role</label>
+          <input class="app-input" value="${v.role}" disabled style="background:var(--slate);cursor:not-allowed">
+        </div>
+        <button class="btn btn-orange" onclick="showToast('Profile updated successfully')">Save Changes</button>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title"><div class="panel-dot" style="background:var(--navy-mid)"></div>Change Password</div></div>
+        <div class="panel-body">
+          <div class="field-group"><label class="field-label">Current Password</label><input class="app-input" type="password" placeholder="••••••••"></div>
+          <div class="field-group"><label class="field-label">New Password</label><input class="app-input" type="password" placeholder="••••••••"></div>
+          <div class="field-group"><label class="field-label">Confirm New Password</label><input class="app-input" type="password" placeholder="••••••••"></div>
+          <button class="btn btn-ghost" onclick="showToast('Password updated')">Update Password</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title"><div class="panel-dot" style="background:var(--green)"></div>Your Vendor Summary</div></div>
+        <div class="panel-body">
+          <div class="info-row"><span class="info-label">Branches Managed</span><span class="info-val">${v.branches}</span></div>
+          <div class="info-row"><span class="info-label">Cameras Installed</span><span class="info-val">${v.cams.toLocaleString()}</span></div>
+          <div class="info-row"><span class="info-label">Portal Access Since</span><span class="info-val">Jan 2024</span></div>
+          <div class="info-row"><span class="info-label">SLA Score (MTD)</span><span class="info-val" style="color:${slaColor(v.overallSLA)}">${v.overallSLA}%</span></div>
+          <div class="info-row"><span class="info-label">IIFL Account Manager</span><span class="info-val">${v.iiflContact.name}</span></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── CONTACT ──
+function renderContact(v) {
+  return `
+  <div class="page-header">
+    <div>
+      <div class="page-title">Contact IIFL EYE SOC</div>
+      <div class="page-subtitle">For technical issues, SLA disputes, and general enquiries</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="contact-card">
+        <div class="cc-title">Your Account Manager</div>
+        <div class="cc-name">${v.iiflContact.name}</div>
+        <div class="cc-role">${v.iiflContact.role} · IIFL Finance</div>
+        <div class="cc-row"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h3l1.5 3-2 1.2A7 7 0 005.8 9L7 7l3 1.5V11a1 1 0 01-1 1C4 12 0 8 0 3a1 1 0 011-1h1z" stroke="rgba(255,255,255,0.6)" stroke-width="1.2"/></svg>${v.iiflContact.phone}</div>
+        <div class="cc-row"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="2" width="10" height="8" rx="1" stroke="rgba(255,255,255,0.6)" stroke-width="1.2"/><path d="M1 4l5 3.5L11 4" stroke="rgba(255,255,255,0.6)" stroke-width="1.2"/></svg>${v.iiflContact.email}</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title"><div class="panel-dot" style="background:var(--red)"></div>Emergency / P1 Contacts</div></div>
+        <div class="panel-body">
+          ${[
+            {label:'IIFL EYE SOC 24x7 Helpdesk',val:'+91-22-4007-7777'},
+            {label:'P1 Escalation (Direct)',val:'+91-98100-00001'},
+            {label:'SOC Operations Email',val:'soc@iifl-eye.com'},
+            {label:'P1 WhatsApp Group',val:'IIFL EYE P1 Alert (Vendor)'},
+          ].map(c=>`
+          <div class="info-row"><span class="info-label">${c.label}</span><span class="info-val">${c.val}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title"><div class="panel-dot"></div>Send a Message to SOC</div></div>
+      <div class="panel-body">
+        <div class="field-group"><label class="field-label">Subject</label><input class="app-input" placeholder="Brief subject of your enquiry"></div>
+        <div class="field-group">
+          <label class="field-label">Category</label>
+          <select class="app-select">
+            <option>General Enquiry</option>
+            <option>SLA Dispute</option>
+            <option>Penalty Dispute</option>
+            <option>Technical Issue</option>
+            <option>Access Request</option>
+            <option>Invoice Query</option>
+          </select>
+        </div>
+        <div class="field-group"><label class="field-label">Message</label><textarea class="app-textarea" style="min-height:120px" placeholder="Describe your enquiry in detail..."></textarea></div>
+        <button class="btn btn-orange" style="width:100%" onclick="showToast('Message sent to IIFL EYE SOC')">Send Message</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── CLOSURE REPORT STATE ──
+// Tracks uploaded closure reports per ticket
+const closureReports = {};
+const misUploads = { health: [], otp: [], incidents: [] };
+
+// ── UPDATED RESOLVE TICKET - requires closure report ──
+function resolveTicket(id) {
+  // Check if closure report uploaded
+  if (!closureReports[id]) {
+    showUploadModal(id);
+    return;
+  }
+  const t = currentVendor.tickets.find(x => x.id === id);
+  t.timeline.push({t:'done', text:`Closure report uploaded & verified — Resolved by ${currentVendor.user} ✓`, time:'Just now'});
+  t.status = 'resolved';
+  t.closureReport = closureReports[id];
+  document.getElementById('ticket-overlay').classList.remove('open');
+  showToast('Ticket resolved. Closure report submitted to IIFL SOC.');
+  const openCount = currentVendor.tickets.filter(t => t.status !== 'resolved').length;
+  document.getElementById('nav-open-count').textContent = openCount;
+  renderPage(currentPage);
+}
+
+// ── CLOSURE UPLOAD MODAL ──
+function showUploadModal(ticketId) {
+  // Remove existing modal if any
+  const existing = document.getElementById('closure-modal');
+  if (existing) existing.remove();
+
+  const t = currentVendor.tickets.find(x => x.id === ticketId);
+  const modal = document.createElement('div');
+  modal.id = 'closure-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.6);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
+
+  modal.innerHTML = `
+    <div style="width:480px;background:white;border-radius:12px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.3)">
+      <!-- Header -->
+      <div style="padding:16px 20px;background:var(--navy);display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:white">Upload Closure Report</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px">Required to close ticket ${ticketId}</div>
+        </div>
+        <button onclick="document.getElementById('closure-modal').remove()" style="width:28px;height:28px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:transparent;color:rgba(255,255,255,0.6);cursor:pointer;font-size:14px">✕</button>
+      </div>
+
+      <!-- Notice -->
+      <div style="margin:16px 20px 0;padding:10px 14px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:7px;font-size:12px;color:#9A3412;display:flex;gap:8px">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;margin-top:1px"><path d="M7 2L13 12H1L7 2Z" stroke="currentColor" stroke-width="1.4"/><path d="M7 5V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <div>Closure reports must be physically signed by the <strong>IIFL branch manager</strong> and the attending engineer. Unsigned reports will not be accepted and the ticket will remain open.</div>
+      </div>
+
+      <!-- Body -->
+      <div style="padding:20px">
+        <!-- Ticket Summary -->
+        <div style="background:var(--slate);border-radius:7px;padding:12px;margin-bottom:16px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:6px">Ticket Being Closed</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:3px">${ticketId}</div>
+          <div style="font-size:12px;color:var(--text-secondary)">${t.subj}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;font-family:var(--mono)">${t.branch}</div>
+        </div>
+
+        <!-- Upload Zone -->
+        <div id="closure-drop-zone-${ticketId}"
+          onclick="document.getElementById('closure-file-input-${ticketId}').click()"
+          ondragover="event.preventDefault();this.style.borderColor='var(--orange)';this.style.background='var(--orange-light)'"
+          ondragleave="this.style.borderColor='#CBD5E1';this.style.background='var(--slate)'"
+          ondrop="handleClosureDrop(event,'${ticketId}')"
+          style="border:2px dashed #CBD5E1;border-radius:8px;padding:28px 20px;text-align:center;cursor:pointer;background:var(--slate);transition:all 0.15s;margin-bottom:14px">
+          <div id="closure-upload-icon-${ticketId}">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" style="margin:0 auto 10px"><rect x="4" y="4" width="28" height="28" rx="4" stroke="#CBD5E1" stroke-width="1.5"/><path d="M18 12v12M12 18h12" stroke="#CBD5E1" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:4px">Click or drag to upload closure report</div>
+            <div style="font-size:11px;color:var(--text-muted)">PDF, JPG, or PNG · Max 10MB · Signed by branch manager required</div>
+          </div>
+          <input type="file" id="closure-file-input-${ticketId}" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleClosureSelect(this,'${ticketId}')">
+        </div>
+
+        <!-- Closure Notes -->
+        <div style="margin-bottom:14px">
+          <label style="display:block;font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:5px">Closure Notes / Resolution Summary *</label>
+          <textarea id="closure-notes-${ticketId}" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--sans);font-size:12px;resize:vertical;min-height:70px;outline:none" placeholder="Describe the resolution: what was repaired/replaced, tests done, branch manager confirmation..."></textarea>
+        </div>
+
+        <!-- Signatories -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+          <div>
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:5px">Engineer Name</label>
+            <input id="closure-eng-${ticketId}" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;outline:none;font-family:var(--sans)" placeholder="Field engineer name">
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:5px">Branch Manager Name</label>
+            <input id="closure-mgr-${ticketId}" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;outline:none;font-family:var(--sans)" placeholder="IIFL branch manager">
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px">
+          <button id="closure-submit-btn-${ticketId}" onclick="submitClosureReport('${ticketId}')"
+            style="flex:1;padding:11px;background:var(--orange);color:white;border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);opacity:0.5;pointer-events:none"
+            disabled>
+            Submit & Close Ticket
+          </button>
+          <button onclick="document.getElementById('closure-modal').remove()"
+            style="padding:11px 16px;background:transparent;border:1px solid var(--border);border-radius:7px;font-size:13px;cursor:pointer;font-family:var(--sans);color:var(--text-secondary)">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>`;
+
+  document.body.appendChild(modal);
+}
+
+function handleClosureSelect(input, ticketId) {
+  const file = input.files[0];
+  if (file) updateClosureDropZone(ticketId, file);
+}
+
+function handleClosureDrop(event, ticketId) {
+  event.preventDefault();
+  const file = event.dataTransfer.files[0];
+  const zone = document.getElementById('closure-drop-zone-' + ticketId);
+  zone.style.borderColor = '#CBD5E1';
+  zone.style.background = 'var(--slate)';
+  if (file) updateClosureDropZone(ticketId, file);
+}
+
+function updateClosureDropZone(ticketId, file) {
+  const zone = document.getElementById('closure-drop-zone-' + ticketId);
+  const icon = document.getElementById('closure-upload-icon-' + ticketId);
+  const isImg = file.type.startsWith('image/');
+  const isPDF = file.type === 'application/pdf';
+
+  if (!isImg && !isPDF) {
+    showToast('Only PDF, JPG, or PNG files are accepted', 'error');
+    return;
+  }
+
+  zone.style.borderColor = 'var(--green)';
+  zone.style.background = 'var(--green-light)';
+  icon.innerHTML = `
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style="margin:0 auto 8px"><circle cx="16" cy="16" r="14" fill="var(--green-light)"/><path d="M10 16l4 4 8-8" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:2px">${file.name}</div>
+    <div style="font-size:11px;color:var(--text-muted)">${(file.size/1024).toFixed(1)} KB · ${isPDF?'PDF Document':'Image'} · Click to change</div>`;
+
+  // Store file reference
+  closureReports['__pending__' + ticketId] = { file, name: file.name, size: file.size, type: file.type };
+
+  // Enable submit button
+  const btn = document.getElementById('closure-submit-btn-' + ticketId);
+  btn.disabled = false;
+  btn.style.opacity = '1';
+  btn.style.pointerEvents = 'auto';
+}
+
+function submitClosureReport(ticketId) {
+  const notes = document.getElementById('closure-notes-' + ticketId)?.value;
+  const eng = document.getElementById('closure-eng-' + ticketId)?.value;
+  const mgr = document.getElementById('closure-mgr-' + ticketId)?.value;
+  const pending = closureReports['__pending__' + ticketId];
+
+  if (!notes) { showToast('Please add closure notes', 'error'); return; }
+  if (!eng)   { showToast('Please enter engineer name', 'error'); return; }
+  if (!mgr)   { showToast('Please enter branch manager name', 'error'); return; }
+
+  closureReports[ticketId] = {
+    file: pending,
+    notes, engineer: eng, branchManager: mgr,
+    uploadedAt: new Date().toLocaleString('en-IN'),
+    status: 'submitted'
+  };
+
+  document.getElementById('closure-modal').remove();
+
+  // Show processing then resolve
+  showToast('Closure report uploaded. Closing ticket...');
+  setTimeout(() => resolveTicket(ticketId), 800);
+}
+
+// ── MIS UPLOAD PAGE ──
+function renderMIS(v) {
+  const today = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+
+  const uploads = misUploads;
+  const totalUploads = uploads.health.length + uploads.otp.length + uploads.incidents.length;
+
+  return `
+  <div class="page-header">
+    <div>
+      <div class="page-title">MIS Upload</div>
+      <div class="page-subtitle">Manual data submission · Every 30 min · ${v.name}</div>
+    </div>
+    <div class="header-actions">
+      <div id="mis-countdown-widget" style="display:flex;align-items:center;gap:10px;background:white;border:1.5px solid var(--border);border-radius:8px;padding:8px 14px">
+        <div>
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted)">Next Upload Due</div>
+          <div id="mis-countdown-display" style="font-family:var(--mono);font-size:18px;font-weight:800;color:var(--green)">29:45</div>
+        </div>
+        <div style="width:1px;height:30px;background:var(--border)"></div>
+        <div>
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted)">Last Upload</div>
+          <div id="mis-last-display" style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text-secondary)">Not yet</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost" onclick="showMISHistory()">View History</button>
+      <button class="btn btn-orange" onclick="showMISTemplates()">↓ Templates</button>
+    </div>
+  </div>
+
+  <!-- Info banner -->
+  <div class="notice notice-info" style="margin-bottom:4px">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.4"/><path d="M7 6v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="4.5" r="0.5" fill="currentColor"/></svg>
+    <div>MIS data must be uploaded <strong>every 30 minutes</strong>. A missed upload window causes <strong style="color:var(--red)">all your sites to be marked OFFLINE</strong> for that window, directly impacting your uptime SLA. The sidebar timer shows time remaining. Use IIFL-provided templates for correct column formats.</div>
+  </div>
+
+  <!-- Submission Status for today -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+    ${[
+      {type:'System Health Check',key:'health',icon:'🖥️',due:'Daily by 09:00',color:'var(--teal, #0891B2)',desc:'Camera online/offline status, NVR health, network uptime per branch',accept:'.xlsx,.csv,.xls',formats:'Excel / CSV'},
+      {type:'OTP Transaction Log',key:'otp',icon:'🔐',due:'Daily by 09:00',color:'var(--green)',desc:'All OTP-based access transactions, door events, and failed auth attempts per branch',accept:'.xlsx,.csv,.xls,.pdf',formats:'Excel / CSV / PDF'},
+      {type:'Incident & Alert Report',key:'incidents',icon:'⚠️',due:'Daily by 23:59',color:'var(--amber)',desc:'AI alerts actioned, loitering events, intrusion events, false positive analysis',accept:'.xlsx,.csv,.xls,.pdf',formats:'Excel / CSV / PDF'},
+    ].map(item => {
+      const submitted = uploads[item.key].length > 0;
+      const last = submitted ? uploads[item.key][uploads[item.key].length-1] : null;
+      return `
+      <div class="panel" style="border-top:3px solid ${submitted ? 'var(--green)' : item.color}">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span style="font-size:16px">${item.icon}</span>
+            ${item.type}
+          </div>
+          <span style="font-size:10px;font-family:var(--mono);font-weight:600;padding:2px 7px;border-radius:10px;background:${submitted?'var(--green-light)':'var(--amber-light)'};color:${submitted?'var(--green)':'var(--amber)'}">${submitted ? '✓ SUBMITTED' : 'PENDING'}</span>
+        </div>
+        <div class="panel-body">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;line-height:1.5">${item.desc}</div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:10px">
+            <span style="color:var(--text-muted)">Deadline</span>
+            <span style="font-family:var(--mono);font-weight:600;color:var(--text-primary)">${item.due}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:14px">
+            <span style="color:var(--text-muted)">Accepted Formats</span>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--text-secondary)">${item.formats}</span>
+          </div>
+          ${submitted ? `
+          <div style="background:var(--green-light);border:1px solid #BBF7D0;border-radius:6px;padding:10px;margin-bottom:10px">
+            <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:4px">✓ Today's submission received</div>
+            <div style="font-size:10px;color:var(--green);font-family:var(--mono)">${last.name}</div>
+            <div style="font-size:10px;color:var(--green);margin-top:2px">Uploaded ${last.time} · ${last.rows} rows · ${last.size}</div>
+          </div>
+          <button class="btn btn-ghost" style="width:100%;font-size:11px" onclick="uploadMIS('${item.key}','${item.accept}','${item.type}')">Re-upload / Amend</button>
+          ` : `
+          <div
+            id="mis-drop-${item.key}"
+            onclick="document.getElementById('mis-file-${item.key}').click()"
+            ondragover="event.preventDefault();this.style.borderColor='${item.color}';this.style.background='var(--slate)'"
+            ondragleave="this.style.borderColor='#CBD5E1';this.style.background='white'"
+            ondrop="handleMISDrop(event,'${item.key}','${item.type}')"
+            style="border:2px dashed #CBD5E1;border-radius:7px;padding:22px 16px;text-align:center;cursor:pointer;transition:all 0.15s">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" style="margin:0 auto 8px"><path d="M14 4v14M14 4l-4 5M14 4l4 5" stroke="#CBD5E1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 20v2a2 2 0 002 2h16a2 2 0 002-2v-2" stroke="#CBD5E1" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <div style="font-size:12px;font-weight:600;color:var(--text-muted)">Drop file here or click to upload</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:3px">${item.formats} · Max 25MB</div>
+            <input type="file" id="mis-file-${item.key}" accept="${item.accept}" style="display:none"
+              onchange="handleMISSelect(this,'${item.key}','${item.type}')">
+          </div>`}
+        </div>
+      </div>`;
+    }).join('')}
+  </div>
+
+  <!-- Upload Rules & Column Specs -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+
+    <!-- Health Check Column Spec -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><div class="panel-dot"></div>Health Check MIS — Required Columns</div>
+        <button class="btn btn-ghost" style="font-size:10px" onclick="showToast('Template downloaded')">↓ Template</button>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Column</th><th>Format</th><th>Example</th><th>Required</th></tr></thead>
+        <tbody>
+          ${[
+            ['branch_code','Text','IIFL-MUM-047','Yes'],
+            ['report_date','DD-MM-YYYY','08-06-2025','Yes'],
+            ['total_cameras','Number','16','Yes'],
+            ['cameras_online','Number','14','Yes'],
+            ['cameras_offline','Number','2','Yes'],
+            ['offline_camera_ids','Text','CAM-03, CAM-07','Yes'],
+            ['nvr_status','ONLINE/OFFLINE/DEGRADED','ONLINE','Yes'],
+            ['nvr_hdd_usage_pct','Number (0-100)','72','Yes'],
+            ['network_uptime_pct','Number (0-100)','98.4','Yes'],
+            ['cloud_backup_status','OK/FAIL/PARTIAL','OK','Yes'],
+            ['remarks','Text','ISP downtime 02:00-03:00','No'],
+          ].map(r=>`<tr>
+            <td class="td-mono" style="color:var(--orange)">${r[0]}</td>
+            <td style="font-size:11px;color:var(--text-muted)">${r[1]}</td>
+            <td class="td-mono" style="font-size:10px">${r[2]}</td>
+            <td><span style="font-size:10px;font-weight:600;color:${r[3]==='Yes'?'var(--red)':'var(--text-muted)'}">${r[3]}</span></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- OTP Log Column Spec -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><div class="panel-dot" style="background:var(--green)"></div>OTP Transaction Log — Required Columns</div>
+        <button class="btn btn-ghost" style="font-size:10px" onclick="showToast('Template downloaded')">↓ Template</button>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Column</th><th>Format</th><th>Example</th><th>Required</th></tr></thead>
+        <tbody>
+          ${[
+            ['branch_code','Text','IIFL-DEL-012','Yes'],
+            ['transaction_date','DD-MM-YYYY','08-06-2025','Yes'],
+            ['transaction_time','HH:MM:SS','14:32:11','Yes'],
+            ['otp_type','ACCESS/VAULT/ATM/DOOR','VAULT','Yes'],
+            ['initiated_by','Employee ID','EMP-004421','Yes'],
+            ['otp_status','SUCCESS/FAILED/EXPIRED','SUCCESS','Yes'],
+            ['device_id','Text','DVR-BNK-01','Yes'],
+            ['zone','Text','Gold Vault','Yes'],
+            ['failure_reason','Text','Wrong OTP entered','If FAILED'],
+            ['supervisor_approved','YES/NO','YES','If VAULT'],
+          ].map(r=>`<tr>
+            <td class="td-mono" style="color:var(--orange)">${r[0]}</td>
+            <td style="font-size:11px;color:var(--text-muted)">${r[1]}</td>
+            <td class="td-mono" style="font-size:10px">${r[2]}</td>
+            <td><span style="font-size:10px;font-weight:600;color:${r[3]==='Yes'?'var(--red)':'var(--text-muted)'}">${r[3]}</span></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Upload History -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><div class="panel-dot" style="background:var(--navy-mid)"></div>Recent Upload History</div>
+      <span style="font-size:11px;color:var(--text-muted)">Last 30 days · ${totalUploads} submission(s) this month</span>
+    </div>
+    ${totalUploads === 0 ? `
+    <div style="padding:28px;text-align:center;color:var(--text-muted)">
+      <div style="font-size:28px;margin-bottom:8px">📂</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text-secondary)">No uploads yet this month</div>
+      <div style="font-size:12px;margin-top:4px">Use the upload zones above to submit your daily MIS data</div>
+    </div>` : `
+    <table class="data-table">
+      <thead><tr><th>Date & Time</th><th>Type</th><th>File Name</th><th>Rows</th><th>Size</th><th>Status</th><th>Validation</th></tr></thead>
+      <tbody>
+        ${[...uploads.health.map(u=>({...u,type:'Health Check'})),
+           ...uploads.otp.map(u=>({...u,type:'OTP Log'})),
+           ...uploads.incidents.map(u=>({...u,type:'Incident Report'}))
+          ].sort((a,b)=>b.ts-a.ts).map(u=>`
+        <tr>
+          <td class="td-mono" style="font-size:10px">${u.time}</td>
+          <td><span class="pill ${u.type==='Health Check'?'pill-blue':u.type==='OTP Log'?'pill-green':'pill-amber'}">${u.type}</span></td>
+          <td style="color:var(--text-primary);font-size:12px">${u.name}</td>
+          <td class="td-mono">${u.rows}</td>
+          <td class="td-mono" style="color:var(--text-muted)">${u.size}</td>
+          <td><span class="pill pill-green">Accepted</span></td>
+          <td><span style="font-family:var(--mono);font-size:10px;color:var(--green)">✓ ${u.errors===0?'No errors':u.errors+' warnings'}</span></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`}
+  </div>
+
+  <!-- Submission Deadlines Calendar -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><div class="panel-dot" style="background:var(--amber)"></div>Submission Deadlines & Penalties for Late Submission</div>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Report Type</th><th>Frequency</th><th>Deadline</th><th>Grace Period</th><th>Late Penalty</th><th>Missing Penalty</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="td-primary">System Health Check</td>
+          <td>Daily</td>
+          <td class="td-mono">09:00 IST</td>
+          <td class="td-mono" style="color:var(--amber)">30 mins</td>
+          <td class="td-mono td-amber">₹500 / day</td>
+          <td class="td-mono td-red">₹2,000 / day</td>
+        </tr>
+        <tr>
+          <td class="td-primary">OTP Transaction Log</td>
+          <td>Daily</td>
+          <td class="td-mono">09:00 IST</td>
+          <td class="td-mono" style="color:var(--amber)">30 mins</td>
+          <td class="td-mono td-amber">₹500 / day</td>
+          <td class="td-mono td-red">₹2,000 / day</td>
+        </tr>
+        <tr>
+          <td class="td-primary">Incident & Alert Report</td>
+          <td>Daily</td>
+          <td class="td-mono">23:59 IST</td>
+          <td class="td-mono" style="color:var(--green)">2 hours</td>
+          <td class="td-mono td-amber">₹250 / day</td>
+          <td class="td-mono td-red">₹1,000 / day</td>
+        </tr>
+        <tr>
+          <td class="td-primary">Weekly Performance Summary</td>
+          <td>Weekly (Mon)</td>
+          <td class="td-mono">11:00 IST</td>
+          <td class="td-mono" style="color:var(--green)">4 hours</td>
+          <td class="td-mono td-amber">₹1,000 / week</td>
+          <td class="td-mono td-red">₹5,000 / week</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function handleMISSelect(input, key, typeName) {
+  const file = input.files[0];
+  if (file) processMISFile(file, key, typeName);
+}
+
+function handleMISDrop(event, key, typeName) {
+  event.preventDefault();
+  const zone = document.getElementById('mis-drop-' + key);
+  zone.style.borderColor = '#CBD5E1';
+  zone.style.background = 'white';
+  const file = event.dataTransfer.files[0];
+  if (file) processMISFile(file, key, typeName);
+}
+
+function processMISFile(file, key, typeName) {
+  const allowed = ['.xlsx','.xls','.csv','.pdf'];
+  const ext = '.' + file.name.split('.').pop().toLowerCase();
+  if (!allowed.includes(ext)) {
+    showToast('Invalid file type. Please use Excel, CSV, or PDF.', 'error');
+    return;
+  }
+  if (file.size > 25 * 1024 * 1024) {
+    showToast('File too large. Maximum size is 25MB.', 'error');
+    return;
+  }
+
+  // Show processing
+  const zone = document.getElementById('mis-drop-' + key);
+  if (zone) {
+    zone.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+        <div style="width:24px;height:24px;border:2px solid var(--orange);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></div>
+        <div style="font-size:12px;font-weight:600;color:var(--orange)">Validating file...</div>
+      </div>`;
+    if (!document.getElementById('mis-spin-style')) {
+      const st = document.createElement('style');
+      st.id = 'mis-spin-style';
+      st.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+      document.head.appendChild(st);
+    }
+  }
+
+  // Simulate validation delay
+  const rows = Math.floor(Math.random()*800)+200;
+  const warnings = Math.floor(Math.random()*3);
+  const sizeStr = file.size > 1024*1024 ? (file.size/1024/1024).toFixed(1)+' MB' : (file.size/1024).toFixed(1)+' KB';
+  const ts = Date.now();
+  const time = new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+
+  setTimeout(() => {
+    misUploads[key].push({
+      name: file.name, rows, size: sizeStr, time, ts, errors: warnings, type: typeName
+    });
+    startMISTimer();
+    showToast(`${typeName} uploaded — ${rows} rows validated${warnings>0?' ('+warnings+' warnings)':''}`);
+    renderPage('mis');
+  }, 1800);
+}
+
+function showMISHistory() { showToast('Upload history: showing all submissions'); }
+function showMISTemplates() {
+  showToast('Templates: Health_Check_Template.xlsx, OTP_Log_Template.xlsx, Incident_Report_Template.xlsx downloaded');
+}
+
+// ── OVERRIDE updateTicket to NOT be interactive for SOC-raised tickets ──
+function updateTicket(id) {
+  const textarea = document.querySelector('#ticket-panel-body textarea');
+  const note = textarea ? textarea.value.trim() : '';
+  if (!note) { showToast('Please add an update note before submitting', 'error'); return; }
+  const t = currentVendor.tickets.find(x => x.id === id);
+  t.timeline.push({t:'work', text:`Update by ${currentVendor.user}: ${note}`, time:'Just now'});
+  t.status = 'in-progress';
+  document.getElementById('ticket-overlay').classList.remove('open');
+  showToast('Update submitted to IIFL SOC');
+  renderPage(currentPage);
+}
+
+
+// ═══ MIS 30-MIN TIMER STATE ═══
+const misState = {
+  lastUpload: null,
+  nextDeadline: null,
+  timerInterval: null,
+  windowMinutes: 30,
+};
+
+function startMISTimer() {
+  if (misState.timerInterval) clearInterval(misState.timerInterval);
+  // Set next deadline to 30 min from now (simulated)
+  const now = new Date();
+  misState.nextDeadline = new Date(now.getTime() + 30 * 60 * 1000);
+  misState.lastUpload = now;
+  updateMISTimerBadge();
+  misState.timerInterval = setInterval(updateMISTimerBadge, 10000);
+}
+
+function updateMISTimerBadge() {
+  const el = document.getElementById('nav-mis-count');
+  const countdown = document.getElementById('mis-countdown-display');
+  const lastEl = document.getElementById('mis-last-display');
+
+  if (!misState.nextDeadline) {
+    if (el) { el.textContent = 'DUE'; el.style.background = 'var(--red)'; }
+    if (countdown) { countdown.textContent = '--:--'; countdown.style.color = 'var(--red)'; }
+    return;
+  }
+  const now = new Date();
+  const msLeft = misState.nextDeadline - now;
+  const mins = Math.max(0, Math.floor(msLeft / 60000));
+  const secs = Math.max(0, Math.floor((msLeft % 60000) / 1000));
+  const display = String(mins).padStart(2,'0') + ':' + String(secs).padStart(2,'0');
+  const color = mins <= 5 ? 'var(--red)' : mins <= 10 ? 'var(--amber)' : 'var(--green)';
+
+  if (el) {
+    el.textContent = msLeft <= 0 ? 'LATE' : mins + 'm';
+    el.style.background = color;
+    el.style.animation = msLeft <= 0 ? 'blink-badge 1s step-end infinite' : '';
+  }
+  if (countdown) {
+    countdown.textContent = msLeft <= 0 ? 'OVERDUE' : display;
+    countdown.style.color = color;
+  }
+  if (lastEl && misState.lastUpload) {
+    lastEl.textContent = misState.lastUpload.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) + ' IST';
+  }
+}
+
+// ═══ SOP ADHERENCE PAGE ═══
+function renderSOP(v) {
+  const violations = v.sopViolations || [];
+  const otpLog = v.otpLog || [];
+  const openViol = violations.filter(x => x.status === 'open').length;
+  const totalPenalty = violations.reduce((s, x) => s + parseInt(x.penalty || 0), 0);
+  const compliantOTP = otpLog.filter(x => x.status === 'compliant').length;
+  const violationOTP = otpLog.filter(x => x.status === 'violation').length;
+  const complianceRate = otpLog.length ? Math.round((compliantOTP / otpLog.filter(x=>x.status!=='denied').length) * 100) : 100;
+
+  const severityColor = s => s==='critical'?'var(--red)':s==='high'?'var(--amber)':'#7C3AED';
+  const severityBg    = s => s==='critical'?'var(--red-light)':s==='high'?'var(--amber-light)':'rgba(124,58,237,0.08)';
+  const statusPillSOP = s => {
+    if (s==='open') return '<span class="pill pill-red">Open</span>';
+    if (s==='acknowledged') return '<span class="pill pill-amber">Acknowledged</span>';
+    if (s==='disputed') return '<span class="pill pill-orange">Disputed</span>';
+    return '<span class="pill pill-green">Resolved</span>';
+  };
+
+  const checkIcon = val => val
+    ? `<span style="color:var(--green);font-size:13px">✓</span>`
+    : `<span style="color:var(--red);font-size:13px;font-weight:700">✗</span>`;
+
+  const SOP_STEPS = [
+    {key:'branch_open',     label:'Branch Open / Hours Verified'},
+    {key:'identity_verified',label:'Requester Identity Confirmed on CCTV'},
+    {key:'vault_clear',     label:'Vault Area Clear of Unauthorised Persons'},
+    {key:'no_suspicious',   label:'No Suspicious Activity in Last 15 Min'},
+    {key:'cameras_live',    label:'All Vault Zone Cameras Live'},
+    {key:'reason_logged',   label:'Reason for Access Logged'},
+    {key:'dual_custody',    label:'Dual Custody Confirmed (if applicable)'},
+  ];
+
+  return `
+  <div class="page-header">
+    <div>
+      <div class="page-title">SOP Adherence</div>
+      <div class="page-subtitle">OTP issuance verification compliance · ${v.name} · June 2025</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-ghost">Download SOP Report</button>
+      <button class="btn btn-orange" onclick="showOTPIssueFlow('${v.name}')">Issue New OTP</button>
+    </div>
+  </div>
+
+  ${openViol > 0 ? `
+  <div class="notice notice-red">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><path d="M7 2L13 12H1L7 2Z" stroke="currentColor" stroke-width="1.4"/><path d="M7 5V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+    <div><strong>${openViol} open SOP violation${openViol>1?'s':''} require${openViol===1?'s':''} your acknowledgement.</strong> Unacknowledged violations older than 48 hours will be escalated to IIFL management and may result in additional penalties.</div>
+  </div>` : `
+  <div class="notice notice-info">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.4"/><path d="M7 6v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    <div>No open SOP violations today. All OTP issuances are following the IIFL verification checklist correctly.</div>
+  </div>`}
+
+  <!-- KPIs -->
+  <div class="kpi-grid-5">
+    <div class="kpi-card ${complianceRate>=95?'green':'red'}">
+      <div class="kpi-label">OTP SOP Compliance</div>
+      <div class="kpi-value ${complianceRate>=95?'green':'red'}">${complianceRate}%</div>
+      <div class="kpi-sub">${otpLog.length} OTPs today</div>
+    </div>
+    <div class="kpi-card ${openViol===0?'green':'red'}">
+      <div class="kpi-label">Open Violations</div>
+      <div class="kpi-value ${openViol===0?'green':'red'}">${openViol}</div>
+      <div class="kpi-sub">${violations.length} total MTD</div>
+    </div>
+    <div class="kpi-card ${violationOTP===0?'green':'amber'}">
+      <div class="kpi-label">Violation OTPs Today</div>
+      <div class="kpi-value ${violationOTP===0?'green':'amber'}">${violationOTP}</div>
+      <div class="kpi-sub">of ${otpLog.filter(x=>x.status!=='denied').length} issued</div>
+    </div>
+    <div class="kpi-card ${totalPenalty===0?'green':'red'}">
+      <div class="kpi-label">SOP Penalty MTD</div>
+      <div class="kpi-value ${totalPenalty===0?'green':'red'}">₹${totalPenalty.toLocaleString()}</div>
+      <div class="kpi-sub">${violations.length} incidents</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Compliant OTPs</div>
+      <div class="kpi-value green">${compliantOTP}</div>
+      <div class="kpi-sub">of ${otpLog.length} today</div>
+    </div>
+  </div>
+
+  <!-- SOP Violations -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><div class="panel-dot" style="background:var(--red)"></div>SOP Violations — June 2025</div>
+      <span style="font-size:11px;color:var(--text-muted)">${violations.length} total · ₹${totalPenalty.toLocaleString()} penalty</span>
+    </div>
+    ${violations.length === 0 ? `
+    <div style="padding:28px;text-align:center">
+      <div style="font-size:32px;margin-bottom:8px">✓</div>
+      <div style="font-size:14px;font-weight:700;color:var(--green)">No SOP Violations This Month</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:4px">All OTP issuances have followed the IIFL verification protocol</div>
+    </div>` : `
+    <div>
+      ${violations.map(v => `
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border-mid)">
+        <div style="display:flex;align-items:flex-start;gap:12px">
+          <div style="width:36px;height:36px;border-radius:8px;background:${severityBg(v.severity)};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L14 13H2L8 2Z" stroke="${severityColor(v.severity)}" stroke-width="1.4"/><path d="M8 6V9" stroke="${severityColor(v.severity)}" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="11" r="0.6" fill="${severityColor(v.severity)}"/></svg>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+              <span style="font-family:var(--mono);font-size:11px;color:var(--orange);font-weight:600">${v.id}</span>
+              <span style="font-size:12px;font-weight:700;color:var(--text-primary)">${v.type}</span>
+              <span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;background:${severityBg(v.severity)};color:${severityColor(v.severity)};text-transform:uppercase;letter-spacing:0.05em">${v.severity}</span>
+              ${statusPillSOP(v.status)}
+            </div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px">${v.detail}</div>
+            <div style="display:flex;gap:16px;font-size:11px;color:var(--text-muted);font-family:var(--mono)">
+              <span>${v.branch}</span>
+              <span>${v.operator}</span>
+              <span>${v.time}</span>
+              <span style="color:var(--red);font-weight:700">Penalty: ₹${parseInt(v.penalty).toLocaleString()}</span>
+            </div>
+          </div>
+          ${v.status === 'open' ? `
+          <button onclick="acknowledgeSOP('${v.id}')"
+            style="flex-shrink:0;padding:6px 12px;background:var(--orange-mid);border:1px solid var(--orange);color:var(--orange);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans)">
+            Acknowledge
+          </button>` : ''}
+          ${v.status === 'open' || v.status === 'acknowledged' ? `
+          <button onclick="disputeSOPViolation('${v.id}')"
+            style="flex-shrink:0;padding:6px 12px;background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans)">
+            Dispute
+          </button>` : ''}
+        </div>
+      </div>`).join('')}
+    </div>`}
+  </div>
+
+  <!-- OTP Issuance Log Today -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><div class="panel-dot" style="background:#7C3AED"></div>OTP Issuance Log — Today</div>
+      <span style="font-size:11px;color:var(--text-muted)">${otpLog.length} OTPs · ${violationOTP} violations</span>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Time</th><th>Branch</th><th>Operator</th><th>Type</th>
+          <th>Br.Open</th><th>ID Verify</th><th>Vault Clear</th><th>No Suspicion</th><th>Cams Live</th><th>Reason</th><th>Dual Custody</th>
+          <th>OTP</th><th>Duration</th><th>Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${otpLog.map(o => {
+          const c = o.checklist;
+          const isViol = o.status === 'violation';
+          const isDenied = o.status === 'denied';
+          const isEsc = o.status === 'escalated';
+          return `<tr style="background:${isViol?'rgba(220,38,38,0.03)':isDenied?'rgba(8,145,178,0.03)':''}">
+            <td class="td-mono">${o.time}</td>
+            <td class="td-mono" style="font-size:10px;color:var(--text-muted)">${o.branch}</td>
+            <td class="td-mono" style="font-size:10px">${o.operator}</td>
+            <td style="font-size:11px;color:var(--text-secondary)">${o.type}</td>
+            <td style="text-align:center">${checkIcon(c.branch_open)}</td>
+            <td style="text-align:center">${checkIcon(c.identity_verified)}</td>
+            <td style="text-align:center">${checkIcon(c.vault_clear)}</td>
+            <td style="text-align:center">${checkIcon(c.no_suspicious)}</td>
+            <td style="text-align:center">${checkIcon(c.cameras_live)}</td>
+            <td style="text-align:center">${checkIcon(c.reason_logged)}</td>
+            <td style="text-align:center">${checkIcon(c.dual_custody)}</td>
+            <td class="td-mono" style="font-size:11px;color:${isViol?'var(--red)':isDenied?'var(--amber)':'var(--text-muted)'}">${o.otp}</td>
+            <td class="td-mono" style="font-size:10px;color:var(--text-muted)">${o.duration}</td>
+            <td><span class="pill ${isViol?'pill-red':isDenied?'pill-amber':isEsc?'pill-orange':'pill-green'}">
+              ${isViol?'Violation':isDenied?'Denied':isEsc?'Escalated':'Compliant'}
+            </span></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SOP Reference -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><div class="panel-dot" style="background:var(--navy-mid)"></div>OTP Issuance SOP — Mandatory Verification Checklist</div>
+      <span style="font-size:10px;color:var(--text-muted)">IIFL-SOP-OTP-v2.3 · Read Only</span>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>#</th><th>Verification Step</th><th>Action if Fail</th><th>Penalty if Skipped</th><th>Mandatory</th></tr></thead>
+      <tbody>
+        ${[
+          ['1','Branch is open and within permitted access hours','Deny OTP — log after-hours attempt','₹2,000','Yes'],
+          ['2','Requester identity confirmed on CCTV (face visible, uniform/ID)','Request requester to move to camera view — deny if not possible','₹2,000','Yes'],
+          ['3','Vault area clear — no unauthorised persons in zone','Deny OTP — alert branch security','₹2,000','Yes'],
+          ['4','No suspicious activity flagged in last 15 minutes','Review AI alerts — escalate to supervisor before proceeding','₹5,000','Yes'],
+          ['5','All vault zone cameras are live (no offline/blind spots)','Deny OTP — raise P1 ticket — escalate to IIFL SOC','₹5,000','Yes'],
+          ['6','Reason for vault access logged in system','Log before issuing OTP — no exceptions','₹1,000','Yes'],
+          ['7','Dual custody confirmed for high-value / after-hours access','Escalate to supervisor for secondary confirmation','₹2,000','Conditional'],
+        ].map(r => `<tr>
+          <td class="td-mono" style="color:var(--text-muted)">${r[0]}</td>
+          <td style="color:var(--text-primary);font-size:12px;font-weight:500">${r[1]}</td>
+          <td style="color:var(--text-secondary);font-size:11px">${r[2]}</td>
+          <td class="td-mono" style="color:var(--red);font-weight:700">${r[3]}</td>
+          <td><span class="pill ${r[4]==='Yes'?'pill-red':'pill-amber'}">${r[4]}</span></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Penalty Structure -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><div class="panel-dot" style="background:var(--red)"></div>SOP Violation Penalty Structure</div>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Violation Type</th><th>Severity</th><th>Penalty per Incident</th><th>Repeat Offence (Same Month)</th><th>Escalation</th></tr></thead>
+      <tbody>
+        ${[
+          ['OTP issued with cameras offline','Critical','₹5,000','₹10,000','Mandatory IIFL management review'],
+          ['Suspicious activity not reviewed before OTP','Critical','₹5,000','₹10,000','Mandatory IIFL management review'],
+          ['OTP issued without identity verification','High','₹2,000','₹4,000','Supervisor acknowledgement required'],
+          ['Vault area not cleared before OTP','High','₹2,000','₹4,000','Supervisor acknowledgement required'],
+          ['After-hours OTP without approval','High','₹2,000','₹4,000','Supervisor acknowledgement required'],
+          ['Dual custody not confirmed (high-value)','Medium','₹1,000','₹2,000','Self-acknowledgement within 24h'],
+          ['Access reason not logged','Medium','₹1,000','₹2,000','Self-acknowledgement within 24h'],
+          ['MIS upload missed (30-min window)','High','All sites = OFFLINE','Uptime SLA impact','Auto-flagged by system'],
+        ].map(r => `<tr>
+          <td style="color:var(--text-primary);font-size:12px">${r[0]}</td>
+          <td><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;
+            background:${r[1]==='Critical'?'var(--red-light)':r[1]==='High'?'var(--amber-light)':'rgba(124,58,237,0.08)'};
+            color:${r[1]==='Critical'?'var(--red)':r[1]==='High'?'var(--amber)':'#7C3AED'}">${r[1]}</span></td>
+          <td class="td-mono" style="color:var(--red);font-weight:700">${r[2]}</td>
+          <td class="td-mono" style="color:var(--red)">${r[3]}</td>
+          <td style="font-size:11px;color:var(--text-secondary)">${r[4]}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+// ── OTP ISSUE FLOW (with mandatory checklist) ──
+function showOTPIssueFlow(vendorName) {
+  const existing = document.getElementById('otp-modal');
+  if (existing) existing.remove();
+
+  const steps = [
+    {key:'branch_open',     label:'Branch is open and within permitted access hours',      critical:true},
+    {key:'identity_verified',label:'Requester identity confirmed on CCTV — face & ID visible',critical:true},
+    {key:'vault_clear',     label:'Vault area clear — no unauthorised persons in zone',     critical:true},
+    {key:'no_suspicious',   label:'No suspicious activity in last 15 minutes (AI alerts reviewed)',critical:true},
+    {key:'cameras_live',    label:'All vault zone cameras are live — no blind spots',        critical:true},
+    {key:'reason_logged',   label:'Reason for vault access logged in system',               critical:true},
+    {key:'dual_custody',    label:'Dual custody confirmed (required for high-value / after-hours)',critical:false},
+  ];
+
+  const modal = document.createElement('div');
+  modal.id = 'otp-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.65);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
+
+  modal.innerHTML = `
+    <div style="width:560px;max-height:90vh;background:white;border-radius:14px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.35);display:flex;flex-direction:column">
+      <!-- Header -->
+      <div style="padding:16px 20px;background:var(--navy);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+        <div>
+          <div style="font-size:15px;font-weight:700;color:white">OTP Issuance — CCTV Verification</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px">Complete all mandatory checks before OTP is generated</div>
+        </div>
+        <button onclick="document.getElementById('otp-modal').remove()" style="width:28px;height:28px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:transparent;color:rgba(255,255,255,0.6);cursor:pointer;font-size:14px">✕</button>
+      </div>
+
+      <!-- Branch + Requester -->
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;flex-shrink:0">
+        <div>
+          <label style="display:block;font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Branch</label>
+          <select id="otp-branch" class="app-select" style="font-size:12px;padding:7px 10px">
+            <option>IIFL-MUM-047</option><option>IIFL-DEL-012</option><option>IIFL-BLR-044</option>
+            <option>IIFL-CHN-023</option><option>IIFL-HYD-061</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Access Type</label>
+          <select id="otp-type" class="app-select" style="font-size:12px;padding:7px 10px">
+            <option>Vault Access</option><option>After-Hours Access</option><option>ATM Replenishment</option><option>Audit Access</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Requested By</label>
+          <input id="otp-requester" class="app-input" style="font-size:12px;padding:7px 10px" placeholder="Employee ID">
+        </div>
+      </div>
+
+      <!-- Checklist -->
+      <div style="overflow-y:auto;flex:1;padding:16px 20px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:12px">
+          Mandatory CCTV Verification Checklist
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px" id="otp-checklist">
+          ${steps.map((step, i) => `
+          <div id="otp-step-${step.key}" onclick="toggleOTPStep('${step.key}')"
+            style="display:flex;align-items:flex-start;gap:12px;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.15s;user-select:none">
+            <div id="otp-check-${step.key}"
+              style="width:22px;height:22px;border-radius:6px;border:2px solid #CBD5E1;background:white;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;margin-top:1px">
+            </div>
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:500;color:var(--text-primary)">${i+1}. ${step.label}</div>
+              ${step.critical ? '<div style="font-size:10px;color:var(--red);margin-top:2px">⚠ Mandatory — OTP will be blocked if not confirmed</div>' : '<div style="font-size:10px;color:var(--amber);margin-top:2px">Required for high-value / after-hours access</div>'}
+            </div>
+          </div>`).join('')}
+        </div>
+
+        <div style="margin-top:14px">
+          <label style="display:block;font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:5px">Reason for Vault Access *</label>
+          <input id="otp-reason" class="app-input" placeholder="e.g. Gold loan disbursement — customer ID verified">
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div style="padding:14px 20px;border-top:1px solid var(--border);background:var(--slate);flex-shrink:0">
+        <div id="otp-status-msg" style="font-size:11px;color:var(--text-muted);margin-bottom:10px;text-align:center">
+          Complete all mandatory checks to enable OTP generation
+        </div>
+        <div style="display:flex;gap:10px">
+          <button id="otp-generate-btn" onclick="generateOTP()"
+            style="flex:1;padding:12px;background:#CBD5E1;color:white;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:not-allowed;font-family:var(--sans);transition:all 0.2s"
+            disabled>
+            🔒 Generate OTP
+          </button>
+          <button onclick="denyOTPAccess()"
+            style="padding:12px 18px;background:var(--red-light);border:1px solid #FECACA;color:var(--red);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans)">
+            Deny Access
+          </button>
+        </div>
+      </div>
+    </div>`;
+
+  document.body.appendChild(modal);
+  window._otpChecked = {};
+}
+
+function toggleOTPStep(key) {
+  window._otpChecked = window._otpChecked || {};
+  window._otpChecked[key] = !window._otpChecked[key];
+
+  const box = document.getElementById('otp-check-' + key);
+  const row = document.getElementById('otp-step-' + key);
+  const checked = window._otpChecked[key];
+
+  if (checked) {
+    box.style.background = 'var(--green)';
+    box.style.borderColor = 'var(--green)';
+    box.innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    row.style.borderColor = 'var(--green)';
+    row.style.background = 'var(--green-light)';
+  } else {
+    box.style.background = 'white';
+    box.style.borderColor = '#CBD5E1';
+    box.innerHTML = '';
+    row.style.borderColor = 'var(--border)';
+    row.style.background = 'white';
+  }
+
+  // Check if all mandatory steps done
+  const mandatory = ['branch_open','identity_verified','vault_clear','no_suspicious','cameras_live','reason_logged'];
+  const allDone = mandatory.every(k => window._otpChecked[k]);
+  const btn = document.getElementById('otp-generate-btn');
+  const msg = document.getElementById('otp-status-msg');
+  const done = mandatory.filter(k => window._otpChecked[k]).length;
+
+  if (allDone) {
+    btn.disabled = false;
+    btn.style.background = 'var(--green)';
+    btn.style.cursor = 'pointer';
+    btn.innerHTML = '🔓 Generate OTP';
+    msg.innerHTML = '<span style="color:var(--green);font-weight:600">✓ All mandatory checks complete — OTP authorised</span>';
+  } else {
+    btn.disabled = true;
+    btn.style.background = '#CBD5E1';
+    btn.style.cursor = 'not-allowed';
+    btn.innerHTML = '🔒 Generate OTP';
+    msg.innerHTML = `<span style="color:var(--text-muted)">${done}/${mandatory.length} mandatory checks complete</span>`;
+  }
+}
+
+function generateOTP() {
+  const reason = document.getElementById('otp-reason')?.value;
+  if (!reason) { showToast('Please log the reason for vault access', 'error'); return; }
+  const otp = Math.floor(100000 + Math.random() * 900000);
+  const branch = document.getElementById('otp-branch')?.value || 'IIFL-MUM-047';
+  document.getElementById('otp-modal').remove();
+
+  // Show OTP result
+  const resultModal = document.createElement('div');
+  resultModal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.65);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
+  resultModal.innerHTML = `
+    <div style="width:360px;background:white;border-radius:14px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.3);text-align:center">
+      <div style="padding:20px;background:var(--green);color:white">
+        <div style="font-size:13px;font-weight:600;opacity:0.8;margin-bottom:4px">OTP AUTHORISED</div>
+        <div style="font-size:11px;opacity:0.7">${branch} · ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+      <div style="padding:24px">
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.08em">One-Time Password</div>
+        <div style="font-family:var(--mono);font-size:42px;font-weight:800;color:var(--navy);letter-spacing:0.15em;margin-bottom:8px">${otp}</div>
+        <div style="font-size:11px;color:var(--red);font-weight:600;margin-bottom:16px">⏱ Valid for 3 minutes only</div>
+        <div style="font-size:11px;color:var(--text-muted);background:var(--slate);padding:8px 12px;border-radius:6px;margin-bottom:16px">All 7 verification steps completed. This OTP issuance has been logged in the audit trail.</div>
+        <button onclick="this.closest('div[style]').remove()" style="width:100%;padding:11px;background:var(--navy);color:white;border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Close & Log Access</button>
+      </div>
+    </div>`;
+  document.body.appendChild(resultModal);
+
+  // Add to OTP log
+  currentVendor.otpLog = currentVendor.otpLog || [];
+  currentVendor.otpLog.unshift({
+    time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
+    branch, operator: currentVendor.user.split(' ')[0].toUpperCase().substring(0,2) + '-PORTAL',
+    type: document.getElementById('otp-type')?.value || 'Vault Access',
+    checklist:{branch_open:true,identity_verified:true,vault_clear:true,no_suspicious:true,cameras_live:true,reason_logged:true,dual_custody:!!window._otpChecked['dual_custody']},
+    otp:'••••••', status:'compliant', duration:'—'
+  });
+  showToast('OTP issued and logged in audit trail');
+}
+
+function denyOTPAccess() {
+  document.getElementById('otp-modal').remove();
+  showToast('Access denied and logged. Branch has been notified.', 'error');
+}
+
+function acknowledgeSOP(id) {
+  const v = currentVendor.sopViolations.find(x => x.id === id);
+  if (v) { v.status = 'acknowledged'; showToast('Violation ' + id + ' acknowledged'); renderPage('sop'); }
+}
+
+function disputeSOPViolation(id) {
+  const v = currentVendor.sopViolations.find(x => x.id === id);
+  if (v) { v.status = 'disputed'; showToast('Dispute raised for ' + id + '. IIFL will review within 5 business days.'); renderPage('sop'); }
+}
+
+function navToTickets() { navToPage('tickets'); }
+</script>
+</body>
+</html>
