@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 
 const { connectDB } = require("./src/config/db");
+const { ensureIndexes } = require("./src/repositories/user.repository");
 
 // Load environment variables
 dotenv.config();
@@ -31,7 +32,7 @@ app.get("/", (req, res) => {
 /**
  * Routes
  */
-app.use("/api/v1", require("./src/routes"));
+app.use("/api/v1", require("./src/routes/index"));
 
 /**
  * Start Server
@@ -39,6 +40,7 @@ app.use("/api/v1", require("./src/routes"));
 async function startServer() {
     try {
         await connectDB();
+        await ensureIndexes();
 
         app.listen(PORT, () => {
             console.log("====================================");

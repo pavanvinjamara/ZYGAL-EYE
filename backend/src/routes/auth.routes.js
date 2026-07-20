@@ -1,4 +1,6 @@
 const express = require("express");
+const authController = require("../controllers/auth.controller");
+const { requireAuth } = require("../middleware/auth.middleware");
 
 const router = express.Router();
 
@@ -6,32 +8,9 @@ const router = express.Router();
  * Authentication Routes
  */
 
-router.post("/signup", (req, res) => {
-    res.json({
-        success: true,
-        message: "Signup API"
-    });
-});
-
-router.post("/login", (req, res) => {
-    res.json({
-        success: true,
-        message: "Login API"
-    });
-});
-
-router.post("/refresh", (req, res) => {
-    res.json({
-        success: true,
-        message: "Refresh Token API"
-    });
-});
-
-router.post("/logout", (req, res) => {
-    res.json({
-        success: true,
-        message: "Logout API"
-    });
-});
+router.post("/signup", authController.signup);
+router.post("/login", authController.login);
+router.post("/refresh", authController.refresh);
+router.post("/logout", requireAuth, authController.logout);
 
 module.exports = router;

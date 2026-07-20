@@ -1,0 +1,76 @@
+/* ==========================================================================
+   IIFL EYE — Theme variables for Tailwind arbitrary-value usage
+   e.g. bg-[--bg], text-[--text], border-[--border]
+   Toggled by src/utils/theme.js via a `.dark` class on <html>
+   (make sure tailwind.config.js has: darkMode: 'class')
+   ========================================================================== */
+
+:root {
+  --bg: #F1F5F9;
+  --surface: #FFFFFF;
+  --card: rgba(255, 255, 255, 0.97);
+  --input: #FFFFFF;
+
+  --border: #E2E8F0;
+  --border-mid: #F1F5F9;
+
+  --text: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+
+  --accent: #EA580C;
+  --accent-hover: #C2410C;
+  --accent-soft: rgba(234, 88, 12, 0.12);
+
+  --green: #059669;
+  --amber: #D97706;
+  --red: #DC2626;
+  --red-soft: rgba(220, 38, 38, 0.08);
+
+  /* Login-screen backdrop — stays dark in both themes (brand identity) */
+  --login-from: #0F172A;
+  --login-via: #1E293B;
+  --login-to: #0C1A2E;
+  --login-grid-opacity: 0.03;
+}
+
+html.dark {
+  --bg: #0B1220;
+  --surface: #111827;
+  --card: rgba(17, 24, 39, 0.97);
+  --input: #0B1220;
+
+  --border: #334155;
+  --border-mid: #1E293B;
+
+  --text: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+
+  --accent: #F97316;
+  --accent-hover: #EA580C;
+  --accent-soft: rgba(249, 115, 22, 0.18);
+
+  --green: #10B981;
+  --amber: #F59E0B;
+  --red: #EF4444;
+  --red-soft: rgba(239, 68, 68, 0.15);
+
+  --login-from: #05070D;
+  --login-via: #0B1220;
+  --login-to: #060C16;
+  --login-grid-opacity: 0.05;
+}
+
+/* Fallback for browsers without document.startViewTransition */
+.theme-fade-fallback,
+.theme-fade-fallback * {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* Keep the wave's new-state snapshot crisp, no default cross-fade fighting it */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
