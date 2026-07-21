@@ -1,92 +1,128 @@
-const userRepository = require("../repositories/user.repository");
-const { toPublicUser } = require("../models/user.model");
-const { hashPassword, comparePassword } = require("../utils/password.util");
+const userRepo = require('../repositories/user.repository');
+const vendorRepo = require('../repositories/vendor.repository');
+const refreshTokenRepo = require('../repositories/refreshToken.repository');
+const { hashPassword, comparePassword } = require('../utils/password.util');
 const {
-    generateAccessToken,
-    generateRefreshToken,
-    verifyRefreshToken,
-    hashToken
-} = require("../utils/jwt.util");
+  signAccessToken,
+  signRefreshToken,
+  verifyRefreshToken,
+  hashToken,
+  refreshExpiryDate,
+} = require('../utils/jwt.util');
 
 class AuthError extends Error {
-    constructor(message, statusCode = 400) {
-        super(message);
-        this.statusCode = statusCode;
-    }
+  constructor(message, status = 401) {
+    super(message);
+    this.status = status;
+  }
 }
 
-async function signup({ name, email, password }) {
-    const existing = await userRepository.findByEmail(email);
-    if (existing) {
-        throw new AuthError("An account with this email already exists", 409);
-    }
+async function login({ vendorCode, email, password }, meta = {}) {
+  const vendor = await vendorRepo.findByCode(vendorCode);
+  if (!vendor) throw new AuthError('Invalid vendor selection', 400);
 
-    const passwordHash = await hashPassword(password);
-    const user = await userRepository.create({ name, email, passwordHash });
+  console.log(vendor, vendorCode);
 
-    return toPublicUser(user);
+  const user = await userRepo.findByEmail(email);
+  console.log(user.vendorId, String(user.vendorId),String(vendor._id));
+  if (!user || String(user.vendorId) !== String(vendor._id)) {
+    throw new AuthError('Invalid email or password');
+  }
+
+  if (user.status !== 'active') {
+    throw new AuthError('Account disabled. Contact your administrator.', 403);
+  }
+
+  if (user.lockedUntil && user.lockedUntil > new Date()) {
+    throw new AuthError('Account temporarily locked due to failed attempts. Try again later.', 423);
+  }
+
+  const passwordMatches = await comparePassword(password, user.passwordHash);
+  if (!passwordMatches) {
+    await userRepo.recordFailedLogin(user._id);
+    throw new AuthError('Invalid email or password');
+  }
+
+  await userRepo.recordSuccessfulLogin(user._id);
+
+  const payload = {
+    sub: String(user._id),
+    vendorId: String(user.vendorId),
+    role: user.role,
+  };
+
+  const accessToken = signAccessToken(payload);
+  const refreshToken = signRefreshToken(payload);
+
+  await refreshTokenRepo.create({
+    userId: user._id,
+    tokenHash: hashToken(refreshToken),
+    userAgent: meta.userAgent,
+    ip: meta.ip,
+    expiresAt: refreshExpiryDate(),
+  });
+
+  return {
+    accessToken,
+    refreshToken,
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      vendor: {
+        id: vendor._id,
+        code: vendor.code,
+        name: vendor.name,
+        shortCode: vendor.shortCode,
+      },
+    },
+  };
 }
 
-async function login({ email, password }) {
-    const user = await userRepository.findByEmail(email);
-    if (!user) {
-        throw new AuthError("Invalid email or password", 401);
-    }
+async function register({ vendorCode, name, email, password, phone }) {
+  const vendor = await vendorRepo.findByCode(vendorCode);
+  if (!vendor) throw new AuthError('Invalid vendor selection', 400);
 
-    const isMatch = await comparePassword(password, user.password);
-    if (!isMatch) {
-        throw new AuthError("Invalid email or password", 401);
-    }
+  const existing = await userRepo.findByEmail(email);
+  if (existing) throw new AuthError('Email already registered', 409);
 
-    const payload = { sub: user._id.toString(), email: user.email };
-    const accessToken = generateAccessToken(payload);
-    const refreshToken = generateRefreshToken(payload);
+  const passwordHash = await hashPassword(password);
+  const user = await userRepo.createUser({
+    vendorId: vendor._id,
+    name,
+    email,
+    passwordHash,
+    role: 'vendor_viewer',
+    phone: phone || null,
+  });
 
-    await userRepository.addRefreshToken(user._id, hashToken(refreshToken));
-
-    return {
-        user: toPublicUser(user),
-        accessToken,
-        refreshToken
-    };
+  return { id: user._id, name: user.name, email: user.email };
 }
 
-async function refresh(refreshToken) {
-    if (!refreshToken) {
-        throw new AuthError("Refresh token is required", 401);
-    }
+async function refresh(refreshTokenValue) {
+  let decoded;
+  try {
+    decoded = verifyRefreshToken(refreshTokenValue);
+  } catch {
+    throw new AuthError('Invalid or expired refresh token');
+  }
 
-    let decoded;
-    try {
-        decoded = verifyRefreshToken(refreshToken);
-    } catch (err) {
-        throw new AuthError("Invalid or expired refresh token", 401);
-    }
+  const stored = await refreshTokenRepo.findValidByHash(hashToken(refreshTokenValue));
+  if (!stored) throw new AuthError('Refresh token revoked or not found');
 
-    const user = await userRepository.findById(decoded.sub);
-    const tokenHash = hashToken(refreshToken);
+  const accessToken = signAccessToken({
+    sub: decoded.sub,
+    vendorId: decoded.vendorId,
+    role: decoded.role,
+  });
 
-    if (!user || !user.refreshTokens?.includes(tokenHash)) {
-        throw new AuthError("Refresh token has been revoked", 401);
-    }
-
-    // Rotate: invalidate the old refresh token, issue a new pair
-    await userRepository.removeRefreshToken(user._id, tokenHash);
-
-    const payload = { sub: user._id.toString(), email: user.email };
-    const newAccessToken = generateAccessToken(payload);
-    const newRefreshToken = generateRefreshToken(payload);
-
-    await userRepository.addRefreshToken(user._id, hashToken(newRefreshToken));
-
-    return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+  return { accessToken };
 }
 
-async function logout(userId, refreshToken) {
-    if (userId && refreshToken) {
-        await userRepository.removeRefreshToken(userId, hashToken(refreshToken));
-    }
-    return true;
+async function logout(refreshTokenValue) {
+  if (!refreshTokenValue) return;
+  await refreshTokenRepo.revokeByHash(hashToken(refreshTokenValue));
 }
 
-module.exports = { signup, login, refresh, logout, AuthError };
+module.exports = { login, register, refresh, logout, AuthError };

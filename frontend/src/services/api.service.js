@@ -90,10 +90,10 @@ class ApiService {
     // Server contract: { success, message, data: { user, accessToken } } on login/refresh
     // Refresh token itself is never in the JSON body — it travels as an httpOnly cookie.
 
-    async signup(userData) {
-        // { name, email, password } -> { success, data: { id, name, email } }
-        return this.post("/auth/signup", userData);
-    }
+    // async signup(userData) {
+    //     // { name, email, password } -> { success, data: { id, name, email } }
+    //     return this.post("/auth/signup", userData);
+    // }
 
     async login(credentials) {
         // { email, password } -> { success, data: { user, accessToken } }
@@ -109,6 +109,12 @@ class ApiService {
         return this.post("/auth/logout", null, {
             headers: { Authorization: `Bearer ${accessToken}` }
         });
+    }
+
+    // ---------------- vendor endpoints ----------------
+    async getPublicVendors() {
+        // -> { success, vendors: [{ value, label, shortCode }] }
+        return this.get("/vendors/public", { key: "vendors:public" });
     }
 }
 

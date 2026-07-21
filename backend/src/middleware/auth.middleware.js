@@ -1,41 +1,34 @@
-const { verifyAccessToken } = require("../utils/jwt.util");
+const { verifyAccessToken } = require('../utils/jwt.util');
 
-/**
- * Protects a route: requires a valid "Bearer <accessToken>" Authorization header.
- * On success, attaches the decoded token payload to req.user.
- */
-function requireAuth(req, res, next) {
-    const authHeader = req.headers.authorization || "";
-    const [scheme, token] = authHeader.split(" ");
+function authenticate(req, res, next) {
+  const header = req.headers.authorization;
 
-    if (scheme !== "Bearer" || !token) {
-        return res.status(401).json({ success: false, message: "Authentication token missing" });
-    }
+  if (!header || !header.startsWith('Bearer ')) {
+    return res.status(401).json({ success: false, message: 'Missing access token' });
+  }
 
-    try {
-        req.user = verifyAccessToken(token);
-        return next();
-    } catch (err) {
-        return res.status(401).json({ success: false, message: "Invalid or expired access token" });
-    }
+  const token = header.split(' ')[1];
+
+  try {
+    const decoded = verifyAccessToken(token);
+    req.user = {
+      id: decoded.sub,
+      vendorId: decoded.vendorId,
+      role: decoded.role,
+    };
+    next();
+  } catch {
+    return res.status(401).json({ success: false, message: 'Invalid or expired token' });
+  }
 }
 
-/**
- * Like requireAuth, but doesn't reject the request if there's no/invalid token.
- * Useful for routes that behave differently for logged-in vs anonymous users.
- */
-function optionalAuth(req, res, next) {
-    const authHeader = req.headers.authorization || "";
-    const [scheme, token] = authHeader.split(" ");
-
-    if (scheme === "Bearer" && token) {
-        try {
-            req.user = verifyAccessToken(token);
-        } catch (err) {
-            // ignore invalid token, treat as anonymous
-        }
+function requireRole(...allowedRoles) {
+  return (req, res, next) => {
+    if (!req.user || !allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ success: false, message: 'Forbidden — insufficient role' });
     }
-    return next();
+    next();
+  };
 }
 
-module.exports = { requireAuth, optionalAuth };
+module.exports = { authenticate, requireRole };

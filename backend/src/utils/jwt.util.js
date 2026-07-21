@@ -1,40 +1,40 @@
-const jwt = require("jsonwebtoken");
-const crypto = require("crypto");
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET;
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+const ACCESS_EXPIRY = '15m';
+const REFRESH_EXPIRY_DAYS = 7;
 
-const ACCESS_EXPIRES_IN = process.env.JWT_ACCESS_EXPIRES_IN || "15m";
-const REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || "7d";
-
-function generateAccessToken(payload) {
-    return jwt.sign(payload, ACCESS_SECRET, { expiresIn: ACCESS_EXPIRES_IN });
+function signAccessToken(payload) {
+  return jwt.sign(payload, ACCESS_SECRET, { expiresIn: ACCESS_EXPIRY });
 }
 
-function generateRefreshToken(payload) {
-    return jwt.sign(payload, REFRESH_SECRET, { expiresIn: REFRESH_EXPIRES_IN });
+function signRefreshToken(payload) {
+  return jwt.sign(payload, REFRESH_SECRET, { expiresIn: `${REFRESH_EXPIRY_DAYS}d` });
 }
 
 function verifyAccessToken(token) {
-    return jwt.verify(token, ACCESS_SECRET);
+  return jwt.verify(token, ACCESS_SECRET);
 }
 
 function verifyRefreshToken(token) {
-    return jwt.verify(token, REFRESH_SECRET);
+  return jwt.verify(token, REFRESH_SECRET);
 }
 
-/**
- * We never store raw refresh tokens in the DB - only a hash of them.
- * This way, a DB leak doesn't hand over usable tokens.
- */
 function hashToken(token) {
-    return crypto.createHash("sha256").update(token).digest("hex");
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
+
+function refreshExpiryDate() {
+  return new Date(Date.now() + REFRESH_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
 }
 
 module.exports = {
-    generateAccessToken,
-    generateRefreshToken,
-    verifyAccessToken,
-    verifyRefreshToken,
-    hashToken
+  signAccessToken,
+  signRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken,
+  hashToken,
+  refreshExpiryDate,
 };

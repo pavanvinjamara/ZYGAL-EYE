@@ -1,16 +1,16 @@
-const express = require("express");
-const authController = require("../controllers/auth.controller");
-const { requireAuth } = require("../middleware/auth.middleware");
+// src/routes/auth.routes.js
+const router = require('express').Router();
+const authController = require('../controllers/auth.controller');
+const { loginLimiter } = require('../middleware/rateLimit.middleware');
+const {
+  loginValidator,
+  registerValidator,
+  handleValidation,
+} = require('../validators/auth.validator');
 
-const router = express.Router();
-
-/**
- * Authentication Routes
- */
-
-router.post("/signup", authController.signup);
-router.post("/login", authController.login);
-router.post("/refresh", authController.refresh);
-router.post("/logout", requireAuth, authController.logout);
+router.post('/login', loginLimiter, loginValidator, handleValidation, authController.login);
+router.post('/register', registerValidator, handleValidation, authController.register);
+router.post('/refresh', authController.refresh);
+router.post('/logout', authController.logout);
 
 module.exports = router;

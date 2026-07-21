@@ -1,27 +1,21 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { showToast } from "@/composables/toast.composable";
 
 import { useAppStore } from "../../stores/store.js";
-
 import { useAuthStore } from "../../stores/auth.store.js";
-
 import { toggleThemeWithWave } from "../../utils/theme.util.js";
+import apiService from "@/services/api.service";
 
 const router = useRouter();
 
 const appStore = useAppStore();
 const authStore = useAuthStore();
 
-const VENDORS = [
-  { value: "zygal", label: "Zygal" },
-  { value: "ang", label: "ANG" },
-  { value: "zicom", label: "Zicom" },
-  { value: "vprotect", label: "vProtect - SIS" },
-  { value: "ang2", label: "AnG 2" },
-  { value: "aditya", label: "Aditya Infotech Ltd." },
-  { value: "ivis", label: "IVIS" },
-];
+const vendors = ref([]);
+const vendorsLoading = ref(true);
+const vendorsError = ref("");
 
 const vendor = ref("");
 const email = ref("");
@@ -29,9 +23,22 @@ const password = ref("");
 
 const showPassword = ref(false);
 const isSubmitting = ref(false);
-const errorMessage = ref("");
 
 const isDark = computed(() => appStore.isDark);
+
+onMounted(async () => {
+  vendorsLoading.value = true;
+  vendorsError.value = "";
+
+  try {
+    const res = await apiService.getPublicVendors();
+    vendors.value = res.vendors || [];
+  } catch (err) {
+    vendorsError.value = "Couldn't load vendor list. Please refresh the page.";
+  } finally {
+    vendorsLoading.value = false;
+  }
+});
 
 function handleThemeToggle(event) {
   const nextTheme = toggleThemeWithWave(appStore.theme, event);
@@ -47,12 +54,13 @@ function validate() {
 }
 
 async function handleSubmit() {
-  errorMessage.value = "";
-
   const validationError = validate();
 
   if (validationError) {
-    errorMessage.value = validationError;
+    showToast({
+      type: "warning",
+      message: validationError,
+    });
     return;
   }
 
@@ -60,19 +68,31 @@ async function handleSubmit() {
 
   try {
     await authStore.login({
-      vendor: vendor.value,
+      vendorCode: vendor.value,
       email: email.value,
       password: password.value,
     });
 
+   console.log("=====", router);
+
     router.push({
       name: "Dashboard",
     });
+
+     showToast({
+      type: "success",
+      message: "Login successful.",
+    });
+
   } catch (err) {
-    errorMessage.value =
-      err.response?.data?.message ||
-      err.message ||
-      "Sign in failed. Please check your credentials.";
+  console.log(err, "errr");
+    showToast({
+      type: "error",
+      message:
+        err.errors?.[0]?.msg ||
+        err.message ||
+        "Sign in failed. Please check your credentials.",
+    });
   } finally {
     isSubmitting.value = false;
   }
@@ -82,7 +102,6 @@ async function handleSubmit() {
 <template>
   <div class="w-screen h-screen flex flex-col justify-center overflow-hidden relative bg-[var(--login-from)]">
 
-    <!-- Backdrop: gradient + grid + glow, brand-dark in both themes -->
     <div
       class="absolute inset-0"
       style="background: linear-gradient(135deg, var(--login-from) 0%, var(--login-via) 50%, var(--login-to) 100%);"
@@ -99,7 +118,6 @@ async function handleSubmit() {
       }"
     ></div>
 
-    <!-- Theme toggle -->
     <button
       type="button"
       class="absolute top-5 right-5 z-20 w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer
@@ -119,7 +137,6 @@ async function handleSubmit() {
       </svg>
     </button>
 
-    <!-- Card -->
     <div class="relative z-10 w-[420px] mx-auto rounded-2xl p-10 bg-[var(--card)] shadow-[0_25px_60px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.1)]">
 
       <div class="text-center mb-8">
@@ -143,10 +160,6 @@ async function handleSubmit() {
 
       <form novalidate @submit.prevent="handleSubmit">
 
-        <div v-if="errorMessage" class="mb-4 rounded-md border px-3 py-2 text-xs font-medium bg-[--red-soft] border-[var(--red)] text-[var(--red)]" role="alert">
-          {{ errorMessage }}
-        </div>
-
         <div class="mb-4">
           <label for="login-vendor" class="block text-xs font-semibold tracking-wide mb-1.5 text-[var(--text-secondary)]">
             Select Your Company
@@ -154,14 +167,21 @@ async function handleSubmit() {
           <select
             id="login-vendor"
             v-model="vendor"
+            :disabled="vendorsLoading"
             class="w-full px-3.5 py-2.5 rounded-md text-sm outline-none appearance-none cursor-pointer
                    bg-[var(--input)] text-[var(--text)] border border-[var(--border)]
                    focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent-soft)]
+                   disabled:opacity-60 disabled:cursor-not-allowed
                    transition-colors"
           >
-            <option value="">— Select vendor —</option>
-            <option v-for="v in VENDORS" :key="v.value" :value="v.value">{{ v.label }}</option>
+            <option value="">
+              {{ vendorsLoading ? "Loading vendors…" : "— Select vendor —" }}
+            </option>
+            <option v-for="v in vendors" :key="v.value" :value="v.value">{{ v.label }}</option>
           </select>
+          <p v-if="vendorsError" class="mt-1.5 text-[11px] text-[var(--red)]">
+            {{ vendorsError }}
+          </p>
         </div>
 
         <div class="mb-4">

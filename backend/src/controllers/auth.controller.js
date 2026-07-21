@@ -1,90 +1,66 @@
-const authService = require("../services/auth.service");
-const { validateSignup, validateLogin } = require("../validators/auth.validator");
+const authService = require('../services/auth.service');
 
-const REFRESH_COOKIE_NAME = "refreshToken";
-const isProd = process.env.NODE_ENV === "production";
-
-const refreshCookieOptions = {
-    httpOnly: true,
-    secure: isProd,
-    sameSite: "strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days, keep in sync with JWT_REFRESH_EXPIRES_IN
+const REFRESH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict',
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 };
 
-async function signup(req, res) {
-    const { valid, errors } = validateSignup(req.body);
-    if (!valid) {
-        return res.status(400).json({ success: false, message: "Validation failed", errors });
-    }
+async function login(req, res, next) {
+  try {
+    const { vendorCode, email, password } = req.body;
 
-    try {
-        const user = await authService.signup(req.body);
-        return res.status(201).json({
-            success: true,
-            message: "Account created successfully",
-            data: user
-        });
-    } catch (err) {
-        const status = err.statusCode || 500;
-        return res.status(status).json({ success: false, message: err.message });
-    }
+    const result = await authService.login(
+      { vendorCode, email, password },
+      { userAgent: req.headers['user-agent'], ip: req.ip }
+    );
+
+    res.cookie('refreshToken', result.refreshToken, REFRESH_COOKIE_OPTIONS);
+
+    return res.status(200).json({
+      success: true,
+      accessToken: result.accessToken,
+      user: result.user,
+    });
+  } catch (err) {
+    next(err);
+  }
 }
 
-async function login(req, res) {
-    const { valid, errors } = validateLogin(req.body);
-    if (!valid) {
-        return res.status(400).json({ success: false, message: "Validation failed", errors });
-    }
-
-    try {
-        const { user, accessToken, refreshToken } = await authService.login(req.body);
-
-        res.cookie(REFRESH_COOKIE_NAME, refreshToken, refreshCookieOptions);
-
-        return res.status(200).json({
-            success: true,
-            message: "Login successful",
-            data: { user, accessToken }
-        });
-    } catch (err) {
-        const status = err.statusCode || 500;
-        return res.status(status).json({ success: false, message: err.message });
-    }
+async function register(req, res, next) {
+  try {
+    const user = await authService.register(req.body);
+    return res.status(201).json({ success: true, user });
+  } catch (err) {
+    next(err);
+  }
 }
 
-async function refresh(req, res) {
-    const tokenFromCookie = req.cookies?.[REFRESH_COOKIE_NAME];
-    const tokenFromBody = req.body?.refreshToken;
-    const refreshToken = tokenFromCookie || tokenFromBody;
-
-    try {
-        const { accessToken, refreshToken: newRefreshToken } = await authService.refresh(refreshToken);
-
-        res.cookie(REFRESH_COOKIE_NAME, newRefreshToken, refreshCookieOptions);
-
-        return res.status(200).json({
-            success: true,
-            message: "Token refreshed",
-            data: { accessToken }
-        });
-    } catch (err) {
-        const status = err.statusCode || 500;
-        return res.status(status).json({ success: false, message: err.message });
+async function refresh(req, res, next) {
+  try {
+    const token = req.cookies?.refreshToken || req.body.refreshToken;
+    if (!token) {
+      return res.status(401).json({ success: false, message: 'No refresh token provided' });
     }
+
+    const result = await authService.refresh(token);
+    return res.status(200).json({ success: true, accessToken: result.accessToken });
+  } catch (err) {
+    next(err);
+  }
 }
 
-async function logout(req, res) {
-    const refreshToken = req.cookies?.[REFRESH_COOKIE_NAME] || req.body?.refreshToken;
+async function logout(req, res, next) {
+  try {
+    const token = req.cookies?.refreshToken || req.body.refreshToken;
+    if (token) await authService.logout(token);
 
-    try {
-        // req.user is set by the auth middleware when the caller has a valid access token
-        await authService.logout(req.user?.sub, refreshToken);
-        res.clearCookie(REFRESH_COOKIE_NAME, refreshCookieOptions);
-        return res.status(200).json({ success: true, message: "Logged out successfully" });
-    } catch (err) {
-        const status = err.statusCode || 500;
-        return res.status(status).json({ success: false, message: err.message });
-    }
+    res.clearCookie('refreshToken', REFRESH_COOKIE_OPTIONS);
+    return res.status(200).json({ success: true, message: 'Logged out' });
+  } catch (err) {
+    next(err);
+  }
 }
 
-module.exports = { signup, login, refresh, logout };
+module.exports = { login, register, refresh, logout };

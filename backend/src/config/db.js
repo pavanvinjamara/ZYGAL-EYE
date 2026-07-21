@@ -1,20 +1,24 @@
 const { MongoClient } = require('mongodb');
 
+let client;
 let db;
 
 const connectDB = async () => {
     try {
-        const client = new MongoClient(process.env.MONGO_URL);
+        client = new MongoClient(process.env.MONGO_URL, {
+            maxPoolSize: 20,
+            minPoolSize: 5,
+            serverSelectionTimeoutMS: 8000,
+        });
         await client.connect();
 
-        // Give your DB a name explicitly (native driver doesn't infer it like Mongoose does)
         db = client.db(process.env.DB_NAME || 'myapp');
 
         console.log("MongoDB connected successfully");
         return db;
     } catch (err) {
         console.log("DB connection failed:", err);
-        throw err; // let the caller decide what to do (e.g. exit process)
+        throw err;
     }
 };
 
@@ -23,4 +27,9 @@ const getDB = () => {
     return db;
 };
 
-module.exports = { connectDB, getDB };
+// Needed so tests / scripts / server shutdown don't leave dangling connections
+const closeDB = async () => {
+    if (client) await client.close();
+};
+
+module.exports = { connectDB, getDB, closeDB };
