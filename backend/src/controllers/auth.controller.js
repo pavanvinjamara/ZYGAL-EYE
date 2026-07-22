@@ -1,66 +1,73 @@
+// backend/src/controllers/auth.controller.js
 const authService = require('../services/auth.service');
+const { ok, created, fail } = require('../utils/apiResponse.util');
 
-const REFRESH_COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict',
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-};
-
-async function login(req, res, next) {
+async function login(req, res) {
   try {
-    const { vendorCode, email, password } = req.body;
-
-    const result = await authService.login(
-      { vendorCode, email, password },
+    const { email, password, vendorShortCode } = req.body;
+    const { token, refreshToken, user } = await authService.login(
+      { email, password, vendorShortCode },
       { userAgent: req.headers['user-agent'], ip: req.ip }
     );
-
-    res.cookie('refreshToken', result.refreshToken, REFRESH_COOKIE_OPTIONS);
-
-    return res.status(200).json({
-      success: true,
-      accessToken: result.accessToken,
-      user: result.user,
-    });
+    return ok(res, { accessToken: token, refreshToken, user });
   } catch (err) {
-    next(err);
+    return fail(res, err);
   }
 }
 
-async function register(req, res, next) {
+async function refresh(req, res) {
   try {
-    const user = await authService.register(req.body);
-    return res.status(201).json({ success: true, user });
+    const { refreshToken } = req.body;
+    const { token } = await authService.refresh(refreshToken);
+    return ok(res, { accessToken: token });
   } catch (err) {
-    next(err);
+    return fail(res, err);
   }
 }
 
-async function refresh(req, res, next) {
+async function logout(req, res) {
   try {
-    const token = req.cookies?.refreshToken || req.body.refreshToken;
-    if (!token) {
-      return res.status(401).json({ success: false, message: 'No refresh token provided' });
-    }
-
-    const result = await authService.refresh(token);
-    return res.status(200).json({ success: true, accessToken: result.accessToken });
+    await authService.logout(req.body.refreshToken);
+    return ok(res, { message: 'Logged out' });
   } catch (err) {
-    next(err);
+    return fail(res, err);
   }
 }
 
-async function logout(req, res, next) {
+async function me(req, res) {
   try {
-    const token = req.cookies?.refreshToken || req.body.refreshToken;
-    if (token) await authService.logout(token);
-
-    res.clearCookie('refreshToken', REFRESH_COOKIE_OPTIONS);
-    return res.status(200).json({ success: true, message: 'Logged out' });
+    const user = await authService.getMe(req.user.sub);
+    return ok(res, user);
   } catch (err) {
-    next(err);
+    return fail(res, err);
   }
 }
 
-module.exports = { login, register, refresh, logout };
+// Public self-registration. New accounts start in "invited" status and
+// cannot log in until an admin (or a future email-verification step)
+// activates them -- so this intentionally does NOT require a bearer token.
+async function register(req, res) {
+  try {
+    const { name, email, password, role, vendorId } = req.body;
+    const result = await authService.register(
+      { name, email, password, role, vendorId },
+      req.user?.sub || null,
+      { ip: req.ip }
+    );
+    return created(res, { _id: result._id, message: 'Registered. Awaiting activation.' });
+  } catch (err) {
+    return fail(res, err);
+  }
+}
+
+async function changePassword(req, res) {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    await authService.changePassword(req.user.sub, oldPassword, newPassword);
+    return ok(res, { message: 'Password updated' });
+  } catch (err) {
+    return fail(res, err);
+  }
+}
+
+module.exports = { login, refresh, logout, me, register, changePassword };

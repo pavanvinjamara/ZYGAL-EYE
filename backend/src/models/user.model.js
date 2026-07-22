@@ -1,24 +1,22 @@
-const COLLECTION_NAME = 'users';
-
-const userJsonSchema = {
+// backend/src/models/user.model.js
+const userSchema = {
   $jsonSchema: {
     bsonType: 'object',
-    required: ['vendorId', 'name', 'email', 'passwordHash', 'role', 'status'],
+    required: ['name', 'email', 'passwordHash', 'role', 'status'],
     properties: {
-      vendorId:  { bsonType: 'objectId' },
-      name:      { bsonType: 'string', minLength: 2 },
-      email:     { bsonType: 'string', pattern: '^.+@.+\\..+$' },
+      _id: { bsonType: 'objectId' },
+      name: { bsonType: 'string' },
+      email: { bsonType: 'string' },
       passwordHash: { bsonType: 'string' },
-      role:      { enum: ['vendor_admin', 'vendor_viewer', 'iifl_admin'] },
-      phone:     { bsonType: ['string', 'null'] },
-      status:    { enum: ['active', 'disabled'] },
+      phone: { bsonType: 'string' },
+      role: { enum: ['admin', 'engineer', 'analyst', 'readonly', 'iifl_soc'] },
+      vendorId: { bsonType: ['objectId', 'null'] }, // null for IIFL internal users
+      branchesAssigned: { bsonType: 'array', items: { bsonType: 'string' } },
+      status: { enum: ['active', 'invited', 'disabled'] },
       lastLoginAt: { bsonType: ['date', 'null'] },
-      failedLoginAttempts: { bsonType: 'int' },
-      lockedUntil: { bsonType: ['date', 'null'] },
       createdAt: { bsonType: 'date' },
-      updatedAt: { bsonType: 'date' },
     },
   },
 };
 
-module.exports = { COLLECTION_NAME, userJsonSchema };
+module.exports = { userSchema };

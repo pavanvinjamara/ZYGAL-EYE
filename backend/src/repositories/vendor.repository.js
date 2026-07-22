@@ -1,46 +1,42 @@
+// backend/src/repositories/vendor.repository.js
 const { getDB } = require('../config/db');
-const { COLLECTION_NAME, vendorJsonSchema } = require('../models/vendor.model');
+const { ObjectId } = require('mongodb');
+const COL = require('../db/collections');
 
-function collection() {
-  return getDB().collection(COLLECTION_NAME);
-}
+const findAll = (filter = {}) => getDB().collection(COL.VENDORS).find(filter).toArray();
 
-async function ensureIndexes() {
-  const db = getDB();
-  const existing = await db.listCollections({ name: COLLECTION_NAME }).toArray();
+const findById = (id) => getDB().collection(COL.VENDORS).findOne({ _id: new ObjectId(id) });
 
-  if (existing.length === 0) {
-    await db.createCollection(COLLECTION_NAME, { validator: vendorJsonSchema });
-  } else {
-    await db.command({ collMod: COLLECTION_NAME, validator: vendorJsonSchema });
-  }
+const findByShortCode = (shortCode) => getDB().collection(COL.VENDORS).findOne({ shortCode });
 
-  await collection().createIndex({ code: 1 }, { unique: true });
-}
-
-async function findByCode(code) {
-  return collection().findOne({ code, status: 'active' });
-}
-
-async function findById(id) {
-  const { ObjectId } = require('mongodb');
-  return collection().findOne({ _id: new ObjectId(id) });
-}
-// add this function to your existing vendor.repository.js
-
-async function findAllActivePublic() {
-  return collection()
-    .find(
-      { status: 'active' },
-      { projection: { code: 1, name: 1, shortCode: 1, _id: 0 } } // whitelist fields only
-    )
-    .sort({ name: 1 })
-    .toArray();
-}
-
-module.exports = {
-  ensureIndexes,
-  findByCode,
-  findById,
-  findAllActivePublic, // add to exports
+// Used to catch duplicate vendor registrations that share contact details
+// (email/phone) even when the shortCode differs.
+const findByContactEmailOrPhone = (email, phone) => {
+  const or = [];
+  if (email) or.push({ 'iiflContact.email': email.toLowerCase() });
+  if (phone) or.push({ 'iiflContact.phone': phone });
+  if (!or.length) return Promise.resolve(null);
+  return getDB().collection(COL.VENDORS).findOne({ $or: or });
 };
+
+const create = (vendor) => {
+  const doc = { ...vendor, status: vendor.status || 'onboarding', createdAt: new Date(), updatedAt: new Date() };
+  return getDB().collection(COL.VENDORS).insertOne(doc);
+};
+
+const update = (id, patch) => getDB().collection(COL.VENDORS).updateOne(
+  { _id: new ObjectId(id) },
+  { $set: { ...patch, updatedAt: new Date() } }
+);
+
+const activate = (id) => getDB().collection(COL.VENDORS).updateOne(
+  { _id: new ObjectId(id) },
+  { $set: { status: 'active', updatedAt: new Date() } }
+);
+
+const suspend = (id) => getDB().collection(COL.VENDORS).updateOne(
+  { _id: new ObjectId(id) },
+  { $set: { status: 'suspended', updatedAt: new Date() } }
+);
+
+module.exports = { findAll, findById, findByShortCode, findByContactEmailOrPhone, create, update, activate, suspend };
