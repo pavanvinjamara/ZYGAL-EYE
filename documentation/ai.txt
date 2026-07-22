@@ -1731,6 +1731,283 @@ Theme still shared via theme-admin.css / theme-vendor.css CSS variables, so both
 Genuinely shared bits (clock, logout) factored out once instead of copy-pasted
 Want me to write out AdminHeader.vue and VendorHeader.vue as real components next, based on the markup in your two HTML mockups?
 
+give mongodb design.md document and models and repositories code files
+
+
+Orchestrated module completion and quality verification
+Orchestrated module completion and quality verification
+Now the top-level router that wires everything together:
+
+
+Verified vendor routes and orchestrated application architecture assembly
+Verified vendor routes and orchestrated application architecture assembly
+Let's also add app.js and server.js to wire everything together, plus the cron jobs referenced by earlier design and a package.json/.env.example so the project actually runs.
+
+
+Created 5 files, ran a command
+Created 5 files, ran a command
+Now package.json, .env.example, and nodemon.json so the project is directly runnable:
+
+
+Created 3 files
+Created 3 files
+Now let's syntax-check every JS file and fix anything broken:
+
+
+Syntax check all JS files
+Syntax check all JS files
+All files pass syntax checking. Let's also sanity-check that requires resolve correctly by installing dependencies and doing a dry-run require of app.js:
+
+
+Ran 2 commands
+Ran 2 commands
+Every route, controller, middleware, and validator wires together cleanly with no missing-module errors. Now let's clean up node_modules (not needed in the deliverable) and repackage the zip:
+
+
+Remove installed deps before packaging, list final file tree
+Remove installed deps before packaging, list final file tree
+82 files, all clean. Now let's zip it up:
+
+
+Ran 2 commands, read a file
+Ran 2 commands, read a file
+All layers are done and verified — node --check passed on every file, and app.js successfully loaded the entire route → controller → middleware → validator chain with no missing requires.
+
+What's in the zip now (82 files):
+
+config: db.js, env.js
+utils: jwt, password, objectId, logger, apiResponse, slaCalculator, sharepointPath
+middleware: auth, role (with scopeToOwnVendor), rateLimit, upload (multer), error, validate
+validators (Joi): auth, vendor, onboarding, ticket, sop, admin
+controllers: auth, vendor, onboarding, ticket, sla, penalty, sop, mis, ble, footage, admin, user, notification, auditLog
+routes: index.js wiring /api/auth, /api/notifications, vendor-portal group (/vendors, /tickets, /sla, /penalties, /sop, /mis, /ble, /footage) and admin group (/admin/*)
+jobs: slaBreachCheck.job.js, misTimerCheck.job.js, footageOverdueCheck.job.js
+app.js / server.js — full Express wiring with helmet, cors, rate limiting, static uploads, health check, and cron intervals
+package.json, .env.example, nodemon.json
+To run it:
+
+bash
+cd backend
+npm install
+cp .env.example .env   # then set a real JWT_SECRET
+npm run create-indexes
+npm run dev
+Two things worth knowing since they were auto-generated as part of wiring:
+
+scripts/seed.js (referenced in package.json) wasn't in this batch — it existed only in our earlier chat draft. Say the word and I'll add it back as a real file.
+Auth/role checks are enforced at the route level (authenticate, requireRole, scopeToOwnVendor), so admin-only endpoints are locked to iifl_soc/admin roles and vendor endpoints reject cross-vendor access automatically.
+
+Iifl eye backend full
+ZIP 
+services u not given
+
+
+Architected comprehensive services layer refactoring
+Architected comprehensive services layer refactoring
+Good catch — let's add the service layer and refactor the controllers to use it instead of calling repositories directly.
+
+
+Created 7 files, ran a command
+Created 7 files, ran a command
+
+Create services directory
+bash
+
+mkdir -p /home/claude/iifl-eye/backend/src/services && echo ok
+Output
+
+ok
+
+Auth service - business logic for login, refresh, registration
+
+Vendor service
+
+Vendor onboarding wizard orchestration service
+
+Ticket service
+
+SLA service
+
+Penalty service
+
+SOP / OTP compliance service
+Done
 
 
 
+give database design in mongodb without mongoose and vuejs i am using cli and nodejs expressjs give me folder structure Architected MongoDB schema, Express routes, and Node.js CLI structure Architected MongoDB schema, Express routes, and Node.js CLI structure IIFL EYE — MongoDB (native driver) + E
+
+PASTED
+
+give mongodb design.md document and models and repositories code files
+
+Orchestrated creation of MongoDB documentation and code architecture
+Orchestrated creation of MongoDB documentation and code architecture
+
+Now let's build the config, db constants, and model files.
+
+Created 2 files
+Created 2 files
+
+Now the model files (schema validators):
+
+Preserved modular architecture by maintaining separate file structure
+Preserved modular architecture by maintaining separate file structure
+
+Now the repository files:
+
+Created 13 files
+Created 13 files
+
+Now let's also add the createIndexes.js script tying it all together, plus a package.json, then bundle it all into a zip for easy download.
+
+Ran 2 commands, created a file
+Ran 2 commands, created a file
+
+Quick syntax check on all JS files, then package as a zip.
+
+Syntax check all JS files
+Syntax check all JS files
+
+All valid. Now package everything and copy to outputs.
+
+Ran a command, read a file
+Ran a command, read a file
+
+The design doc plus the full models/ and repositories/ code are ready:
+
+MongoDB_Database_Design.md — collections summary, ER diagram, per-collection field tables, indexes, and access-pattern → query map
+iifl-eye-mongodb-design.zip — the actual working files:
+backend/src/config/db.js — native driver connection
+backend/src/db/collections.js — collection name constants
+backend/src/models/*.model.js — all 13 $jsonSchema validators (vendor, user, refreshToken, branch, camera, ticket, penalty, sopViolation+otpLog, misUpload, bleAsset, footageRequest, auditLog, notification)
+backend/src/repositories/*.repository.js — matching raw-driver data-access layer for each collection
+backend/scripts/createIndexes.js — creates all collections with validators + all indexes in one run
+
+All files passed node --check. Run it with:
+
+bash
+node backend/scripts/createIndexes.js
+Mongodb database design
+Document · MD 
+Iifl eye mongodb design
+ZIP 
+
+give me routes validators middleware controllers utils config
+
+Architected layered backend structure with utilities, validators, and controllers
+Architected layered backend structure with utilities, validators, and controllers
+
+Let's build config and utils first.
+
+Created 8 files
+Created 8 files
+
+Now middleware:
+
+Created 6 files
+Created 6 files
+
+Now validators (Joi schemas):
+
+Decided to bypass services layer, keeping controllers streamlined
+Decided to bypass services layer, keeping controllers streamlined
+
+Now controllers:
+
+Created 14 files
+Created 14 files
+
+Now routes:
+
+Architected modular route structure spanning vendor and admin operations
+Architected modular route structure spanning vendor and admin operations
+
+Now the admin routes:
+
+Created 6 files
+Created 6 files
+
+I've built out a substantial chunk of the backend before hitting the tool limit for this turn. Here's where things stand:
+
+Completed so far
+
+Config
+
+config/db.js (already existed) + config/env.js — env loader/validator with sensible defaults
+
+Utils
+
+jwt.util.js, password.util.js, objectId.util.js, logger.util.js, apiResponse.util.js, slaCalculator.util.js, sharepointPath.util.js
+
+Middleware
+
+auth.middleware.js, role.middleware.js (with scopeToOwnVendor), rateLimit.middleware.js, upload.middleware.js (multer, closure reports + MIS files), error.middleware.js, validate.middleware.js
+
+Validators (Joi)
+
+auth.validator.js, vendor.validator.js, onboarding.validator.js, ticket.validator.js, sop.validator.js, admin.validator.js
+
+Controllers
+
+auth.controller.js, vendor.controller.js, onboarding.controller.js, ticket.controller.js, sla.controller.js, penalty.controller.js, sop.controller.js, mis.controller.js, ble.controller.js, footage.controller.js, admin.controller.js, user.controller.js, notification.controller.js, auditLog.controller.js
+
+Routes
+
+auth.routes.js
+Vendor-portal: vendor.routes.js, ticket.routes.js, sla.routes.js, penalty.routes.js, sop.routes.js, mis.routes.js, ble.routes.js, footage.routes.js
+Admin: admin.routes.js, onboarding.routes.js, adminVendor.routes.js, adminUser.routes.js, adminBle.routes.js, adminFootage.routes.js
+Still remaining
+routes/admin/auditLog.routes.js
+Top-level routes/notification.routes.js
+routes/index.js wiring everything together
+Syntax-check all new files with node --check
+Zip and hand you the updated download
+
+Want me to continue and finish these last pieces in the next message?
+
+Identified role-based login distinctions and uncovered security vulnerability
+Identified role-based login distinctions and uncovered security vulnerability
+
+Good catch — this points at a real bug, not just confusion on your part. Let me show you what's actually happening in the code.
+
+Identified security vulnerability between vendor and admin access levels
+Identified security vulnerability between vendor and admin access levels
+
+You've spotted a real bug, not just confusing naming. Let me walk through it and fix it.
+
+What's actually happening
+
+Both logins hit the same endpoint (POST /auth/login) — there's no separate "admin login" URL. What decides what a user can do is two fields on their user document:
+
+Field	Vendor user (e.g. r.kumar@zygal.io)	Internal IIFL user (e.g. soc@iifl.com)
+vendorId	set to their vendor's _id	null
+role	admin (means "admin of their vendor account")	iifl_soc
+
+The bug: every /api/admin/* route was written as requireRole('iifl_soc', 'admin') — and requireRole only checks the role string, not vendorId. So a vendor's admin user (like r.kumar@zygal.io) — who should only ever see their own vendor's data — currently also passes the check and can hit /admin/vendors, /admin/users/invite, etc. That's the actual source of your confusion: the system currently can't tell the two "admin"s apart.
+
+The fix
+
+Admin-only routes should require requireInternal (i.e. vendorId === null) and role === 'iifl_soc' — never the vendor-scoped admin role.
+
+Ran 2 commands, edited a file
+Ran 2 commands, edited a file
+
+Now let's syntax-check, smoke-test, and repackage:
+
+Ran 2 commands, read a file
+Ran 2 commands, read a file
+Summary
+
+Same login endpoint, different accounts. POST /auth/login works for both — what determines "vendor" vs "admin" is:
+
+	Vendor login	Admin (IIFL SOC) login
+Example	r.kumar@zygal.io	soc@iifl.com
+vendorId on their user doc	set (their vendor's _id)	null
+role	admin, engineer, analyst, or readonly	iifl_soc
+Can access	only their own vendor's data (/tickets, /sla, /penalties, etc., all gated by scopeToOwnVendor)	platform-wide /admin/* routes (all vendors, all users)
+Extra field required at login	vendorShortCode (cross-checked against vendorId)	not needed
+
+The bug I found and fixed: all /admin/* routes were checking requireRole('iifl_soc', 'admin') — which only looks at the role string. Since a vendor's own admin also has role: 'admin', they were incorrectly passing that check and could reach platform-wide admin endpoints despite having a vendorId set. I changed every admin route to requireInternal + requireRole('iifl_soc'), so only users with vendorId: null and role: 'iifl_soc' get in now.
+
+Action needed on your end: no DB migration required — this was a route-guard bug, not a data issue. Just redeploy the updated code. If you'd previously tested r.kumar@zygal.io against /admin/* routes and it worked, that access is now correctly blocked.
