@@ -1,0 +1,1736 @@
+
+give database design in mongodb without mongoose and vuejs i am using cli and nodejs expressjs give me folder structure
+
+Architected MongoDB schema, Express routes, and Node.js CLI structure
+Architected MongoDB schema, Express routes, and Node.js CLI structure
+IIFL EYE — MongoDB (native driver) + Express + Vue.js Architecture
+
+Here's a full design based on the vendor portal / admin platform you shared — vendors, tickets, SLA, penalties, SOP/OTP compliance, MIS uploads, BLE assets, footage requests, etc.
+
+1. Folder Structure
+iifl-eye/
+├── backend/
+│   ├── src/
+│   │   ├── config/
+│   │   │   ├── db.js                 # MongoDB native client connection
+│   │   │   └── env.js                # dotenv loader/validator
+│   │   ├── db/
+│   │   │   ├── collections.js        # collection name constants
+│   │   │   └── indexes.js            # index creation script
+│   │   ├── models/                   # plain JS "schema shape" + validators (no mongoose)
+│   │   │   ├── vendor.model.js
+│   │   │   ├── user.model.js
+│   │   │   ├── branch.model.js
+│   │   │   ├── ticket.model.js
+│   │   │   ├── penalty.model.js
+│   │   │   ├── sopViolation.model.js
+│   │   │   ├── otpLog.model.js
+│   │   │   ├── misUpload.model.js
+│   │   │   ├── bleAsset.model.js
+│   │   │   └── footageRequest.model.js
+│   │   ├── repositories/             # DB access layer (raw collection ops)
+│   │   │   ├── vendor.repo.js
+│   │   │   ├── user.repo.js
+│   │   │   ├── ticket.repo.js
+│   │   │   ├── penalty.repo.js
+│   │   │   ├── sop.repo.js
+│   │   │   ├── mis.repo.js
+│   │   │   ├── ble.repo.js
+│   │   │   └── footage.repo.js
+│   │   ├── services/                 # business logic
+│   │   │   ├── auth.service.js
+│   │   │   ├── ticket.service.js
+│   │   │   ├── sla.service.js
+│   │   │   ├── penalty.service.js
+│   │   │   ├── sop.service.js
+│   │   │   └── mis.service.js
+│   │   ├── controllers/
+│   │   │   ├── auth.controller.js
+│   │   │   ├── vendor.controller.js
+│   │   │   ├── ticket.controller.js
+│   │   │   ├── sla.controller.js
+│   │   │   ├── penalty.controller.js
+│   │   │   ├── sop.controller.js
+│   │   │   ├── mis.controller.js
+│   │   │   ├── ble.controller.js
+│   │   │   └── footage.controller.js
+│   │   ├── routes/
+│   │   │   ├── index.js
+│   │   │   ├── auth.routes.js
+│   │   │   ├── vendor.routes.js
+│   │   │   ├── ticket.routes.js
+│   │   │   ├── sla.routes.js
+│   │   │   ├── penalty.routes.js
+│   │   │   ├── sop.routes.js
+│   │   │   ├── mis.routes.js
+│   │   │   ├── ble.routes.js
+│   │   │   └── footage.routes.js
+│   │   ├── middlewares/
+│   │   │   ├── auth.middleware.js
+│   │   │   ├── role.middleware.js
+│   │   │   ├── upload.middleware.js  # multer for MIS/closure files
+│   │   │   ├── error.middleware.js
+│   │   │   └── validate.middleware.js
+│   │   ├── utils/
+│   │   │   ├── objectId.js
+│   │   │   ├── logger.js
+│   │   │   ├── apiResponse.js
+│   │   │   └── slaCalculator.js
+│   │   ├── jobs/                     # cron-like tasks
+│   │   │   ├── misTimerCheck.job.js
+│   │   │   └── slaBreachCheck.job.js
+│   │   ├── app.js                    # express app setup
+│   │   └── server.js                 # entry point (http.listen)
+│   ├── scripts/
+│   │   ├── seed.js                   # seed vendors/branches/tickets
+│   │   └── createIndexes.js
+│   ├── uploads/                      # local file storage (closure reports, MIS)
+│   ├── .env
+│   ├── .env.example
+│   ├── package.json
+│   └── nodemon.json
+│
+├── frontend/                         # Vue 3 (Vite) CLI app
+│   ├── src/
+│   │   ├── api/
+│   │   │   ├── http.js               # axios instance
+│   │   │   ├── auth.api.js
+│   │   │   ├── ticket.api.js
+│   │   │   ├── sla.api.js
+│   │   │   ├── penalty.api.js
+│   │   │   ├── sop.api.js
+│   │   │   ├── mis.api.js
+│   │   │   └── ble.api.js
+│   │   ├── assets/
+│   │   ├── components/
+│   │   │   ├── layout/
+│   │   │   │   ├── TopBar.vue
+│   │   │   │   ├── Sidebar.vue
+│   │   │   │   └── Toast.vue
+│   │   │   ├── tickets/
+│   │   │   │   ├── TicketTable.vue
+│   │   │   │   └── TicketDetailPanel.vue
+│   │   │   ├── sla/
+│   │   │   │   └── ComplianceArc.vue
+│   │   │   ├── penalties/
+│   │   │   │   └── PenaltyStatement.vue
+│   │   │   ├── sop/
+│   │   │   │   ├── OtpIssueModal.vue
+│   │   │   │   └── ViolationList.vue
+│   │   │   └── mis/
+│   │   │       └── UploadDropzone.vue
+│   │   ├── views/
+│   │   │   ├── LoginView.vue
+│   │   │   ├── DashboardView.vue
+│   │   │   ├── TicketsView.vue
+│   │   │   ├── MisUploadView.vue
+│   │   │   ├── SlaTrackerView.vue
+│   │   │   ├── PenaltiesView.vue
+│   │   │   ├── SopAdherenceView.vue
+│   │   │   ├── ReportsView.vue
+│   │   │   ├── ProfileView.vue
+│   │   │   └── ContactView.vue
+│   │   ├── store/                    # Pinia
+│   │   │   ├── auth.store.js
+│   │   │   ├── vendor.store.js
+│   │   │   └── tickets.store.js
+│   │   ├── router/
+│   │   │   └── index.js
+│   │   ├── App.vue
+│   │   └── main.js
+│   ├── index.html
+│   ├── vite.config.js
+│   └── package.json
+│
+└── README.md
+2. CLI setup commands
+bash
+# Backend
+mkdir iifl-eye && cd iifl-eye
+mkdir backend && cd backend
+npm init -y
+npm install express mongodb dotenv cors helmet morgan multer jsonwebtoken bcryptjs joi
+npm install -D nodemon
+cd ..
+
+# Frontend (Vue CLI via Vite)
+npm create vite@latest frontend -- --template vue
+cd frontend
+npm install
+npm install axios pinia vue-router
+cd ..
+3. MongoDB Connection (native driver, no Mongoose)
+js
+// backend/src/config/db.js
+const { MongoClient } = require('mongodb');
+require('dotenv').config();
+
+const uri = process.env.MONGO_URI || 'mongodb://localhost:27017';
+const dbName = process.env.MONGO_DB || 'iifl_eye';
+
+let client;
+let db;
+
+async function connectDB() {
+  if (db) return db;
+  client = new MongoClient(uri, { maxPoolSize: 20 });
+  await client.connect();
+  db = client.db(dbName);
+  console.log(`MongoDB connected: ${dbName}`);
+  return db;
+}
+
+function getDB() {
+  if (!db) throw new Error('DB not initialized. Call connectDB() first.');
+  return db;
+}
+
+async function closeDB() {
+  if (client) await client.close();
+}
+
+module.exports = { connectDB, getDB, closeDB };
+js
+// backend/src/db/collections.js
+module.exports = {
+  VENDORS: 'vendors',
+  USERS: 'users',
+  BRANCHES: 'branches',
+  CAMERAS: 'cameras',
+  TICKETS: 'tickets',
+  TICKET_TIMELINE: 'ticket_timeline',      // could be embedded instead
+  PENALTIES: 'penalties',
+  SOP_VIOLATIONS: 'sop_violations',
+  OTP_LOGS: 'otp_logs',
+  MIS_UPLOADS: 'mis_uploads',
+  BLE_ASSETS: 'ble_assets',
+  FOOTAGE_REQUESTS: 'footage_requests',
+  MONTHLY_REPORTS: 'monthly_reports',
+};
+4. Collection Schemas (design, with $jsonSchema validators)
+
+Since you're not using Mongoose, enforce structure with MongoDB's native schema validation at collection-creation time.
+
+vendors
+js
+// backend/src/models/vendor.model.js
+const vendorSchema = {
+  $jsonSchema: {
+    bsonType: 'object',
+    required: ['name', 'shortCode', 'status', 'createdAt'],
+    properties: {
+      _id: { bsonType: 'objectId' },
+      name: { bsonType: 'string' },              // "Zygal"
+      shortCode: { bsonType: 'string' },          // "ZG"
+      brandColor: { bsonType: 'string' },
+      vendorType: { enum: ['primary', 'secondary', 'specialist', 'maintenance'] },
+      region: { bsonType: 'string' },
+      slaTier: { enum: ['Gold', 'Silver', 'Bronze'] },
+      contractStart: { bsonType: 'date' },
+      gst: { bsonType: 'string' },
+      pan: { bsonType: 'string' },
+      cin: { bsonType: 'string' },
+      registeredAddress: { bsonType: 'string' },
+      misFrequencyMinutes: { bsonType: 'int' },   // 30
+      branchCount: { bsonType: 'int' },
+      cameraCount: { bsonType: 'int' },
+      iiflContact: {
+        bsonType: 'object',
+        properties: {
+          name: { bsonType: 'string' },
+          role: { bsonType: 'string' },
+          email: { bsonType: 'string' },
+          phone: { bsonType: 'string' },
+        },
+      },
+      status: { enum: ['active', 'suspended', 'onboarding'] },
+      createdAt: { bsonType: 'date' },
+      updatedAt: { bsonType: 'date' },
+    },
+  },
+};
+module.exports = { vendorSchema };
+users (vendor portal + admin users)
+js
+const userSchema = {
+  $jsonSchema: {
+    bsonType: 'object',
+    required: ['name', 'email', 'passwordHash', 'role', 'vendorId', 'status'],
+    properties: {
+      name: { bsonType: 'string' },
+      email: { bsonType: 'string' },
+      passwordHash: { bsonType: 'string' },
+      phone: { bsonType: 'string' },
+      role: { enum: ['admin', 'engineer', 'analyst', 'readonly', 'iifl_soc'] },
+      vendorId: { bsonType: ['objectId', 'null'] },   // null for IIFL internal users
+      branchesAssigned: { bsonType: 'array', items: { bsonType: 'string' } },
+      status: { enum: ['active', 'invited', 'disabled'] },
+      lastLoginAt: { bsonType: ['date', 'null'] },
+      createdAt: { bsonType: 'date' },
+    },
+  },
+};
+branches
+js
+const branchSchema = {
+  $jsonSchema: {
+    bsonType: 'object',
+    required: ['branchCode', 'vendorId', 'region'],
+    properties: {
+      branchCode: { bsonType: 'string' },        // IIFL-MUM-047
+      city: { bsonType: 'string' },
+      state: { bsonType: 'string' },
+      region: { enum: ['North', 'South', 'East', 'West', 'Central'] },
+      vendorId: { bsonType: 'objectId' },
+      totalCameras: { bsonType: 'int' },
+      camerasOnline: { bsonType: 'int' },
+      nvrStatus: { enum: ['ONLINE', 'OFFLINE', 'DEGRADED'] },
+      networkUptimePct: { bsonType: 'double' },
+      cloudBackupStatus: { enum: ['OK', 'FAIL', 'PARTIAL'] },
+      lastSeenAt: { bsonType: 'date' },
+    },
+  },
+};
+tickets (with embedded timeline — cheaper reads than a separate collection)
+js
+const ticketSchema = {
+  $jsonSchema: {
+    bsonType: 'object',
+    required: ['ticketRef', 'vendorId', 'branchCode', 'priority', 'status', 'openedAt'],
+    properties: {
+      ticketRef: { bsonType: 'string' },          // #ZD-10815
+      vendorId: { bsonType: 'objectId' },
+      branchCode: { bsonType: 'string' },
+      subject: { bsonType: 'string' },
+      description: { bsonType: 'string' },
+      priority: { enum: ['P1', 'P2', 'P3'] },
+      status: { enum: ['open', 'in-progress', 'resolved'] },
+      slaStatus: { enum: ['ok', 'warn', 'breach'] },
+      openedAt: { bsonType: 'date' },
+      resolvedAt: { bsonType: ['date', 'null'] },
+      slaTargetHours: { bsonType: 'int' },
+      timeline: {
+        bsonType: 'array',
+        items: {
+          bsonType: 'object',
+          properties: {
+            type: { enum: ['open', 'work', 'done', 'note'] },
+            text: { bsonType: 'string' },
+            at: { bsonType: 'date' },
+            byUserId: { bsonType: ['objectId', 'null'] },
+          },
+        },
+      },
+      closureReport: {
+        bsonType: ['object', 'null'],
+        properties: {
+          fileUrl: { bsonType: 'string' },
+          engineer: { bsonType: 'string' },
+          branchManager: { bsonType: 'string' },
+          notes: { bsonType: 'string' },
+          uploadedAt: { bsonType: 'date' },
+        },
+      },
+      createdAt: { bsonType: 'date' },
+      updatedAt: { bsonType: 'date' },
+    },
+  },
+};
+penalties
+js
+const penaltySchema = {
+  $jsonSchema: {
+    bsonType: 'object',
+    required: ['vendorId', 'ticketRef', 'amount', 'incidentDate'],
+    properties: {
+      vendorId: { bsonType: 'objectId' },
+      ticketRef: { bsonType: 'string' },
+      description: { bsonType: 'string' },
+      ruleApplied: { bsonType: 'string' },
+      amount: { bsonType: 'int' },
+      incidentDate: { bsonType: 'date' },
+      status: { enum: ['charged', 'disputed', 'waived'] },
+      disputeReason: { bsonType: ['string', 'null'] },
+      month: { bsonType: 'string' },   // "2025-06" for aggregation
+    },
+  },
+};
+sop_violations + otp_logs
+js
+const sopViolationSchema = {
+  $jsonSchema: {
+    bsonType: 'object',
+    required: ['vendorId', 'branchCode', 'type', 'severity', 'status'],
+    properties: {
+      violationRef: { bsonType: 'string' },       // SOP-ANG-041
+      vendorId: { bsonType: 'objectId' },
+      branchCode: { bsonType: 'string' },
+      operator: { bsonType: 'string' },
+      type: { bsonType: 'string' },
+      severity: { enum: ['critical', 'high', 'medium'] },
+      penaltyAmount: { bsonType: 'int' },
+      status: { enum: ['open', 'acknowledged', 'disputed', 'resolved'] },
+      detail: { bsonType: 'string' },
+      occurredAt: { bsonType: 'date' },
+    },
+  },
+};
+
+const otpLogSchema = {
+  $jsonSchema: {
+    bsonType: 'object',
+    required: ['vendorId', 'branchCode', 'checklist', 'status'],
+    properties: {
+      vendorId: { bsonType: 'objectId' },
+      branchCode: { bsonType: 'string' },
+      operator: { bsonType: 'string' },
+      accessType: { bsonType: 'string' },
+      checklist: {
+        bsonType: 'object',
+        properties: {
+          branch_open: { bsonType: 'bool' },
+          identity_verified: { bsonType: 'bool' },
+          vault_clear: { bsonType: 'bool' },
+          no_suspicious: { bsonType: 'bool' },
+          cameras_live: { bsonType: 'bool' },
+          reason_logged: { bsonType: 'bool' },
+          dual_custody: { bsonType: 'bool' },
+        },
+      },
+      status: { enum: ['compliant', 'violation', 'denied', 'escalated'] },
+      durationSeconds: { bsonType: 'int' },
+      issuedAt: { bsonType: 'date' },
+    },
+  },
+};
+mis_uploads
+js
+const misUploadSchema = {
+  $jsonSchema: {
+    bsonType: 'object',
+    required: ['vendorId', 'type', 'fileUrl', 'uploadedAt'],
+    properties: {
+      vendorId: { bsonType: 'objectId' },
+      type: { enum: ['health', 'otp', 'incidents'] },
+      fileUrl: { bsonType: 'string' },
+      fileName: { bsonType: 'string' },
+      rows: { bsonType: 'int' },
+      sizeBytes: { bsonType: 'int' },
+      errors: { bsonType: 'int' },
+      uploadedAt: { bsonType: 'date' },
+      windowDeadline: { bsonType: 'date' },
+      onTime: { bsonType: 'bool' },
+    },
+  },
+};
+ble_assets and footage_requests
+js
+const bleAssetSchema = {
+  $jsonSchema: {
+    bsonType: 'object',
+    required: ['assetTag', 'vendorId', 'branchCode', 'status'],
+    properties: {
+      assetTag: { bsonType: 'string' },   // BLE-001
+      name: { bsonType: 'string' },
+      type: { enum: ['locker', 'cassette', 'device', 'firearm', 'key'] },
+      vendorId: { bsonType: 'objectId' },
+      branchCode: { bsonType: 'string' },
+      zone: { bsonType: 'string' },
+      status: { enum: ['ok', 'moving', 'missing'] },
+      batteryPct: { bsonType: 'int' },
+      location: {
+        bsonType: 'object',
+        properties: { lat: { bsonType: 'double' }, lng: { bsonType: 'double' } },
+      },
+      lastPingAt: { bsonType: 'date' },
+    },
+  },
+};
+
+const footageRequestSchema = {
+  $jsonSchema: {
+    bsonType: 'object',
+    required: ['requestRef', 'type', 'branchCode', 'vendorId', 'status'],
+    properties: {
+      requestRef: { bsonType: 'string' },  // FR-2025-0041
+      type: { enum: ['Transaction', 'Auction'] },
+      branchCode: { bsonType: 'string' },
+      vendorId: { bsonType: 'objectId' },
+      footageDate: { bsonType: 'date' },
+      cameras: { bsonType: 'string' },
+      duration: { bsonType: 'string' },
+      requestedBy: { bsonType: 'string' },
+      sharePointPath: { bsonType: 'string' },
+      dueDate: { bsonType: 'date' },
+      status: { enum: ['pending', 'uploaded', 'partial', 'overdue'] },
+    },
+  },
+};
+5. Creating collections + indexes (script, run once)
+js
+// backend/scripts/createIndexes.js
+const { connectDB, closeDB } = require('../src/config/db');
+const COL = require('../src/db/collections');
+const { vendorSchema } = require('../src/models/vendor.model');
+const { userSchema } = require('../src/models/user.model');
+const { ticketSchema } = require('../src/models/ticket.model');
+const { penaltySchema } = require('../src/models/penalty.model');
+const { sopViolationSchema, otpLogSchema } = require('../src/models/sopViolation.model');
+const { misUploadSchema } = require('../src/models/misUpload.model');
+const { bleAssetSchema } = require('../src/models/bleAsset.model');
+const { footageRequestSchema } = require('../src/models/footageRequest.model');
+
+async function run() {
+  const db = await connectDB();
+
+  const collectionsToCreate = [
+    [COL.VENDORS, vendorSchema],
+    [COL.USERS, userSchema],
+    [COL.TICKETS, ticketSchema],
+    [COL.PENALTIES, penaltySchema],
+    [COL.SOP_VIOLATIONS, sopViolationSchema],
+    [COL.OTP_LOGS, otpLogSchema],
+    [COL.MIS_UPLOADS, misUploadSchema],
+    [COL.BLE_ASSETS, bleAssetSchema],
+    [COL.FOOTAGE_REQUESTS, footageRequestSchema],
+  ];
+
+  const existing = (await db.listCollections().toArray()).map(c => c.name);
+
+  for (const [name, schema] of collectionsToCreate) {
+    if (!existing.includes(name)) {
+      await db.createCollection(name, { validator: schema });
+      console.log(`Created collection: ${name}`);
+    }
+  }
+
+  // Indexes
+  await db.collection(COL.USERS).createIndex({ email: 1 }, { unique: true });
+  await db.collection(COL.VENDORS).createIndex({ shortCode: 1 }, { unique: true });
+  await db.collection(COL.TICKETS).createIndex({ ticketRef: 1 }, { unique: true });
+  await db.collection(COL.TICKETS).createIndex({ vendorId: 1, status: 1 });
+  await db.collection(COL.TICKETS).createIndex({ vendorId: 1, slaStatus: 1 });
+  await db.collection(COL.PENALTIES).createIndex({ vendorId: 1, month: 1 });
+  await db.collection(COL.SOP_VIOLATIONS).createIndex({ vendorId: 1, status: 1 });
+  await db.collection(COL.OTP_LOGS).createIndex({ vendorId: 1, issuedAt: -1 });
+  await db.collection(COL.MIS_UPLOADS).createIndex({ vendorId: 1, type: 1, uploadedAt: -1 });
+  await db.collection(COL.BLE_ASSETS).createIndex({ assetTag: 1 }, { unique: true });
+  await db.collection(COL.BLE_ASSETS).createIndex({ vendorId: 1, status: 1 });
+  await db.collection(COL.FOOTAGE_REQUESTS).createIndex({ requestRef: 1 }, { unique: true });
+
+  console.log('Indexes created.');
+  await closeDB();
+}
+
+run().catch(err => { console.error(err); process.exit(1); });
+bash
+node backend/scripts/createIndexes.js
+6. Repository pattern example (no ORM, raw driver)
+js
+// backend/src/repositories/ticket.repo.js
+const { getDB } = require('../config/db');
+const { ObjectId } = require('mongodb');
+const COL = require('../db/collections');
+
+async function findByVendor(vendorId, filter = {}) {
+  const db = getDB();
+  return db.collection(COL.TICKETS)
+    .find({ vendorId: new ObjectId(vendorId), ...filter })
+    .sort({ openedAt: -1 })
+    .toArray();
+}
+
+async function findByRef(ticketRef) {
+  const db = getDB();
+  return db.collection(COL.TICKETS).findOne({ ticketRef });
+}
+
+async function create(ticket) {
+  const db = getDB();
+  const doc = { ...ticket, createdAt: new Date(), updatedAt: new Date() };
+  const result = await db.collection(COL.TICKETS).insertOne(doc);
+  return { _id: result.insertedId, ...doc };
+}
+
+async function addTimelineEntry(ticketRef, entry) {
+  const db = getDB();
+  return db.collection(COL.TICKETS).updateOne(
+    { ticketRef },
+    { $push: { timeline: entry }, $set: { updatedAt: new Date() } }
+  );
+}
+
+async function resolve(ticketRef, closureReport) {
+  const db = getDB();
+  return db.collection(COL.TICKETS).updateOne(
+    { ticketRef },
+    {
+      $set: { status: 'resolved', resolvedAt: new Date(), closureReport, updatedAt: new Date() },
+      $push: { timeline: { type: 'done', text: 'Ticket resolved', at: new Date() } },
+    }
+  );
+}
+
+module.exports = { findByVendor, findByRef, create, addTimelineEntry, resolve };
+7. Express wiring
+js
+// backend/src/app.js
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const routes = require('./routes');
+const { errorHandler } = require('./middlewares/error.middleware');
+
+const app = express();
+app.use(helmet());
+app.use(cors());
+app.use(express.json());
+app.use(morgan('dev'));
+app.use('/api', routes);
+app.use(errorHandler);
+
+module.exports = app;
+js
+// backend/src/server.js
+const app = require('./app');
+const { connectDB } = require('./config/db');
+
+const PORT = process.env.PORT || 5000;
+
+connectDB().then(() => {
+  app.listen(PORT, () => console.log(`Server running on :${PORT}`));
+});
+bash
+# package.json scripts (backend)
+"scripts": {
+  "dev": "nodemon src/server.js",
+  "start": "node src/server.js",
+  "seed": "node scripts/seed.js",
+  "create-indexes": "node scripts/createIndexes.js"
+}
+8. .env.example
+PORT=5000
+MONGO_URI=mongodb://localhost:27017
+MONGO_DB=iifl_eye
+JWT_SECRET=changeme
+
+Want me to fill in auth.service.js (JWT login using the native driver + bcrypt), the SLA-breach cron job, or the Vue Pinia store wiring to match this API? I can also render a quick ER diagram of these collections if that'd help visualize relationships.
+
+
+
+Architected complete backend structure with authentication, repositories, controllers, and routing layers
+Architected complete backend structure with authentication, repositories, controllers, and routing layers
+
+Continuing from the .env.example — here's the rest of the backend (auth, remaining repos/controllers/routes, cron jobs, seed script) and then the Vue side wiring.
+
+9. Auth (JWT + bcrypt, native driver)
+js
+// backend/src/repositories/user.repo.js
+const { getDB } = require('../config/db');
+const { ObjectId } = require('mongodb');
+const COL = require('../db/collections');
+
+async function findByEmail(email) {
+  return getDB().collection(COL.USERS).findOne({ email: email.toLowerCase() });
+}
+
+async function findById(id) {
+  return getDB().collection(COL.USERS).findOne({ _id: new ObjectId(id) });
+}
+
+async function create(user) {
+  const doc = { ...user, email: user.email.toLowerCase(), createdAt: new Date(), lastLoginAt: null };
+  const result = await getDB().collection(COL.USERS).insertOne(doc);
+  return { _id: result.insertedId, ...doc };
+}
+
+async function touchLogin(id) {
+  return getDB().collection(COL.USERS).updateOne(
+    { _id: new ObjectId(id) },
+    { $set: { lastLoginAt: new Date() } }
+  );
+}
+
+async function setPasswordHash(id, passwordHash) {
+  return getDB().collection(COL.USERS).updateOne(
+    { _id: new ObjectId(id) },
+    { $set: { passwordHash } }
+  );
+}
+
+module.exports = { findByEmail, findById, create, touchLogin, setPasswordHash };
+js
+// backend/src/services/auth.service.js
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const userRepo = require('../repositories/user.repo');
+const vendorRepo = require('../repositories/vendor.repo');
+
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_EXPIRY = '12h';
+
+async function login({ email, password, vendorShortCode }) {
+  const user = await userRepo.findByEmail(email);
+  if (!user || user.status !== 'active') {
+    throw Object.assign(new Error('Invalid credentials'), { statusCode: 401 });
+  }
+
+  const match = await bcrypt.compare(password, user.passwordHash);
+  if (!match) throw Object.assign(new Error('Invalid credentials'), { statusCode: 401 });
+
+  // Vendor users must select the matching company on login
+  if (user.vendorId && vendorShortCode) {
+    const vendor = await vendorRepo.findByShortCode(vendorShortCode);
+    if (!vendor || String(vendor._id) !== String(user.vendorId)) {
+      throw Object.assign(new Error('Vendor mismatch'), { statusCode: 401 });
+    }
+  }
+
+  await userRepo.touchLogin(user._id);
+
+  const token = jwt.sign(
+    { sub: String(user._id), role: user.role, vendorId: user.vendorId ? String(user.vendorId) : null },
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRY }
+  );
+
+  const { passwordHash, ...safeUser } = user;
+  return { token, user: safeUser };
+}
+
+async function register({ name, email, password, role, vendorId }) {
+  const existing = await userRepo.findByEmail(email);
+  if (existing) throw Object.assign(new Error('Email already in use'), { statusCode: 409 });
+
+  const passwordHash = await bcrypt.hash(password, 10);
+  return userRepo.create({ name, email, passwordHash, role, vendorId: vendorId || null, status: 'invited' });
+}
+
+async function changePassword(userId, oldPassword, newPassword) {
+  const user = await userRepo.findById(userId);
+  if (!user) throw Object.assign(new Error('User not found'), { statusCode: 404 });
+  const ok = await bcrypt.compare(oldPassword, user.passwordHash);
+  if (!ok) throw Object.assign(new Error('Current password incorrect'), { statusCode: 400 });
+  const newHash = await bcrypt.hash(newPassword, 10);
+  await userRepo.setPasswordHash(userId, newHash);
+}
+
+module.exports = { login, register, changePassword };
+js
+// backend/src/middlewares/auth.middleware.js
+const jwt = require('jsonwebtoken');
+
+function authenticate(req, res, next) {
+  const header = req.headers.authorization || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+  if (!token) return res.status(401).json({ success: false, message: 'Missing token' });
+
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = payload; // { sub, role, vendorId }
+    next();
+  } catch (err) {
+    return res.status(401).json({ success: false, message: 'Invalid or expired token' });
+  }
+}
+
+module.exports = { authenticate };
+js
+// backend/src/middlewares/role.middleware.js
+function requireRole(...roles) {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({ success: false, message: 'Forbidden' });
+    }
+    next();
+  };
+}
+
+// Ensures vendor users only touch their own vendor's data
+function scopeToOwnVendor(req, res, next) {
+  if (req.user.vendorId && req.params.vendorId && req.params.vendorId !== req.user.vendorId) {
+    return res.status(403).json({ success: false, message: 'Cross-vendor access denied' });
+  }
+  next();
+}
+
+module.exports = { requireRole, scopeToOwnVendor };
+js
+// backend/src/controllers/auth.controller.js
+const authService = require('../services/auth.service');
+const { ok, fail } = require('../utils/apiResponse');
+
+async function login(req, res) {
+  try {
+    const { email, password, vendorShortCode } = req.body;
+    const result = await authService.login({ email, password, vendorShortCode });
+    return ok(res, result);
+  } catch (err) {
+    return fail(res, err);
+  }
+}
+
+async function me(req, res) {
+  const userRepo = require('../repositories/user.repo');
+  const user = await userRepo.findById(req.user.sub);
+  if (!user) return fail(res, { statusCode: 404, message: 'Not found' });
+  const { passwordHash, ...safe } = user;
+  return ok(res, safe);
+}
+
+async function changePassword(req, res) {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    await authService.changePassword(req.user.sub, oldPassword, newPassword);
+    return ok(res, { message: 'Password updated' });
+  } catch (err) {
+    return fail(res, err);
+  }
+}
+
+module.exports = { login, me, changePassword };
+js
+// backend/src/utils/apiResponse.js
+function ok(res, data, status = 200) {
+  return res.status(status).json({ success: true, data });
+}
+function fail(res, err) {
+  const status = err.statusCode || 500;
+  return res.status(status).json({ success: false, message: err.message || 'Server error' });
+}
+module.exports = { ok, fail };
+js
+// backend/src/routes/auth.routes.js
+const router = require('express').Router();
+const ctrl = require('../controllers/auth.controller');
+const { authenticate } = require('../middlewares/auth.middleware');
+
+router.post('/login', ctrl.login);
+router.get('/me', authenticate, ctrl.me);
+router.post('/change-password', authenticate, ctrl.changePassword);
+
+module.exports = router;
+10. Remaining repositories
+js
+// backend/src/repositories/penalty.repo.js
+const { getDB } = require('../config/db');
+const { ObjectId } = require('mongodb');
+const COL = require('../db/collections');
+
+const findByVendor = (vendorId, month) => {
+  const q = { vendorId: new ObjectId(vendorId) };
+  if (month) q.month = month;
+  return getDB().collection(COL.PENALTIES).find(q).sort({ incidentDate: -1 }).toArray();
+};
+
+const create = (penalty) => getDB().collection(COL.PENALTIES).insertOne(penalty);
+
+const dispute = (id, reason) => getDB().collection(COL.PENALTIES).updateOne(
+  { _id: new ObjectId(id) },
+  { $set: { status: 'disputed', disputeReason: reason } }
+);
+
+const sumByVendorMonth = (vendorId, month) => getDB().collection(COL.PENALTIES).aggregate([
+  { $match: { vendorId: new ObjectId(vendorId), month } },
+  { $group: { _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } } },
+]).toArray();
+
+module.exports = { findByVendor, create, dispute, sumByVendorMonth };
+js
+// backend/src/repositories/sop.repo.js
+const { getDB } = require('../config/db');
+const { ObjectId } = require('mongodb');
+const COL = require('../db/collections');
+
+const findViolations = (vendorId) => getDB().collection(COL.SOP_VIOLATIONS)
+  .find({ vendorId: new ObjectId(vendorId) }).sort({ occurredAt: -1 }).toArray();
+
+const createViolation = (v) => getDB().collection(COL.SOP_VIOLATIONS).insertOne(v);
+
+const updateViolationStatus = (id, status) => getDB().collection(COL.SOP_VIOLATIONS).updateOne(
+  { _id: new ObjectId(id) }, { $set: { status } }
+);
+
+const findOtpLogs = (vendorId, dateFrom) => getDB().collection(COL.OTP_LOGS)
+  .find({ vendorId: new ObjectId(vendorId), issuedAt: { $gte: dateFrom } })
+  .sort({ issuedAt: -1 }).toArray();
+
+const logOtp = (entry) => getDB().collection(COL.OTP_LOGS).insertOne(entry);
+
+module.exports = { findViolations, createViolation, updateViolationStatus, findOtpLogs, logOtp };
+js
+// backend/src/repositories/mis.repo.js
+const { getDB } = require('../config/db');
+const { ObjectId } = require('mongodb');
+const COL = require('../db/collections');
+
+const create = (upload) => getDB().collection(COL.MIS_UPLOADS).insertOne(upload);
+
+const findByVendor = (vendorId, type) => {
+  const q = { vendorId: new ObjectId(vendorId) };
+  if (type) q.type = type;
+  return getDB().collection(COL.MIS_UPLOADS).find(q).sort({ uploadedAt: -1 }).toArray();
+};
+
+const latestForWindow = (vendorId, type, since) => getDB().collection(COL.MIS_UPLOADS).findOne(
+  { vendorId: new ObjectId(vendorId), type, uploadedAt: { $gte: since } },
+  { sort: { uploadedAt: -1 } }
+);
+
+module.exports = { create, findByVendor, latestForWindow };
+js
+// backend/src/repositories/ble.repo.js
+const { getDB } = require('../config/db');
+const { ObjectId } = require('mongodb');
+const COL = require('../db/collections');
+
+const findByVendor = (vendorId, status) => {
+  const q = { vendorId: new ObjectId(vendorId) };
+  if (status) q.status = status;
+  return getDB().collection(COL.BLE_ASSETS).find(q).toArray();
+};
+
+const upsertPing = (assetTag, location) => getDB().collection(COL.BLE_ASSETS).updateOne(
+  { assetTag },
+  { $set: { location, lastPingAt: new Date() } }
+);
+
+const setStatus = (assetTag, status) => getDB().collection(COL.BLE_ASSETS).updateOne(
+  { assetTag }, { $set: { status } }
+);
+
+module.exports = { findByVendor, upsertPing, setStatus };
+js
+// backend/src/repositories/footage.repo.js
+const { getDB } = require('../config/db');
+const { ObjectId } = require('mongodb');
+const COL = require('../db/collections');
+
+const create = (req) => getDB().collection(COL.FOOTAGE_REQUESTS).insertOne(req);
+
+const findByVendor = (vendorId, type) => {
+  const q = { vendorId: new ObjectId(vendorId) };
+  if (type) q.type = type;
+  return getDB().collection(COL.FOOTAGE_REQUESTS).find(q).sort({ dueDate: 1 }).toArray();
+};
+
+const markUploaded = (requestRef, sharePointPath) => getDB().collection(COL.FOOTAGE_REQUESTS).updateOne(
+  { requestRef }, { $set: { status: 'uploaded', sharePointPath } }
+);
+
+module.exports = { create, findByVendor, markUploaded };
+11. Vendor repo (finish it out)
+js
+// backend/src/repositories/vendor.repo.js
+const { getDB } = require('../config/db');
+const { ObjectId } = require('mongodb');
+const COL = require('../db/collections');
+
+const findAll = () => getDB().collection(COL.VENDORS).find().toArray();
+const findById = (id) => getDB().collection(COL.VENDORS).findOne({ _id: new ObjectId(id) });
+const findByShortCode = (shortCode) => getDB().collection(COL.VENDORS).findOne({ shortCode });
+
+const create = (vendor) => {
+  const doc = { ...vendor, status: 'onboarding', createdAt: new Date(), updatedAt: new Date() };
+  return getDB().collection(COL.VENDORS).insertOne(doc);
+};
+
+const activate = (id) => getDB().collection(COL.VENDORS).updateOne(
+  { _id: new ObjectId(id) }, { $set: { status: 'active', updatedAt: new Date() } }
+);
+
+module.exports = { findAll, findById, findByShortCode, create, activate };
+12. Controllers wired to services
+js
+// backend/src/controllers/vendor.controller.js
+const vendorRepo = require('../repositories/vendor.repo');
+const branchRepo = require('../repositories/vendor.repo'); // extend with a branch.repo.js the same way
+const { ok, fail } = require('../utils/apiResponse');
+
+async function list(req, res) {
+  try { ok(res, await vendorRepo.findAll()); } catch (e) { fail(res, e); }
+}
+
+async function get(req, res) {
+  try {
+    const v = await vendorRepo.findById(req.params.id);
+    if (!v) return fail(res, { statusCode: 404, message: 'Vendor not found' });
+    ok(res, v);
+  } catch (e) { fail(res, e); }
+}
+
+async function onboard(req, res) {
+  try {
+    const result = await vendorRepo.create(req.body);
+    ok(res, result, 201);
+  } catch (e) { fail(res, e); }
+}
+
+async function activate(req, res) {
+  try { ok(res, await vendorRepo.activate(req.params.id)); } catch (e) { fail(res, e); }
+}
+
+module.exports = { list, get, onboard, activate };
+js
+// backend/src/controllers/sla.controller.js
+const ticketRepo = require('../repositories/ticket.repo');
+const { slaTargetHours, computeSlaStatus } = require('../utils/slaCalculator');
+const { ok, fail } = require('../utils/apiResponse');
+
+async function summary(req, res) {
+  try {
+    const tickets = await ticketRepo.findByVendor(req.params.vendorId);
+    const byPriority = { P1: [], P2: [], P3: [] };
+    tickets.forEach(t => byPriority[t.priority]?.push(t));
+
+    const pct = (arr) => {
+      if (!arr.length) return 100;
+      const ok = arr.filter(t => t.slaStatus !== 'breach').length;
+      return +((ok / arr.length) * 100).toFixed(1);
+    };
+
+    ok(res, {
+      P1: pct(byPriority.P1),
+      P2: pct(byPriority.P2),
+      P3: pct(byPriority.P3),
+      overall: pct(tickets),
+      breaches: tickets.filter(t => t.slaStatus === 'breach').length,
+    });
+  } catch (e) { fail(res, e); }
+}
+
+module.exports = { summary };
+js
+// backend/src/utils/slaCalculator.js
+const TARGETS = { P1: 4, P2: 8, P3: 24 }; // hours
+const PENALTY_RATE = { P1: 3000, P2: 1500, P3: 500 }; // ₹/hr
+
+function slaTargetHours(priority) { return TARGETS[priority] || 24; }
+
+function computeSlaStatus(openedAt, priority, resolvedAt = null) {
+  const target = TARGETS[priority] || 24;
+  const elapsedHrs = ((resolvedAt || new Date()) - new Date(openedAt)) / 3.6e6;
+  if (elapsedHrs > target) return 'breach';
+  if (elapsedHrs > target * 0.75) return 'warn';
+  return 'ok';
+}
+
+function computePenalty(priority, overageHours) {
+  return Math.ceil(overageHours) * (PENALTY_RATE[priority] || 500);
+}
+
+module.exports = { slaTargetHours, computeSlaStatus, computePenalty, TARGETS, PENALTY_RATE };
+13. routes/index.js — wiring it all together
+js
+// backend/src/routes/index.js
+const router = require('express').Router();
+
+router.use('/auth', require('./auth.routes'));
+router.use('/vendors', require('./vendor.routes'));
+router.use('/tickets', require('./ticket.routes'));
+router.use('/sla', require('./sla.routes'));
+router.use('/penalties', require('./penalty.routes'));
+router.use('/sop', require('./sop.routes'));
+router.use('/mis', require('./mis.routes'));
+router.use('/ble', require('./ble.routes'));
+router.use('/footage', require('./footage.routes'));
+
+module.exports = router;
+js
+// backend/src/routes/vendor.routes.js
+const router = require('express').Router();
+const ctrl = require('../controllers/vendor.controller');
+const { authenticate } = require('../middlewares/auth.middleware');
+const { requireRole } = require('../middlewares/role.middleware');
+
+router.get('/', authenticate, requireRole('iifl_soc', 'admin'), ctrl.list);
+router.get('/:id', authenticate, ctrl.get);
+router.post('/', authenticate, requireRole('iifl_soc'), ctrl.onboard);
+router.post('/:id/activate', authenticate, requireRole('iifl_soc'), ctrl.activate);
+
+module.exports = router;
+js
+// backend/src/routes/sla.routes.js
+const router = require('express').Router();
+const ctrl = require('../controllers/sla.controller');
+const { authenticate } = require('../middlewares/auth.middleware');
+router.get('/:vendorId/summary', authenticate, ctrl.summary);
+module.exports = router;
+
+Repeat the same pattern (penalty.routes.js, sop.routes.js, mis.routes.js, ble.routes.js, footage.routes.js) — thin routers calling one controller method each, e.g.:
+
+js
+// backend/src/routes/penalty.routes.js
+const router = require('express').Router();
+const penaltyRepo = require('../repositories/penalty.repo');
+const { authenticate } = require('../middlewares/auth.middleware');
+const { ok, fail } = require('../utils/apiResponse');
+
+router.get('/:vendorId', authenticate, async (req, res) => {
+  try { ok(res, await penaltyRepo.findByVendor(req.params.vendorId, req.query.month)); }
+  catch (e) { fail(res, e); }
+});
+
+router.post('/:id/dispute', authenticate, async (req, res) => {
+  try { ok(res, await penaltyRepo.dispute(req.params.id, req.body.reason)); }
+  catch (e) { fail(res, e); }
+});
+
+module.exports = router;
+14. Cron jobs
+js
+// backend/src/jobs/slaBreachCheck.job.js
+const { getDB } = require('../config/db');
+const COL = require('../db/collections');
+const { computeSlaStatus, computePenalty, slaTargetHours } = require('../utils/slaCalculator');
+
+async function runSlaBreachCheck() {
+  const db = getDB();
+  const openTickets = await db.collection(COL.TICKETS)
+    .find({ status: { $ne: 'resolved' } }).toArray();
+
+  for (const t of openTickets) {
+    const newStatus = computeSlaStatus(t.openedAt, t.priority);
+    if (newStatus !== t.slaStatus) {
+      await db.collection(COL.TICKETS).updateOne(
+        { _id: t._id }, { $set: { slaStatus: newStatus, updatedAt: new Date() } }
+      );
+    }
+    if (newStatus === 'breach') {
+      const target = slaTargetHours(t.priority);
+      const overage = (Date.now() - new Date(t.openedAt)) / 3.6e6 - target;
+      const amount = computePenalty(t.priority, overage);
+      const month = new Date().toISOString().slice(0, 7);
+
+      const existing = await db.collection(COL.PENALTIES).findOne({ ticketRef: t.ticketRef, month });
+      if (!existing) {
+        await db.collection(COL.PENALTIES).insertOne({
+          vendorId: t.vendorId, ticketRef: t.ticketRef,
+          description: `${t.priority} overage on ${t.branchCode}`,
+          ruleApplied: `${t.priority} overage penalty`,
+          amount, incidentDate: new Date(), status: 'charged', month,
+        });
+      }
+    }
+  }
+  console.log(`[slaBreachCheck] scanned ${openTickets.length} open tickets`);
+}
+
+module.exports = { runSlaBreachCheck };
+js
+// backend/src/jobs/misTimerCheck.job.js
+const { getDB } = require('../config/db');
+const COL = require('../db/collections');
+
+const WINDOW_MIN = 30;
+
+async function runMisTimerCheck() {
+  const db = getDB();
+  const vendors = await db.collection(COL.VENDORS).find({ status: 'active' }).toArray();
+  const since = new Date(Date.now() - WINDOW_MIN * 60 * 1000);
+
+  for (const v of vendors) {
+    const recent = await db.collection(COL.MIS_UPLOADS).findOne({
+      vendorId: v._id, uploadedAt: { $gte: since },
+    });
+    if (!recent) {
+      // Mark all this vendor's branches as offline for the missed window
+      await db.collection(COL.BRANCHES).updateMany(
+        { vendorId: v._id }, { $set: { nvrStatus: 'OFFLINE' } }
+      );
+      console.warn(`[misTimerCheck] MIS window missed for vendor ${v.shortCode}`);
+    }
+  }
+}
+
+module.exports = { runMisTimerCheck };
+
+Wire both into server.js:
+
+js
+// backend/src/server.js
+const app = require('./app');
+const { connectDB } = require('./config/db');
+const { runSlaBreachCheck } = require('./jobs/slaBreachCheck.job');
+const { runMisTimerCheck } = require('./jobs/misTimerCheck.job');
+
+const PORT = process.env.PORT || 5000;
+
+connectDB().then(() => {
+  app.listen(PORT, () => console.log(`Server running on :${PORT}`));
+  setInterval(runSlaBreachCheck, 5 * 60 * 1000);   // every 5 min
+  setInterval(runMisTimerCheck, 30 * 60 * 1000);   // every 30 min
+});
+15. Seed script
+js
+// backend/scripts/seed.js
+const bcrypt = require('bcryptjs');
+const { connectDB, closeDB } = require('../src/config/db');
+const COL = require('../src/db/collections');
+
+async function run() {
+  const db = await connectDB();
+
+  const vendorResult = await db.collection(COL.VENDORS).insertOne({
+    name: 'Zygal', shortCode: 'ZG', brandColor: '#0891B2', vendorType: 'primary',
+    region: 'PAN India', slaTier: 'Gold', misFrequencyMinutes: 30,
+    branchCount: 720, cameraCount: 11520, status: 'active',
+    createdAt: new Date(), updatedAt: new Date(),
+  });
+
+  const passwordHash = await bcrypt.hash('Passw0rd!', 10);
+  await db.collection(COL.USERS).insertOne({
+    name: 'Rajesh Kumar', email: 'r.kumar@zygal.io', passwordHash,
+    role: 'admin', vendorId: vendorResult.insertedId, status: 'active',
+    createdAt: new Date(), lastLoginAt: null,
+  });
+
+  await db.collection(COL.BRANCHES).insertOne({
+    branchCode: 'IIFL-MUM-047', city: 'Mumbai', state: 'Maharashtra', region: 'West',
+    vendorId: vendorResult.insertedId, totalCameras: 16, camerasOnline: 16,
+    nvrStatus: 'ONLINE', networkUptimePct: 99.1, cloudBackupStatus: 'OK', lastSeenAt: new Date(),
+  });
+
+  console.log('Seed complete.');
+  await closeDB();
+}
+
+run().catch(err => { console.error(err); process.exit(1); });
+16. Frontend — Vue CLI wiring
+js
+// frontend/src/api/http.js
+import axios from 'axios';
+import { useAuthStore } from '@/store/auth.store';
+
+const http = axios.create({ baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api' });
+
+http.interceptors.request.use((config) => {
+  const auth = useAuthStore();
+  if (auth.token) config.headers.Authorization = `Bearer ${auth.token}`;
+  return config;
+});
+
+http.interceptors.response.use(
+  (res) => res.data,
+  (err) => {
+    if (err.response?.status === 401) {
+      const auth = useAuthStore();
+      auth.logout();
+    }
+    return Promise.reject(err.response?.data || err);
+  }
+);
+
+export default http;
+js
+// frontend/src/api/auth.api.js
+import http from './http';
+export const login = (payload) => http.post('/auth/login', payload);
+export const me = () => http.get('/auth/me');
+js
+// frontend/src/store/auth.store.js
+import { defineStore } from 'pinia';
+import * as authApi from '@/api/auth.api';
+
+export const useAuthStore = defineStore('auth', {
+  state: () => ({
+    token: localStorage.getItem('token') || null,
+    user: JSON.parse(localStorage.getItem('user') || 'null'),
+  }),
+  getters: {
+    isAuthenticated: (s) => !!s.token,
+    isVendorUser: (s) => !!s.user?.vendorId,
+  },
+  actions: {
+    async login(email, password, vendorShortCode) {
+      const { data } = await authApi.login({ email, password, vendorShortCode });
+      this.token = data.token;
+      this.user = data.user;
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+    },
+    logout() {
+      this.token = null;
+      this.user = null;
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    },
+  },
+});
+js
+// frontend/src/router/index.js
+import { createRouter, createWebHistory } from 'vue-router';
+import { useAuthStore } from '@/store/auth.store';
+
+const routes = [
+  { path: '/login', name: 'login', component: () => import('@/views/LoginView.vue') },
+  { path: '/', name: 'dashboard', component: () => import('@/views/DashboardView.vue'), meta: { auth: true } },
+  { path: '/tickets', name: 'tickets', component: () => import('@/views/TicketsView.vue'), meta: { auth: true } },
+  { path: '/mis', name: 'mis', component: () => import('@/views/MisUploadView.vue'), meta: { auth: true } },
+  { path: '/sla', name: 'sla', component: () => import('@/views/SlaTrackerView.vue'), meta: { auth: true } },
+  { path: '/penalties', name: 'penalties', component: () => import('@/views/PenaltiesView.vue'), meta: { auth: true } },
+  { path: '/sop', name: 'sop', component: () => import('@/views/SopAdherenceView.vue'), meta: { auth: true } },
+];
+
+const router = createRouter({ history: createWebHistory(), routes });
+
+router.beforeEach((to) => {
+  const auth = useAuthStore();
+  if (to.meta.auth && !auth.isAuthenticated) return { name: 'login' };
+});
+
+export default router;
+js
+// frontend/src/main.js
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+import App from './App.vue';
+import router from './router';
+
+createApp(App).use(createPinia()).use(router).mount('#app');
+vue
+<!-- frontend/src/views/LoginView.vue -->
+<template>
+  <div class="login-box">
+    <select v-model="vendorShortCode">
+      <option value="">— Select vendor —</option>
+      <option value="ZG">Zygal</option>
+      <option value="ANG">ANG</option>
+    </select>
+    <input v-model="email" type="email" placeholder="you@yourcompany.in" />
+    <input v-model="password" type="password" placeholder="••••••••" />
+    <button @click="submit">Sign In</button>
+    <p v-if="error" class="error">{{ error }}</p>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/store/auth.store';
+
+const email = ref(''), password = ref(''), vendorShortCode = ref(''), error = ref('');
+const auth = useAuthStore();
+const router = useRouter();
+
+async function submit() {
+  try {
+    await auth.login(email.value, password.value, vendorShortCode.value);
+    router.push('/');
+  } catch (e) {
+    error.value = e.message || 'Login failed';
+  }
+}
+</script>
+
+That covers auth, the rest of the repository/controller/route layer, the two cron jobs, seeding, and the Vue API/store/router skeleton to consume it. Want me to keep going with the Ticket detail view (with the closure-report upload flow from your mockup), the SOP OTP-issuance checklist component, or the MIS 30-minute countdown widget in Vue next?
+Acknowledged technical limitations and pivoted toward alternative solutions
+Acknowledged technical limitations and pivoted toward alternative solutions
+I can't directly generate a downloadable zip file in this chat — there's no file-creation/code-execution tool available here. But I can get you to a working project fast with one of these options:
+
+Option 1: I write a shell script that creates everything for you
+Copy-paste one script into your terminal and it builds the entire folder structure with all files already filled in (backend + frontend). This is the fastest path — want me to generate that script?
+
+Option 2: Use Claude Code
+If you have Claude Code (terminal, VS Code, or the desktop app), you can paste this whole conversation in and ask it to scaffold the project — it can create the actual files and folders on your machine directly, and even run npm install for you.
+
+Option 3: I paste every file's content here in sequence
+You create each file manually and paste the matching content in. Slower, but works with zero extra tools.
+
+Given you're already using CLI + Node/Express, Option 1 (a single setup script) is probably fastest. Want me to write that script now — one for the backend and one for the frontend — so you can just run:
+
+bash
+bash setup-backend.sh
+bash setup-frontend.sh
+and get the whole structure with files populated?
+
+
+Synthesized unified design system reconciling multiple portal themes
+Synthesized unified design system reconciling multiple portal themes
+Looking at both HTML mockups, I can see the actual product is much richer than what the earlier folder structure captured — BLE asset tracking with map view, CCTV footage requests with SharePoint integration, vendor onboarding (4-step wizard), user management, SOP/OTP compliance with mandatory checklists, MIS upload timers, and penalty disputes. Here's the best design: a unified design system + a folder structure that actually matches what you've built.
+
+1. Unified Design System
+The two portals currently use different color identities (Admin = teal/navy, Vendor = orange/navy). Keep that — it's a feature, not a bug: it lets users instantly know which portal they're in. Formalize it as shared tokens so both consume the same base and only override brand color.
+
+frontend/src/assets/styles/
+├── tokens.css          # shared: spacing, radius, mono/sans fonts, shadows, breakpoints
+├── theme-admin.css      # --brand: #0891B2 (teal), --brand-light, --brand-dim
+├── theme-vendor.css     # --brand: #EA580C (orange), --brand-light, --brand-dim
+└── theme-vars.css       # existing — dark mode overrides (already in your vendor HTML)
+Both mockups already share identical structural patterns (KPI cards with top accent bar, status pills, data-tables, panel headers with dot+title, timeline components, notice banners). Formalize these as one shared component library rather than duplicating:
+
+frontend/src/components/shared/
+├── KpiCard.vue           # the .kpi-card pattern (both portals use identically)
+├── StatusPill.vue        # .pill / .status-pill — online/offline/breach/etc.
+├── PriorityBadge.vue     # P1/P2/P3 dots
+├── DataTable.vue         # the .data-table pattern used everywhere
+├── Panel.vue             # .panel + .panel-header + panel-dot wrapper
+├── Notice.vue            # .notice-warn/info/red banners
+├── Timeline.vue          # ticket activity timeline (vendor detail panel)
+├── ComplianceArc.vue     # SVG gauge — appears in both admin exec view & vendor SLA
+├── SlaBar.vue            # progress bar with color thresholds
+└── Toast.vue             # (already exists)
+This is the single highest-leverage move: your two HTML files reimplement the same table/pill/card CSS twice with different variable names. One shared library, themed by CSS variable, cuts your Vue component count roughly in half.
+
+2. Corrected Folder Structure (matches what's actually built)
+ZYGAL-EYE/
+├── backend/
+│   ├── src/
+│   │   ├── config/
+│   │   │   ├── db.js
+│   │   │   └── env.js
+│   │   ├── models/
+│   │   │   ├── user.model.js
+│   │   │   ├── vendor.model.js
+│   │   │   ├── refreshToken.model.js
+│   │   │   ├── branch.model.js
+│   │   │   ├── camera.model.js
+│   │   │   ├── ticket.model.js
+│   │   │   ├── penalty.model.js
+│   │   │   ├── sopViolation.model.js
+│   │   │   ├── otpLog.model.js
+│   │   │   ├── misUpload.model.js
+│   │   │   ├── bleAsset.model.js          # locker/cassette/device/firearm/key tracking
+│   │   │   ├── footageRequest.model.js    # transaction/auction CCTV requests
+│   │   │   ├── auditLog.model.js
+│   │   │   └── notification.model.js
+│   │   ├── repositories/
+│   │   │   ├── user.repository.js
+│   │   │   ├── vendor.repository.js
+│   │   │   ├── refreshToken.repository.js
+│   │   │   ├── branch.repository.js
+│   │   │   ├── ticket.repository.js
+│   │   │   ├── penalty.repository.js
+│   │   │   ├── sop.repository.js          # violations + OTP checklist log
+│   │   │   ├── mis.repository.js
+│   │   │   ├── ble.repository.js          # asset ping/location/status
+│   │   │   ├── footage.repository.js
+│   │   │   ├── audit.repository.js
+│   │   │   └── notification.repository.js
+│   │   ├── services/
+│   │   │   ├── auth.service.js
+│   │   │   ├── vendor.service.js
+│   │   │   ├── onboarding.service.js      # 4-step vendor onboarding orchestration
+│   │   │   ├── ticket.service.js
+│   │   │   ├── sla.service.js             # P1/P2/P3 target + penalty calc
+│   │   │   ├── penalty.service.js
+│   │   │   ├── sop.service.js             # OTP checklist validation, violation detection
+│   │   │   ├── mis.service.js             # 30-min window tracking
+│   │   │   ├── ble.service.js
+│   │   │   ├── footage.service.js         # SharePoint path generation
+│   │   │   ├── notification.service.js
+│   │   │   └── admin.service.js           # leaderboard, global stats
+│   │   ├── controllers/
+│   │   │   ├── auth.controller.js
+│   │   │   ├── vendor.controller.js
+│   │   │   ├── onboarding.controller.js
+│   │   │   ├── ticket.controller.js
+│   │   │   ├── sla.controller.js
+│   │   │   ├── penalty.controller.js
+│   │   │   ├── sop.controller.js
+│   │   │   ├── mis.controller.js
+│   │   │   ├── ble.controller.js
+│   │   │   ├── footage.controller.js
+│   │   │   └── admin.controller.js
+│   │   ├── routes/
+│   │   │   ├── index.js
+│   │   │   ├── auth.routes.js
+│   │   │   ├── vendor/                    # vendor-portal-facing (scoped to own vendorId)
+│   │   │   │   ├── vendor.routes.js
+│   │   │   │   ├── ticket.routes.js
+│   │   │   │   ├── sla.routes.js
+│   │   │   │   ├── penalty.routes.js
+│   │   │   │   ├── sop.routes.js
+│   │   │   │   ├── mis.routes.js
+│   │   │   │   ├── ble.routes.js
+│   │   │   │   └── footage.routes.js
+│   │   │   └── admin/                     # iifl_soc only
+│   │   │       ├── admin.routes.js        # global overview, leaderboard
+│   │   │       ├── onboarding.routes.js   # vendor onboarding wizard steps
+│   │   │       ├── adminVendor.routes.js  # suspend/activate vendors
+│   │   │       ├── adminUser.routes.js    # cross-vendor user management
+│   │   │       ├── adminBle.routes.js     # cross-vendor asset map
+│   │   │       ├── adminFootage.routes.js # footage request tracking
+│   │   │       └── auditLog.routes.js
+│   │   ├── middleware/
+│   │   │   ├── auth.middleware.js
+│   │   │   ├── role.middleware.js         # requireRole + scopeToOwnVendor
+│   │   │   ├── rateLimit.middleware.js
+│   │   │   ├── upload.middleware.js       # closure reports, MIS files
+│   │   │   ├── error.middleware.js
+│   │   │   └── validate.middleware.js
+│   │   ├── validators/
+│   │   │   ├── auth.validator.js
+│   │   │   ├── vendor.validator.js
+│   │   │   ├── onboarding.validator.js
+│   │   │   ├── ticket.validator.js
+│   │   │   ├── sop.validator.js           # OTP checklist completeness
+│   │   │   └── admin.validator.js
+│   │   ├── utils/
+│   │   │   ├── jwt.util.js
+│   │   │   ├── password.util.js
+│   │   │   ├── objectId.util.js
+│   │   │   ├── logger.util.js
+│   │   │   ├── apiResponse.util.js
+│   │   │   ├── slaCalculator.util.js
+│   │   │   └── sharepointPath.util.js     # auto-generates footage upload paths
+│   │   └── jobs/
+│   │       ├── misTimerCheck.job.js       # 30-min window enforcement
+│   │       └── slaBreachCheck.job.js
+│   ├── scripts/
+│   │   ├── seed.js
+│   │   └── createIndexes.js
+│   ├── uploads/
+│   ├── .env / .env.example / .gitignore
+│   └── package.json / server.js
+│
+├── frontend/
+│   ├── src/
+│   │   ├── assets/styles/
+│   │   │   ├── tokens.css
+│   │   │   ├── theme-admin.css
+│   │   │   ├── theme-vendor.css
+│   │   │   └── theme-vars.css
+│   │   ├── services/
+│   │   │   ├── api.service.js
+│   │   │   ├── auth.service.js
+│   │   │   ├── vendor/
+│   │   │   │   ├── ticket.service.js
+│   │   │   │   ├── sla.service.js
+│   │   │   │   ├── penalty.service.js
+│   │   │   │   ├── sop.service.js         # OTP issuance flow
+│   │   │   │   ├── mis.service.js
+│   │   │   │   └── ble.service.js
+│   │   │   └── admin/
+│   │   │       ├── onboarding.service.js
+│   │   │       ├── vendorManagement.service.js
+│   │   │       ├── userManagement.service.js
+│   │   │       ├── leaderboard.service.js
+│   │   │       ├── bleTracking.service.js
+│   │   │       ├── footage.service.js
+│   │   │       └── auditLog.service.js
+│   │   ├── stores/
+│   │   │   ├── store.js
+│   │   │   ├── auth.store.js
+│   │   │   ├── vendor.store.js
+│   │   │   ├── tickets.store.js
+│   │   │   ├── misTimer.store.js          # 30-min countdown state
+│   │   │   └── admin.store.js
+│   │   ├── composables/
+│   │   │   ├── toast.composable.js
+│   │   │   ├── permissions.composable.js
+│   │   │   └── misCountdown.composable.js # shared countdown logic
+│   │   ├── components/
+│   │   │   ├── shared/                    # ← the unified library from §1
+│   │   │   │   ├── KpiCard.vue
+│   │   │   │   ├── StatusPill.vue
+│   │   │   │   ├── PriorityBadge.vue
+│   │   │   │   ├── DataTable.vue
+│   │   │   │   ├── Panel.vue
+│   │   │   │   ├── Notice.vue
+│   │   │   │   ├── Timeline.vue
+│   │   │   │   ├── ComplianceArc.vue
+│   │   │   │   └── SlaBar.vue
+│   │   │   ├── layout/
+│   │   │   │   ├── AppHeader.vue
+│   │   │   │   └── AppSidebar.vue
+│   │   │   ├── vendor/
+│   │   │   │   ├── tickets/
+│   │   │   │   │   ├── TicketTable.vue
+│   │   │   │   │   ├── TicketDetailPanel.vue
+│   │   │   │   │   └── ClosureReportModal.vue
+│   │   │   │   ├── sop/
+│   │   │   │   │   ├── OtpIssueModal.vue  # 7-step mandatory checklist
+│   │   │   │   │   ├── ViolationList.vue
+│   │   │   │   │   └── OtpLogTable.vue
+│   │   │   │   ├── mis/
+│   │   │   │   │   ├── UploadDropzone.vue
+│   │   │   │   │   └── CountdownWidget.vue
+│   │   │   │   └── penalties/
+│   │   │   │       ├── PenaltyStatement.vue
+│   │   │   │       └── DisputeForm.vue
+│   │   │   └── admin/
+│   │   │       ├── onboarding/
+│   │   │       │   ├── Stepper.vue
+│   │   │       │   ├── VendorDetailsStep.vue
+│   │   │       │   ├── ContactStep.vue
+│   │   │       │   ├── SiteAllocationStep.vue
+│   │   │       │   └── ReviewActivateStep.vue
+│   │   │       ├── ble/
+│   │   │       │   ├── AssetMap.vue       # India map with status pins
+│   │   │       │   ├── AssetList.vue
+│   │   │       │   └── AssetDetailPanel.vue
+│   │   │       ├── footage/
+│   │   │       │   ├── FootageRequestForm.vue
+│   │   │       │   └── FootageRequestTable.vue
+│   │   │       ├── VendorTable.vue
+│   │   │       ├── UserTable.vue
+│   │   │       ├── LeaderboardTable.vue
+│   │   │       ├── AuditLogTable.vue
+│   │   │       └── AdHocSRModal.vue       # raise D365 service request
+│   │   ├── layouts/
+│   │   │   ├── AuthLayout.vue
+│   │   │   ├── MainLayout.vue
+│   │   │   ├── VendorLayout.vue
+│   │   │   └── AdminLayout.vue
+│   │   ├── views/
+│   │   │   ├── NotFoundView.vue
+│   │   │   ├── auth/LoginView.vue
+│   │   │   ├── vendor/
+│   │   │   │   ├── DashboardView.vue
+│   │   │   │   ├── TicketsView.vue
+│   │   │   │   ├── MisUploadView.vue
+│   │   │   │   ├── SlaTrackerView.vue
+│   │   │   │   ├── PenaltiesView.vue
+│   │   │   │   ├── SopAdherenceView.vue
+│   │   │   │   ├── ReportsView.vue
+│   │   │   │   ├── ProfileView.vue
+│   │   │   │   └── ContactView.vue
+│   │   │   └── admin/
+│   │   │       ├── AdminOverviewView.vue
+│   │   │       ├── HealthDashboardView.vue
+│   │   │       ├── LiveCamerasView.vue
+│   │   │       ├── TicketsView.vue        # D365 SR queue
+│   │   │       ├── SlaPenaltyView.vue
+│   │   │       ├── VendorManagementView.vue
+│   │   │       ├── OnboardingView.vue
+│   │   │       ├── UserManagementView.vue
+│   │   │       ├── FootageRequestsView.vue
+│   │   │       ├── BleTrackingView.vue
+│   │   │       ├── ExecutiveDashboardView.vue
+│   │   │       └── LeaderboardView.vue
+│   │   ├── router/
+│   │   │   ├── index.js
+│   │   │   ├── guards.js
+│   │   │   └── routes/
+│   │   │       ├── auth.routes.js
+│   │   │       ├── vendor.routes.js
+│   │   │       └── admin.routes.js
+│   │   ├── utils/
+│   │   │   ├── theme.util.js
+│   │   │   └── waveTransition.util.js
+│   │   ├── App.vue
+│   │   └── main.js
+│   └── (index.html, vite.config.js, package.json, etc. — unchanged)
+│
+├── design/
+│   ├── MongoDB_Database_Design.md
+│   ├── iifl-eye-admin.html
+│   ├── iifl-eye-vendor-portal.html
+│   └── login-account
+├── documentation/
+│   ├── project-overview.md
+│   └── project-structure.md
+└── README.md
+Why this is the best version
+BLE tracking, footage requests, onboarding wizard, and OTP/SOP compliance are fully modeled — these were the richest, most bespoke UI in your mockups and had zero backend representation before.
+Shared component library eliminates duplicate CSS/logic between the two portals — same table, same pill, same KPI card, just different brand color.
+Admin routes split by domain (onboarding, adminVendor, adminBle, adminFootage) rather than one giant admin.routes.js — each maps to a distinct, security-sensitive workflow that should be independently testable and auditable.
+misTimer.store.js + misCountdown.composable.js — your vendor HTML has real, working 30-minute countdown logic; that deserves a first-class store, not ad-hoc setInterval calls buried in a view.
+Want me to generate the actual OtpIssueModal.vue (the 7-step mandatory checklist) or the AssetMap.vue (BLE India map) as real Vue components next — those are the two most complex pieces in your mockups?
+
+appheader and sidebar are different for admin and vendor but we have single
+
+
+Advocated separating portal-specific components into distinct directories
+Advocated separating portal-specific components into distinct directories
+Good catch — looking at the two mockups again, they're not just re-skinned versions of each other. The differences are structural, not just cosmetic:
+
+Admin (AppHeader/Sidebar)	Vendor (AppHeader/Sidebar)
+Header height/content	44px status bar with heartbeat SVG, live system pulse, 4 KPI stats inline	52px topbar with vendor chip (avatar+name+role), notif bell, single clock
+Sidebar sections	Operations / Ticketing / Vendors / Reports (9 items, badges for counts)	Main / Performance / Account (7 items) + SLA mini-widget pinned in footer
+Sidebar footer	Static version tag	Live SLA score gauge with colored fill bar
+Brand color	Teal (
+#0891B2)	Orange (
+#EA580C)
+Logo	IIFL logo image + "EYE SOC"	SVG eye icon + "IIFL EYE / Vendor Portal"
+Trying to force this into one AppHeader.vue + AppSidebar.vue with v-if="isAdmin" branches everywhere just recreates two components glued together with conditionals — worse to maintain than two files. The right move is to split them, and pull only the truly identical bits (clock formatting, toast, logout button behavior) into small shared pieces.
+
+Corrected structure
+frontend/src/components/
+├── shared/
+│   ├── KpiCard.vue
+│   ├── StatusPill.vue
+│   ├── PriorityBadge.vue
+│   ├── DataTable.vue
+│   ├── Panel.vue
+│   ├── Notice.vue
+│   ├── Timeline.vue
+│   ├── ComplianceArc.vue
+│   ├── SlaBar.vue
+│   ├── LiveClock.vue           # ← shared: both headers show an IST clock
+│   └── LogoutButton.vue        # ← shared: identical behavior, just styled differently via CSS var
+│
+├── layout/
+│   ├── admin/
+│   │   ├── AdminHeader.vue     # status bar: brand, heartbeat, system-ok pulse, KPI stats, clock, user chip
+│   │   └── AdminSidebar.vue    # Operations/Ticketing/Vendors/Reports nav + badges
+│   └── vendor/
+│       ├── VendorHeader.vue    # topbar: logo, vendor chip, notif bell, clock, sign-out
+│       └── VendorSidebar.vue   # Main/Performance/Account nav + SLA mini-gauge footer
+frontend/src/layouts/
+├── AuthLayout.vue
+├── AdminLayout.vue    # <AdminHeader/> + <AdminSidebar/> + <router-view/>
+└── VendorLayout.vue   # <VendorHeader/> + <VendorSidebar/> + <router-view/>
+Drop the generic MainLayout.vue — with headers/sidebars this different, there's no meaningful "shared shell" left to justify it. Each portal layout composes its own header + sidebar directly:
+
+vue
+<!-- layouts/AdminLayout.vue -->
+<template>
+  <div class="app-shell theme-admin">
+    <AdminHeader />
+    <div class="app-body">
+      <AdminSidebar />
+      <main class="main"><router-view /></main>
+    </div>
+  </div>
+</template>
+vue
+<!-- layouts/VendorLayout.vue -->
+<template>
+  <div class="app-shell theme-vendor">
+    <VendorHeader />
+    <div class="app-body">
+      <VendorSidebar />
+      <main class="main"><router-view /></main>
+    </div>
+  </div>
+</template>
+Router picks the layout per route group (already matches your router/routes/vendor.routes.js + admin.routes.js split):
+
+js
+// router/routes/admin.routes.js
+{
+  path: '/admin',
+  component: () => import('@/layouts/AdminLayout.vue'),
+  meta: { auth: true, adminOnly: true },
+  children: [
+    { path: '', name: 'admin-overview', component: () => import('@/views/admin/AdminOverviewView.vue') },
+    { path: 'vendors', name: 'admin-vendors', component: () => import('@/views/admin/VendorManagementView.vue') },
+    // ...
+  ]
+}
+js
+// router/routes/vendor.routes.js
+{
+  path: '/',
+  component: () => import('@/layouts/VendorLayout.vue'),
+  meta: { auth: true },
+  children: [
+    { path: '', name: 'dashboard', component: () => import('@/views/vendor/DashboardView.vue') },
+    { path: 'tickets', name: 'tickets', component: () => import('@/views/vendor/TicketsView.vue') },
+    // ...
+  ]
+}
+This gives you:
+
+No conditional spaghetti inside header/sidebar components
+Each file matches its mockup 1:1 — you can basically transcribe the HTML/CSS from iifl-eye-admin.html's .status-bar/.sidebar into AdminHeader.vue/AdminSidebar.vue, and the vendor HTML's .topbar/.sidebar into VendorHeader.vue/VendorSidebar.vue, with minimal translation
+Theme still shared via theme-admin.css / theme-vendor.css CSS variables, so both headers use the same --radius, --mono font, spacing tokens — just different --brand color
+Genuinely shared bits (clock, logout) factored out once instead of copy-pasted
+Want me to write out AdminHeader.vue and VendorHeader.vue as real components next, based on the markup in your two HTML mockups?
+
+
+
+
