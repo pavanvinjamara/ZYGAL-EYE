@@ -95,9 +95,15 @@ class ApiService {
     //     return this.post("/auth/signup", userData);
     // }
 
-    async login(credentials) {
+   // ---------------- auth endpoints ----------------
+    async loginVendor(credentials) {
+        // { email, password, vendorShortCode } -> { success, data: { user, accessToken } }
+        return this.post("/auth/vendor/login", credentials);
+    }
+
+    async loginAdmin(credentials) {
         // { email, password } -> { success, data: { user, accessToken } }
-        return this.post("/auth/login", credentials);
+        return this.post("/auth/admin/login", credentials);
     }
 
     async refresh() {
@@ -113,8 +119,8 @@ class ApiService {
 
     // ---------------- vendor endpoints ----------------
     async getPublicVendors() {
-        // -> { success, vendors: [{ value, label, shortCode }] }
-        return this.get("/vendors/public", { key: "vendors:public" });
+        // GET /auth/vendors -> { success, data: [{ name, shortCode, brandColor }] }
+        return this.get("/auth/vendors", { key: "vendors:public" });
     }
 }
 

@@ -5,6 +5,16 @@ const COL = require('../db/collections');
 
 const findAll = (filter = {}) => getDB().collection(COL.VENDORS).find(filter).toArray();
 
+function findAllPublic() {
+  return getDB().collection(COL.VENDORS)
+    .find(
+      { status: 'active' },
+      { projection: { name: 1, shortCode: 1, brandColor: 1 } }
+    )
+    .sort({ name: 1 })
+    .toArray();
+}
+
 const findById = (id) => getDB().collection(COL.VENDORS).findOne({ _id: new ObjectId(id) });
 
 const findByShortCode = (shortCode) => getDB().collection(COL.VENDORS).findOne({ shortCode });
@@ -39,4 +49,4 @@ const suspend = (id) => getDB().collection(COL.VENDORS).updateOne(
   { $set: { status: 'suspended', updatedAt: new Date() } }
 );
 
-module.exports = { findAll, findById, findByShortCode, findByContactEmailOrPhone, create, update, activate, suspend };
+module.exports = { findAll, findAllPublic, findById, findByShortCode, findByContactEmailOrPhone, create, update, activate, suspend };

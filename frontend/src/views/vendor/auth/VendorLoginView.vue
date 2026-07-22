@@ -32,7 +32,12 @@ onMounted(async () => {
 
   try {
     const res = await apiService.getPublicVendors();
-    vendors.value = res.vendors || [];
+    // backend returns { success, data: [{ name, shortCode, brandColor }] }
+    vendors.value = (res.data || []).map((v) => ({
+      value: v.shortCode,
+      label: v.name,
+      brandColor: v.brandColor,
+    }));
   } catch (err) {
     vendorsError.value = "Couldn't load vendor list. Please refresh the page.";
   } finally {
@@ -67,18 +72,11 @@ async function handleSubmit() {
   isSubmitting.value = true;
 
   try {
-    await authStore.login({
-      vendorCode: vendor.value,
-      email: email.value,
-      password: password.value,
-    });
+    // VendorLoginView.vue
+    await authStore.loginVendor({ vendorCode: vendor.value, email: email.value, password: password.value });
+    router.push({ name: "VendorDashboard" });
 
-   console.log("=====", router);
-
-    router.push({
-      name: "Dashboard",
-    });
-
+   
      showToast({
       type: "success",
       message: "Login successful.",

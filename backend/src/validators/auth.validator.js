@@ -1,15 +1,18 @@
 // backend/src/validators/auth.validator.js
 const Joi = require('joi');
 
-const login = Joi.object({
+const vendorLogin = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().min(6).required(),
-  vendorShortCode: Joi.string().optional().allow('', null),
+  vendorShortCode: Joi.string().required(), // mandatory here, no more optional/allow('')
 });
 
-// Public self-registration is intentionally restricted to non-privileged,
-// vendor-scoped roles. "admin" and "iifl_soc" accounts are only created
-// via the authenticated admin-invite flow (see admin.validator.js::inviteUser).
+const adminLogin = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().min(6).required(),
+  // no vendorShortCode field at all -- admin login never accepts one
+});
+
 const register = Joi.object({
   name: Joi.string().min(2).max(120).required(),
   email: Joi.string().email().required(),
@@ -27,4 +30,4 @@ const refresh = Joi.object({
   refreshToken: Joi.string().required(),
 });
 
-module.exports = { login, register, changePassword, refresh };
+module.exports = { vendorLogin, adminLogin, register, changePassword, refresh };

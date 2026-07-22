@@ -2,6 +2,14 @@
 const vendorService = require('../services/vendor.service');
 const { ok, created, fail } = require('../utils/apiResponse.util');
 
+async function listPublic(req, res) {
+  try {
+    return ok(res, await vendorService.listVendorsPublic());
+  } catch (err) {
+    return fail(res, err);
+  }
+}
+
 async function list(req, res) {
   try {
     return ok(res, await vendorService.listVendors());
@@ -62,4 +70,4 @@ async function suspend(req, res) {
   }
 }
 
-module.exports = { list, get, getBranches, create, update, activate, suspend };
+module.exports = { listPublic, list, get, getBranches, create, update, activate, suspend };

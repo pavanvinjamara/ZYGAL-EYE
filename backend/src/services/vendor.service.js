@@ -7,6 +7,11 @@ async function listVendors() {
   return vendorRepo.findAll();
 }
 
+async function listVendorsPublic() {
+  // Public login dropdown: active vendors only, minimal fields
+  return vendorRepo.findAllPublic();
+}
+
 async function getVendor(id) {
   const vendor = await vendorRepo.findById(id);
   if (!vendor) throw Object.assign(new Error('Vendor not found'), { statusCode: 404 });
@@ -66,6 +71,6 @@ async function suspendVendor(id, actorUserId, meta = {}) {
 }
 
 module.exports = {
-  listVendors, getVendor, getVendorBranches,
+  listVendors, listVendorsPublic, getVendor, getVendorBranches,
   createVendor, updateVendor, activateVendor, suspendVendor,
 };

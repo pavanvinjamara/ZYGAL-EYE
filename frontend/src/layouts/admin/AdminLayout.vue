@@ -1,11 +1,11 @@
 <template>
   <div class="flex flex-col h-screen">
-    <AppHeader />
+    <AdminHeader />
    
 
     <div class="flex-1 flex flex-col">
 
-     <AppSidebar />
+     <AdminSidebar />
 
       <main class="flex-1 overflow-auto">
         <RouterView />
@@ -19,6 +19,6 @@
 <script setup>
 import { RouterView } from "vue-router";
 
-import AppSidebar from "@/components/vendor/layout/AppSidebar.vue";
-import AppHeader from "@/components/vendor/layout/AppHeader.vue";
+import AdminSidebar from "@/components/admin/layout/AdminSidebar.vue";
+import AdminHeader from "@/components/admin/layout/AdminHeader.vue";
 </script>

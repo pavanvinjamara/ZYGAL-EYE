@@ -6,6 +6,8 @@ const { scopeToOwnVendor } = require('../../middleware/role.middleware');
 
 router.use(authenticate);
 
+
+
 router.get('/:id', scopeToOwnVendor, ctrl.get);
 router.get('/:id/branches', scopeToOwnVendor, ctrl.getBranches);
 

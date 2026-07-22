@@ -2,11 +2,24 @@
 const authService = require('../services/auth.service');
 const { ok, created, fail } = require('../utils/apiResponse.util');
 
-async function login(req, res) {
+async function loginVendor(req, res) {
   try {
     const { email, password, vendorShortCode } = req.body;
-    const { token, refreshToken, user } = await authService.login(
+    const { token, refreshToken, user } = await authService.loginVendor(
       { email, password, vendorShortCode },
+      { userAgent: req.headers['user-agent'], ip: req.ip }
+    );
+    return ok(res, { accessToken: token, refreshToken, user });
+  } catch (err) {
+    return fail(res, err);
+  }
+}
+
+async function loginAdmin(req, res) {
+  try {
+    const { email, password } = req.body;
+    const { token, refreshToken, user } = await authService.loginAdmin(
+      { email, password },
       { userAgent: req.headers['user-agent'], ip: req.ip }
     );
     return ok(res, { accessToken: token, refreshToken, user });
@@ -43,9 +56,6 @@ async function me(req, res) {
   }
 }
 
-// Public self-registration. New accounts start in "invited" status and
-// cannot log in until an admin (or a future email-verification step)
-// activates them -- so this intentionally does NOT require a bearer token.
 async function register(req, res) {
   try {
     const { name, email, password, role, vendorId } = req.body;
@@ -70,4 +80,4 @@ async function changePassword(req, res) {
   }
 }
 
-module.exports = { login, refresh, logout, me, register, changePassword };
+module.exports = { loginVendor, loginAdmin, refresh, logout, me, register, changePassword };

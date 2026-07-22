@@ -2067,3 +2067,553 @@ Done
 
 
 i want to create a vendor using post man and i want to show i want a api which get the vendor list to select in vendor login
+
+Formulated Postman instructions for vendor creation and retrieval endpoints
+Formulated Postman instructions for vendor creation and retrieval endpoints
+
+Here's exactly how to test both flows in Postman, based on what's built.
+
+1. Create a vendor (admin only)
+
+Step 1 — Login as an internal admin to get a token
+
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "soc@iifl.com",
+  "password": "your-password"
+}
+
+Copy the token from the response — you'll need it as a Bearer token for the next call.
+
+Step 2 — Create the vendor
+
+POST http://localhost:5000/api/admin/vendors
+Authorization: Bearer <token from step 1>
+Content-Type: application/json
+
+{
+  "name": "Zygal Security Pvt Ltd",
+  "shortCode": "ZG",
+  "brandColor": "#0891B2",
+  "vendorType": "primary",
+  "region": "PAN India",
+  "slaTier": "Gold",
+  "gst": "27AAAAA0000A1Z5",
+  "pan": "AAAAA0000A",
+  "misFrequencyMinutes": 30,
+  "iiflContact": {
+    "name": "Rahul Mehta",
+    "role": "Vendor Manager",
+    "email": "rahul.mehta@iifl.com",
+    "phone": "9876543210"
+  }
+}
+
+This hits onboarding.controller.js → vendor.repository.js, creates the vendor with status: 'onboarding', and returns the new vendor with its _id.
+
+If you also need a login-capable user for that vendor, create one via the admin user-invite endpoint (or run the seed script) so someone can actually log into the vendor portal.
+
+2. Get vendor list for the login dropdown (public, no token)
+
+This is the endpoint the login screen calls before authentication, to populate the "Select vendor" dropdown:
+
+GET http://localhost:5000/api/auth/vendors
+
+No Authorization header needed — it's public by design, but only returns safe, minimal fields (not full vendor records):
+
+json
+{
+  "success": true,
+  "data": [
+    { "name": "Zygal Security Pvt Ltd", "shortCode": "ZG" },
+    { "name": "ANG Facilities", "shortCode": "ANG" }
+  ]
+}
+
+Only active vendors should show up here — if your new vendor doesn't appear, it's still status: 'onboarding'. Activate it first:
+
+POST http://localhost:5000/api/admin/vendors/<vendorId>/activate
+Authorization: Bearer <admin token>
+
+Then it'll show up in the dropdown, and a vendor user tied to shortCode: "ZG" can log in with:
+
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "r.kumar@zygal.io",
+  "password": "their-password",
+  "vendorShortCode": "ZG"
+}
+
+Want me to also add a Postman collection JSON file you can import directly, so you don't have to type these out?
+
+// backend/src/routes/vendor/vendor.routes.js
+const router = require('express').Router();
+const ctrl = require('../../controllers/vendor.controller');
+const { authenticate } = require('../../middleware/auth.middleware');
+const { scopeToOwnVendor } = require('../../middleware/role.middleware');
+
+router.use(authenticate);
+
+router.get('/:id', scopeToOwnVendor, ctrl.get);
+router.get('/:id/branches', scopeToOwnVendor, ctrl.getBranches);
+
+module.exports = router;
+// backend/src/services/vendor.service.js
+const vendorRepo = require('../repositories/vendor.repository');
+const branchRepo = require('../repositories/branch.repository');
+const auditRepo = require('../repositories/audit.repository');
+
+async function listVendors() {
+  return vendorRepo.findAll();
+}
+
+async function getVendor(id) {
+  const vendor = await vendorRepo.findById(id);
+  if (!vendor) throw Object.assign(new Error('Vendor not found'), { statusCode: 404 });
+  return vendor;
+}
+
+async function getVendorBranches(id) {
+  return branchRepo.findByVendor(id);
+}
+
+async function createVendor(data) {
+  const existingCode = await vendorRepo.findByShortCode(data.shortCode);
+  if (existingCode) throw Object.assign(new Error('Vendor short code already exists'), { statusCode: 409 });
+
+  const existingContact = await vendorRepo.findByContactEmailOrPhone(
+    data.iiflContact?.email,
+    data.iiflContact?.phone
+  );
+  if (existingContact) {
+    throw Object.assign(
+      new Error(`A vendor already exists with this contact email/phone (${existingContact.name}, ${existingContact.shortCode})`),
+      { statusCode: 409 }
+    );
+  }
+
+  try {
+    const result = await vendorRepo.create(data);
+    return { _id: result.insertedId };
+  } catch (err) {
+    // Fallback for the rare race condition where two requests pass the
+    // check above at the same time -- the unique index catches it here.
+    if (err.code === 11000) {
+      throw Object.assign(new Error('A vendor with this short code or contact email already exists'), { statusCode: 409 });
+    }
+    throw err;
+  }
+}
+
+async function updateVendor(id, patch) {
+  await vendorRepo.update(id, patch);
+}
+
+async function activateVendor(id, actorUserId, meta = {}) {
+  await vendorRepo.activate(id);
+  await auditRepo.log({
+    userId: actorUserId, action: 'vendor.activate',
+    targetType: 'vendor', targetId: id, ip: meta.ip,
+  });
+}
+
+async function suspendVendor(id, actorUserId, meta = {}) {
+  await vendorRepo.suspend(id);
+  await auditRepo.log({
+    userId: actorUserId, action: 'vendor.suspend',
+    targetType: 'vendor', targetId: id, ip: meta.ip,
+  });
+}
+
+module.exports = {
+  listVendors, getVendor, getVendorBranches,
+  createVendor, updateVendor, activateVendor, suspendVendor,
+};
+
+find all means we get total vendor model of db
+
+Show more
+Identified data exposure vulnerability in vendor endpoint filtering
+Identified data exposure vulnerability in vendor endpoint filtering
+
+You're right to flag that — vendorRepo.findAll() returns the entire vendor document as stored in MongoDB: GST, PAN, CIN, registered address, internal IIFL contact name/email/phone, MIS frequency, everything. That's correct for the admin-only GET /admin/vendors listing, but it's a problem if the same function backs the public GET /auth/vendors dropdown endpoint — that would leak sensitive vendor data to anyone, unauthenticated.
+
+Let's split it into two explicit paths: a full admin listing and a projected public listing.
+
+Repository — add a projected query
+
+javascript
+// backend/src/repositories/vendor.repository.js
+// (add alongside findAll)
+
+function findAllPublic() {
+  return getDB().collection(COL.VENDORS)
+    .find(
+      { status: 'active' },
+      { projection: { name: 1, shortCode: 1, brandColor: 1 } }
+    )
+    .sort({ name: 1 })
+    .toArray();
+}
+
+module.exports = {
+  // ...existing exports
+  findAllPublic,
+};
+
+Service — expose it as a distinct, clearly-named function
+
+javascript
+// backend/src/services/vendor.service.js
+async function listVendors() {
+  // Admin-only: full documents, all statuses
+  return vendorRepo.findAll();
+}
+
+async function listVendorsPublic() {
+  // Public login dropdown: active vendors only, minimal fields
+  return vendorRepo.findAllPublic();
+}
+
+module.exports = {
+  listVendors, listVendorsPublic, getVendor, getVendorBranches,
+  createVendor, updateVendor, activateVendor, suspendVendor,
+};
+
+Controller for the public route (used by auth.routes.js's GET /auth/vendors) should call vendorService.listVendorsPublic(), never listVendors(). If your current auth.controller.js is calling listVendors() or vendorRepo.findAll() directly, that's the leak — worth double-checking now.
+
+Quick way to verify which one is wired in:
+
+bash
+grep -rn "findAll\|listVendors" backend/src/controllers/auth.controller.js
+
+If it shows findAll or listVendors (not listVendorsPublic), swap it. Want me to pull up your actual auth.controller.js and patch it directly?
+
+Diagnosed endpoint misalignment and reconciled frontend-backend data structures
+Diagnosed endpoint misalignment and reconciled frontend-backend data structures
+
+Two mismatches are breaking the dropdown right now — let's trace them end to end.
+
+Bug 1 — wrong URL. apiService.getPublicVendors() calls /vendors/public, but the route we actually wired up is GET /auth/vendors (in auth.routes.js, next to the two login endpoints). That endpoint will 404.
+
+Bug 2 — wrong response shape. apiService.request() returns the raw parsed JSON body. Your backend's ok() helper wraps everything as { success: true, data: [...] }, not { success, vendors: [...] }. So even if the URL were right, res.vendors would be undefined and the dropdown would silently stay empty.
+
+Bug 3 — field names don't match what the <select> expects. The repo projection returns { name, shortCode, brandColor }, but VendorLoginView expects { value, label } for its <option>s.
+
+Fix — apiService.js
+javascript
+// ---------------- vendor endpoints ----------------
+async getPublicVendors() {
+    // GET /auth/vendors -> { success, data: [{ name, shortCode, brandColor }] }
+    return this.get("/auth/vendors", { key: "vendors:public" });
+}
+Fix — VendorLoginView.vue
+javascript
+onMounted(async () => {
+  vendorsLoading.value = true;
+  vendorsError.value = "";
+
+  try {
+    const res = await apiService.getPublicVendors();
+    // backend returns { success, data: [{ name, shortCode, brandColor }] }
+    vendors.value = (res.data || []).map((v) => ({
+      value: v.shortCode,
+      label: v.name,
+      brandColor: v.brandColor,
+    }));
+  } catch (err) {
+    vendorsError.value = "Couldn't load vendor list. Please refresh the page.";
+  } finally {
+    vendorsLoading.value = false;
+  }
+});
+
+The rest of the template already does the right thing with that shape:
+
+html
+<option v-for="v in vendors" :key="v.value" :value="v.value">{{ v.label }}</option>
+
+And v.value (the shortCode) is exactly what flows into authStore.loginVendor({ vendorCode: vendor.value, ... }) → vendorShortCode in the POST body → matched against the user's actual vendorId in authService.loginVendor(). That chain is now consistent end to end.
+
+Double-check on the backend side
+
+Confirm vendor.repository.js#findAllPublic only returns active vendors — an onboarding or suspended vendor showing up in the login dropdown would let someone attempt to sign in against a company that isn't live yet:
+
+javascript
+// backend/src/repositories/vendor.repository.js
+function findAllPublic() {
+  return getDB().collection(COL.VENDORS)
+    .find(
+      { status: 'active' },
+      { projection: { name: 1, shortCode: 1, brandColor: 1 } }
+    )
+    .sort({ name: 1 })
+    .toArray();
+}
+
+Quick Postman sanity check before wiring the frontend back up:
+
+GET http://localhost:5000/api/auth/vendors
+
+Expected:
+
+json
+{ "success": true, "data": [{ "_id": "...", "name": "Zygal", "shortCode": "ZG", "brandColor": "#0891B2" }] }
+
+If that comes back empty, it's almost certainly because your test vendor is still sitting in status: 'onboarding' — activate it via POST /admin/vendors/:id/activate with an admin token first.
+
+
+give database design in mongodb without mongoose and vuejs i am using cli and nodejs expressjs give me folder structure Architected MongoDB schema, Express routes, and Node.js CLI structure Architected MongoDB schema, Express routes, and Node.js CLI structure IIFL EYE — MongoDB (native driver
+
+pasted
+
+
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>IIFL EYE — Vendor Portal</title> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;6
+
+pasted
+
+export default [
+  {
+    path: "",
+    name: "Dashboard",
+    component: () => import("@/views/vendor/dashboard/DashboardView.vue"),
+    meta: {
+      title: "Dashboard",
+    },
+  },
+
+//   {
+//     path: "tickets",
+//     name: "Tickets",
+//     component: () => import("@/views/tickets/TicketsView.vue"),
+//     meta: {
+//       title: "Tickets",
+//     },
+//   },
+
+//   {
+//     path: "tickets/:id",
+//     name: "TicketDetail",
+//     component: () => import("@/views/tickets/TicketDetailView.vue"),
+//     meta: {
+//       title: "Ticket Details",
+//     },
+//   },
+
+//   {
+//     path: "profile",
+//     name: "Profile",
+//     component: () => import("@/views/profile/ProfileView.vue"),
+//     meta: {
+//       title: "Profile",
+//     },
+//   },
+];
+import { createRouter, createWebHistory } from "vue-router";
+
+import authRoutes from "./routes/auth.routes";
+import vendorRoutes from "./routes/vendor.routes";
+import adminRoutes from "./routes/admin.routes";
+
+import AuthLayout from "@/layouts/AuthLayout.vue";
+import VendorLayout from "@/layouts/vendor/VendorLayout.vue";
+import AdminLayout from "@/layouts/admin/AdminLayout.vue";
+
+import NotFoundView from "@/views/NotFoundView.vue";
+import setupGuards from "./guards";
+
+const router = createRouter({
+  history: createWebHistory(),
+
+  routes: [
+    {
+      path: "/",
+      component: AuthLayout,
+      meta: { guestOnly: true },
+      children: [...authRoutes],
+    },
+
+    {
+      path: "/vendor",
+      component: VendorLayout,
+      meta: { requiresAuth: true, allow: ["vendor"] },
+      children: vendorRoutes,
+    },
+
+    {
+      path: "/admin",
+      component: AdminLayout,
+      meta: { requiresAuth: true, allow: ["admin"] },
+      children: adminRoutes,
+    },
+
+    {
+      path: "/:pathMatch(.*)*",
+      name: "NotFound",
+      component: NotFoundView,
+      meta: { title: "Page Not Found" },
+    },
+  ],
+
+  scrollBehavior() {
+    return { top: 0 };
+  },
+});
+
+setupGuards(router);
+export default router;
+<template>
+  <div class="flex flex-col h-screen">
+    <VendorHeader />
+   
+
+    <div class="flex-1 flex flex-col">
+
+     <VendorSidebar />
+
+      <main class="flex-1 overflow-auto">
+        <RouterView />
+      </main>
+
+    </div>
+
+  </div>
+</template>
+
+<script setup>
+import { RouterView } from "vue-router";
+
+import VendorSidebar from "@/components/vendor/layout/VendorSidebar.vue";
+import VendorHeader from "@/components/vendor/layout/VendorHeader.vue";
+</script>
+i want all the views pages in html vendor portol in vue js tailwind css
+
+Show more
+
+Check frontend design skill for Vue/Tailwind guidance
+Check frontend design skill for Vue/Tailwind guidance
+I'll build out the full vendor portal as Vue 3 + Tailwind components, matching the design/functionality from your HTML mockup. Given the scope, I'll create mock data, shared components, and all 9 view pages.
+
+
+Architected vendor portal view components with routing structure
+Architected vendor portal view components with routing structure
+Now the shared components:
+
+
+Created 5 files
+Created 5 files
+Now the Notice/banner component and Toast:
+
+
+Architected notification system leveraging Vue composition patterns
+Architected notification system leveraging Vue composition patterns
+Now the Dashboard view:
+
+
+Created 2 files
+Created 2 files
+Now update DashboardView to use this composable instead of emit, and build the TicketDetailPanel + ClosureReportModal:
+
+
+Edited 3 files
+Edited 3 files
+Now the TicketDetailPanel component (slide-in), with closure report upload built in:
+
+
+Created 2 files
+Created 2 files
+Now the ClosureReportModal:
+
+
+Closure report upload modal with drag-drop and signatory fields
+Closure report upload modal with drag-drop and signatory fields
+Now the Tickets list view:
+
+
+Tickets list view page
+Tickets list view page
+Now the SLA Tracker view:
+
+
+SLA Tracker view page
+SLA Tracker view page
+Now the Penalties view:
+
+
+Penalties view page
+Penalties view page
+Now the SOP Adherence view with OTP checklist modal:
+
+
+OtpIssueModal - mandatory checklist for OTP issuance
+OtpIssueModal - mandatory checklist for OTP issuance
+Now the SOP Adherence view:
+
+
+SOP Adherence view page
+SOP Adherence view page
+Now the MIS Upload view — this has the countdown timer and upload zones:
+
+
+Created 3 files
+Created 3 files
+Now the Reports, Profile, and Contact views:
+
+
+Created 3 files
+Created 3 files
+Now let's build the VendorHeader and VendorSidebar (referenced in the layout you shared), plus update the layout and router:
+
+
+Deliberated refactoring NavItem into separate component file
+Deliberated refactoring NavItem into separate component file
+Let me simplify — split NavItem into its own clean SFC instead of an inline render function:
+
+
+Created a file, ran a command
+Created a file, ran a command
+Now rewrite VendorSidebar to import the NavItem SFC instead of the inline render function:
+
+
+Rewrite VendorSidebar to use NavItem.vue
+Rewrite VendorSidebar to use NavItem.vue
+Now update the VendorLayout to mount the global Toast and TicketDetailPanel, and finalize the router:
+
+
+VendorLayout - mounts header, sidebar, router-view, and global overlays
+VendorLayout - mounts header, sidebar, router-view, and global overlays
+Now the full vendor.routes.js with all pages wired:
+
+
+Created a file, ran a command
+Created a file, ran a command
+All plain JS files pass. Let's package everything up and hand it over:
+
+
+Ran a command, read a file
+Ran a command, read a file
+All 9 vendor portal pages are built as Vue 3 + Tailwind components (28 files total). Drop the src/ contents into your project — paths already match your @/ alias structure.
+
+What's in it:
+
+9 views — Dashboard, Tickets, MIS Upload (with live 30-min countdown), SLA Tracker, Penalties, SOP Adherence, Reports, Profile, Contact
+Shared components — Panel, KpiCard, StatusPill, SlaPill, PriorityBadge, Notice, Toast
+Ticket flow — global slide-in TicketDetailPanel + ClosureReportModal (drag-drop upload, signatory fields), driven by a useTicketPanel() composable so any page can open a ticket
+SOP flow — OtpIssueModal with the 7-step mandatory checklist, blocks OTP generation until all mandatory boxes are checked
+MIS flow — useMisTimer() composable for the live countdown badge, 3 upload zones with drag-drop + validation
+Layout — VendorHeader, VendorSidebar (with nav badges + SLA mini-gauge), VendorLayout.vue wiring it together
+vendor.routes.js — updated with all 9 routes, matches the router structure you pasted
+Notes on how I wired it:
+
+src/data/vendorMockData.js holds the sample data (shaped like the Zygal dataset in your HTML mock). Swap the imports for a real API call (e.g. vendorService.getMe(), ticketService.list()) once your backend endpoints are ready — the components just consume the exported arrays/objects, so the swap is localized to that one file plus wherever you call the service.
+Toast and ticket-panel state use small reactive composables instead of Pinia, since your data doesn't need persistence — easy to swap for a store if you'd rather centralize it.
+Colors are inline Tailwind utilities (orange-600, slate-800, etc.) matching your vendor theme; I didn't wire in theme-vendor.css CSS variables since Tailwind's config would need to know about them — happy to do that pass if you want the two portals (admin/vendor) sharing one design-token file.
+Want me to do the same for the admin portal pages next, or wire these views up to the actual backend service calls (vendor.service.js, ticket.service.js, etc.) from your API layer?
+
+
+Vendor portal vue tailwind
+ZIP 

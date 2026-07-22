@@ -53,16 +53,9 @@ async function handleSubmit() {
   isSubmitting.value = true;
 
   try {
-    await authStore.login({
-      email: email.value,
-      password: password.value,
-    });
-
-   console.log("=====", router);
-
-    router.push({
-      name: "Dashboard",
-    });
+    // AdminLoginView.vue
+    await authStore.loginAdmin({ email: email.value, password: password.value });
+    router.push({ name: "AdminDashboard" });
 
      showToast({
       type: "success",
