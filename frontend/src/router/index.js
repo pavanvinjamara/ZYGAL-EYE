@@ -4,7 +4,7 @@ import authRoutes from "./routes/auth.routes";
 import dashboardRoutes from "./routes/mainlayout.routes";
 
 import AuthLayout from "@/layouts/AuthLayout.vue";
-import MainLayout from "@/layouts/MainLayout.vue";
+import MainLayout from "@/layouts/vendor/MainLayout.vue";
 
 import NotFoundView from "@/views/NotFoundView.vue";
 

@@ -2010,4 +2010,60 @@ Extra field required at login	vendorShortCode (cross-checked against vendorId)	n
 
 The bug I found and fixed: all /admin/* routes were checking requireRole('iifl_soc', 'admin') — which only looks at the role string. Since a vendor's own admin also has role: 'admin', they were incorrectly passing that check and could reach platform-wide admin endpoints despite having a vendorId set. I changed every admin route to requireInternal + requireRole('iifl_soc'), so only users with vendorId: null and role: 'iifl_soc' get in now.
 
-Action needed on your end: no DB migration required — this was a route-guard bug, not a data issue. Just redeploy the updated code. If you'd previously tested r.kumar@zygal.io against /admin/* routes and it worked, that access is now correctly blocked.
+Action needed on your end: no DB migration required — this was a route-guard bug, not a data issue. Just redeploy the updated code. If you'd previously tested r.kumar@zygal.io against /admin/* routes and it worked, that access is now correctly blocked.i want to create a vendor using post man and i want to show i want a api which get the vendor list to select in vendor login
+
+
+Architected public vendor endpoint and Postman creation workflow
+Architected public vendor endpoint and Postman creation workflow
+Good addition — the login screen needs a way to list vendors before the user is authenticated (that's the vendorShortCode dropdown). Right now GET /admin/vendors requires an iifl_soc token, which won't work pre-login. Let's add a proper public endpoint for that.
+
+
+Edited 3 files, ran a command, viewed a file
+Edited 3 files, ran a command, viewed a file
+Now the service function:
+
+
+Reconciled existing vendor scoping with public authentication requirements
+Reconciled existing vendor scoping with public authentication requirements
+That explains it — this session already has a scoped-admin (assignedVendors) feature built in from earlier in our conversation. Let me align with the actual current file rather than what I expected.
+
+
+Edited 2 files
+Edited 2 files
+Now add the controller method:
+
+
+Edited 2 files
+Edited 2 files
+Now let's check the current routes/auth.routes.js and routes/index.js before wiring the public route in, since those may also have drifted:
+
+
+Check current auth routes and top-level router before adding public vendor route
+Check current auth routes and top-level router before adding public vendor route
+These two match what I expect (no drift here). Let's add the public route directly to auth.routes.js, since it belongs conceptually to the login flow:
+
+
+Edited 2 files
+Edited 2 files
+Now let's syntax-check everything, smoke test, and confirm the full current state before repackaging:
+
+
+Ran 2 commands
+Ran 2 commands
+Good — that scoped-admin feature is already fully wired end to end (claims, model, repo). Now let's do a full app-load smoke test and verify the new public route resolves correctly:
+
+
+Devised route verification strategy bypassing database dependency
+Devised route verification strategy bypassing database dependency
+
+Install deps and smoke-test app load
+The app loads fine, but testing the route directly would require a database connection since the vendor controller needs it. Instead, I'll verify the route is registered by inspecting Express's router stack directly.
+
+
+Attempt to inspect mounted routers (best-effort, Express internals vary)
+Done
+
+
+
+
+i want to create a vendor using post man and i want to show i want a api which get the vendor list to select in vendor login

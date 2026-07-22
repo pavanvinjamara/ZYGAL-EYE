@@ -20,7 +20,7 @@ export default function setupGuards(router) {
       });
 
       router.replace({
-        name: "Login",
+        name: "VendorLogin",
       });
 
     }

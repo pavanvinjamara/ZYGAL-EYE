@@ -19,6 +19,6 @@
 <script setup>
 import { RouterView } from "vue-router";
 
-import AppSidebar from "@/components/layout/AppSidebar.vue";
-import AppHeader from "@/components/layout/AppHeader.vue";
+import AppSidebar from "@/components/vendor/layout/AppSidebar.vue";
+import AppHeader from "@/components/vendor/layout/AppHeader.vue";
 </script>

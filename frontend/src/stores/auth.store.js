@@ -40,8 +40,8 @@ export const useAuthStore = defineStore("auth", {
     async login(payload) {
       const res = await apiService.login(payload);
 
-      this.token = res.accessToken;
-      this.user = res.user;
+      this.token = res.data.accessToken;
+      this.user = res.data.user;
 
       Cookies.set(TOKEN_KEY, this.token, cookieOptions);
       Cookies.set(USER_KEY, JSON.stringify(this.user), cookieOptions);

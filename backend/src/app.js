@@ -11,7 +11,26 @@ const { errorHandler, notFoundHandler } = require('./middleware/error.middleware
 const app = express();
 
 app.use(helmet());
-app.use(cors({ origin: env.CORS_ORIGIN }));
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5000",
+];
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use('/uploads', express.static('uploads'));

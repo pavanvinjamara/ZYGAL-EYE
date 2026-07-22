@@ -2,7 +2,7 @@ export default [
   {
     path: "",
     name: "Dashboard",
-    component: () => import("@/views/dashboard/DashboardView.vue"),
+    component: () => import("@/views/vendor/dashboard/DashboardView.vue"),
     meta: {
       title: "Dashboard",
     },

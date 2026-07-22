@@ -29,7 +29,7 @@ async function logout() {
   try {
     await authStore.logout();
   } finally {
-    router.replace("/login");
+    router.replace("/vendor/login");
   }
 }
 

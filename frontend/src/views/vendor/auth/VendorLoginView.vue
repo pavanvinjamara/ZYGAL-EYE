@@ -3,9 +3,9 @@ import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { showToast } from "@/composables/toast.composable";
 
-import { useAppStore } from "../../stores/store.js";
-import { useAuthStore } from "../../stores/auth.store.js";
-import { toggleThemeWithWave } from "../../utils/theme.util.js";
+import { useAppStore } from "../../../stores/store.js";
+import { useAuthStore } from "../../../stores/auth.store.js";
+import { toggleThemeWithWave } from "../../../utils/theme.util.js";
 import apiService from "@/services/api.service";
 
 const router = useRouter();
