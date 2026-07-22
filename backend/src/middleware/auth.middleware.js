@@ -1,34 +1,36 @@
+// backend/src/middleware/auth.middleware.js
 const { verifyAccessToken } = require('../utils/jwt.util');
+const { fail } = require('../utils/apiResponse.util');
 
 function authenticate(req, res, next) {
-  const header = req.headers.authorization;
+  const header = req.headers.authorization || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
 
-  if (!header || !header.startsWith('Bearer ')) {
-    return res.status(401).json({ success: false, message: 'Missing access token' });
+  if (!token) {
+    return fail(res, { statusCode: 401, message: 'Missing token' });
   }
-
-  const token = header.split(' ')[1];
 
   try {
-    const decoded = verifyAccessToken(token);
-    req.user = {
-      id: decoded.sub,
-      vendorId: decoded.vendorId,
-      role: decoded.role,
-    };
-    next();
-  } catch {
-    return res.status(401).json({ success: false, message: 'Invalid or expired token' });
+    const payload = verifyAccessToken(token); // { sub, role, vendorId }
+    req.user = payload;
+    return next();
+  } catch (err) {
+    return fail(res, { statusCode: 401, message: 'Invalid or expired token' });
   }
 }
 
-function requireRole(...allowedRoles) {
-  return (req, res, next) => {
-    if (!req.user || !allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({ success: false, message: 'Forbidden — insufficient role' });
-    }
-    next();
-  };
+// Attaches req.user if a valid token is present, but never rejects the request.
+function optionalAuthenticate(req, res, next) {
+  const header = req.headers.authorization || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+  if (!token) return next();
+
+  try {
+    req.user = verifyAccessToken(token);
+  } catch (err) {
+    // ignore invalid token for optional auth
+  }
+  return next();
 }
 
-module.exports = { authenticate, requireRole };
+module.exports = { authenticate, optionalAuthenticate };

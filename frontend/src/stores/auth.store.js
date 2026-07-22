@@ -34,20 +34,28 @@ export const useAuthStore = defineStore("auth", {
 
   getters: {
     isAuthenticated: (state) => !!state.token && !isTokenExpired(state.token),
+
+    portal: (state) => {
+      if (!state.user) return null;
+      return state.user.vendorId ? "vendor" : "admin";
+    },
   },
 
   actions: {
-    async login(payload) {
-      const res = await apiService.login(payload);
+    // stores/auth.store.js (actions section)
+    async loginVendor({ vendorCode, email, password }) {
+      const res = await apiService.loginVendor({ email, password, vendorShortCode: vendorCode });
+      this.token = res.data.accessToken;
+      this.user = res.data.user;
+      // persist token/user as you already do
+      localStorage.setItem("hadSession", "true");
+      return res;
+    },
 
-      this.token = res.accessToken;
-      this.user = res.user;
-
-      Cookies.set(TOKEN_KEY, this.token, cookieOptions);
-      Cookies.set(USER_KEY, JSON.stringify(this.user), cookieOptions);
-
-      this.initialized = true;
-      // in auth.store.js login()
+    async loginAdmin({ email, password }) {
+      const res = await apiService.loginAdmin({ email, password });
+      this.token = res.data.accessToken;
+      this.user = res.data.user;
       localStorage.setItem("hadSession", "true");
       return res;
     },

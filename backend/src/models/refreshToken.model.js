@@ -1,19 +1,19 @@
-const COLLECTION_NAME = 'refreshTokens';
-
-const refreshTokenJsonSchema = {
+// backend/src/models/refreshToken.model.js
+const refreshTokenSchema = {
   $jsonSchema: {
     bsonType: 'object',
-    required: ['userId', 'tokenHash', 'expiresAt', 'revoked'],
+    required: ['userId', 'token', 'expiresAt', 'createdAt'],
     properties: {
-      userId:    { bsonType: 'objectId' },
-      tokenHash: { bsonType: 'string' },
-      userAgent: { bsonType: ['string', 'null'] },
-      ip:        { bsonType: ['string', 'null'] },
-      expiresAt: { bsonType: 'date' },
-      revoked:   { bsonType: 'bool' },
+      _id: { bsonType: 'objectId' },
+      userId: { bsonType: 'objectId' },
+      token: { bsonType: 'string' },
+      userAgent: { bsonType: 'string' },
+      ip: { bsonType: 'string' },
+      revoked: { bsonType: 'bool' },
+      expiresAt: { bsonType: 'date' }, // paired with a TTL index
       createdAt: { bsonType: 'date' },
     },
   },
 };
 
-module.exports = { COLLECTION_NAME, refreshTokenJsonSchema };
+module.exports = { refreshTokenSchema };

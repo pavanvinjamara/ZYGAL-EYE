@@ -1,13 +1,22 @@
 export default [
   {
-    path: "login",
-    name: "Login",
-    component: () => import("@/views/auth/LoginView.vue"),
+    path: "vendor/login",
+    name: "VendorLogin",
+    component: () => import("@/views/vendor/auth/VendorLoginView.vue"),
     meta: {
       title: "Login",
       guestOnly: true,
     },
   },
+  {
+    path: "admin/login",
+    name: "Login",
+    component: () => import("@/views/admin/auth/AdminLoginView.vue"),
+    meta: {
+      title: "AdminLogin",
+      guestOnly: true,
+    },
+  }
 
   // {
   //   path: "forgot-password",

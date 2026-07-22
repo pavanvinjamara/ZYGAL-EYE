@@ -1,73 +1,50 @@
-const { ObjectId } = require('mongodb');
+// backend/src/repositories/user.repository.js
 const { getDB } = require('../config/db');
-const { COLLECTION_NAME, userJsonSchema } = require('../models/user.model');
+const { ObjectId } = require('mongodb');
+const COL = require('../db/collections');
 
-function collection() {
-  return getDB().collection(COLLECTION_NAME);
-}
+const findByEmail = (email) => getDB().collection(COL.USERS).findOne({ email: email.toLowerCase() });
 
-async function ensureIndexes() {
-  const db = getDB();
-  const existing = await db.listCollections({ name: COLLECTION_NAME }).toArray();
+const findById = (id) => getDB().collection(COL.USERS).findOne({ _id: new ObjectId(id) });
 
-  if (existing.length === 0) {
-    await db.createCollection(COLLECTION_NAME, { validator: userJsonSchema });
-  } else {
-    await db.command({ collMod: COLLECTION_NAME, validator: userJsonSchema });
-  }
+const findByVendor = (vendorId) => getDB().collection(COL.USERS)
+  .find({ vendorId: new ObjectId(vendorId) }).toArray();
 
-  await collection().createIndex({ email: 1 }, { unique: true });
-  await collection().createIndex({ vendorId: 1 });
-}
+const findAll = (filter = {}) => getDB().collection(COL.USERS).find(filter).toArray();
 
-async function findByEmail(email) {
-  return collection().findOne({ email: email.toLowerCase().trim() });
-}
-
-async function findById(id) {
-  return collection().findOne({ _id: new ObjectId(id) });
-}
-
-async function createUser(userDoc) {
-  const now = new Date();
+const create = (user) => {
   const doc = {
-    ...userDoc,
-    email: userDoc.email.toLowerCase().trim(),
-    status: 'active',
-    failedLoginAttempts: 0,
-    lockedUntil: null,
+    ...user,
+    email: user.email.toLowerCase(),
+    vendorId: user.vendorId ? new ObjectId(user.vendorId) : null,
+    branchesAssigned: user.branchesAssigned || [],
+    createdAt: new Date(),
     lastLoginAt: null,
-    createdAt: now,
-    updatedAt: now,
   };
-  const { insertedId } = await collection().insertOne(doc);
-  return { _id: insertedId, ...doc };
-}
+  return getDB().collection(COL.USERS).insertOne(doc);
+};
 
-async function recordSuccessfulLogin(userId) {
-  await collection().updateOne(
-    { _id: new ObjectId(userId) },
-    { $set: { lastLoginAt: new Date(), failedLoginAttempts: 0, lockedUntil: null } }
-  );
-}
+const touchLogin = (id) => getDB().collection(COL.USERS).updateOne(
+  { _id: new ObjectId(id) },
+  { $set: { lastLoginAt: new Date() } }
+);
 
-async function recordFailedLogin(userId, { lockThreshold = 5, lockMinutes = 15 } = {}) {
-  const user = await findById(userId);
-  const attempts = (user.failedLoginAttempts || 0) + 1;
-  const update = { failedLoginAttempts: attempts };
+const setPasswordHash = (id, passwordHash) => getDB().collection(COL.USERS).updateOne(
+  { _id: new ObjectId(id) },
+  { $set: { passwordHash } }
+);
 
-  if (attempts >= lockThreshold) {
-    update.lockedUntil = new Date(Date.now() + lockMinutes * 60 * 1000);
-  }
+const setStatus = (id, status) => getDB().collection(COL.USERS).updateOne(
+  { _id: new ObjectId(id) },
+  { $set: { status } }
+);
 
-  await collection().updateOne({ _id: new ObjectId(userId) }, { $set: update });
-}
+const update = (id, patch) => getDB().collection(COL.USERS).updateOne(
+  { _id: new ObjectId(id) },
+  { $set: patch }
+);
 
 module.exports = {
-  ensureIndexes,
-  findByEmail,
-  findById,
-  createUser,
-  recordSuccessfulLogin,
-  recordFailedLogin,
+  findByEmail, findById, findByVendor, findAll,
+  create, touchLogin, setPasswordHash, setStatus, update,
 };
